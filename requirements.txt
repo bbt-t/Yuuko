@@ -1,0 +1,8 @@
+aiogram==2.16
+aiogram-calendar>=0.1.1
+APScheduler==3.8.1
+pytz>=2021.3
+requests>=2.26.0
+python-dotenv>=0.19.2
+gino>=1.0.1
+loguru>=0.5.3

@@ -21,7 +21,6 @@ class ToDo:
     | вызов class_object -> вывод списка дел на текущий день                                                       |
     | class_object.transfer_next_day -> перенос списка на следующий день                                           |
     """
-
     __slots__ = 'id', 'todo'
 
     def __init__(self, id: int):
@@ -44,14 +43,7 @@ class ToDo:
         else:
             return 'дата не найдена !'
 
-    # def __str__(self):
-    #     date_key = str(time_now.date())
-    #     if self.todo.get(date_key):
-    #         return ', '.join(let for let in self.todo[date_key])
-    #     else:
-    #         return 'На сегодня ничего не запланированно.'
-
-    def transfer_next_day(self):
+    def transfer_next_day_method(self):
         try:
             date_key = time_now
             self.todo[str((date_key + timedelta(days=1)).date())].extend(self.todo[str(date_key.date())])
@@ -63,7 +55,7 @@ def todo_to_next_day():
     try:
         if todo_handl.all_todo_obj.values():
             for val in todo_handl.all_todo_obj.values():
-                val.transfer_next_day
+                val.transfer_next_day_method
             else:
                 logger_guru.info('----------- ALL TRANSFER_NEXT_DAY COMPLETE -----------')
     except Exception as err:

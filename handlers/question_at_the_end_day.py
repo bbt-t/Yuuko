@@ -51,9 +51,9 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await call.message.edit_reply_markup()
     try:
         date = str(time_now.date())
-        del td_h.all_todo_obj[f'pref_todo_{2018211211}'].todo[date]
+        del td_h.all_todo_obj[f'pref_todo_{call.from_user.id}'].todo[date]
 
-        await call.message.answer('<code>Сделано!</code> спокойной ночи :)')
+        await bot.answer_callback_query(call.id, '<code>Сделано!</code> спокойной ночи :)')
     except Exception as err:
         logger_guru.warning(f'{repr(err)}')
     finally:

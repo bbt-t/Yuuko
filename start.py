@@ -17,8 +17,8 @@ async def on_startup(dp):
     """
     import middlewares
     import handlers
-    # from utils.set_bot_commands import set_default_commands
-    # await set_default_commands(dp)
+    from utils.set_bot_commands import set_default_commands
+    await set_default_commands(dp)
     from utils.notify_admins import on_startup_notify
     await on_startup_notify(dp)
     try:
@@ -41,8 +41,7 @@ async def on_shutdown(dp):
     """
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
-    # sqlite:
-    #db.del_table()
+
     save_pkl_obj()
     raise SystemExit
 

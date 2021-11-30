@@ -26,6 +26,3 @@ pkl_key = getenv('PKL_KEY')
 timezone = getenv('TIMEZONE')
 time_zone = pytz.timezone(timezone)
 time_now = time_zone.localize(datetime.now())
-
-
-

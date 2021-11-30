@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from loader import dp, db, logger_guru
+from loader import bot, dp, db, logger_guru
 from middlewares.throttling import rate_limit
 from utils.keyboards.start_settings_kb import start_choice_bk
 
@@ -24,7 +24,7 @@ async def bot_start(message: Message):
         logger_guru.warning(repr(err))
     finally:
         await message.answer(f"Привет, {name}!\n\n"
-                             f"Я твой 'домашний' бот :) чтобы я мог тебе помогать ответь на пару вопросов\n"
+                             f"Я твой 'домашний' бот :)\nчтобы я мог тебе помогать ответь на пару вопросов\n"
                              f"Согласен?", reply_markup=start_choice_bk)
 
 
@@ -34,3 +34,8 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
                               'напиши время в формате  ->  <CODE>ЧАС : МИНУТЫ</CODE>\n\n')
     await state.set_state('set_tntodo')
 
+@dp.callback_query_handler(text='cancel')
+async def inl_test_send(call: CallbackQuery, state: FSMContext):
+    await bot.answer_callback_query(call.id, 'ЖАЛЬ :С\n\nесли передумаешь загляни в '
+                                             'спискок команд ...', show_alert=True)
+    await state.finish()

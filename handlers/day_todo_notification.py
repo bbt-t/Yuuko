@@ -40,5 +40,5 @@ async def start_weather(message: Message, state: FSMContext):
         await state.finish()
 
     if user_id not in db.select_all_users_weather():
-        await message.answer('А как же оповещения о погоде? когда тебя оповезать?')
+        await message.answer('А как же оповещения о погоде? когда тебя оповещать?')
         await state.set_state('weather_on')

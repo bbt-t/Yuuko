@@ -5,13 +5,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from loader import bot, dp, db, logger_guru
-from middlewares.throttling import rate_limit
-from utils.keyboards.start_settings_kb import start_choice_bk
+from utils.keyboards.start_settings_kb import start_choice_kb
 
 
 
 
-@rate_limit(5)
 @dp.message_handler(CommandStart())
 async def bot_start(message: Message):
     """
@@ -25,17 +23,20 @@ async def bot_start(message: Message):
     finally:
         await message.answer(f"Привет, {name}!\n\n"
                              f"Я твой 'домашний' бот :)\nчтобы я мог тебе помогать ответь на пару вопросов\n"
-                             f"Согласен?", reply_markup=start_choice_bk)
+                             f"Согласен?", reply_markup=start_choice_kb)
 
 
 @dp.callback_query_handler(text='set_todo_inp')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await call.message.answer('В какое время спрашивать тебя о запланированных делах в конце дня?\n\n'
                               'напиши время в формате  ->  <CODE>ЧАС : МИНУТЫ</CODE>\n\n')
+    await call.message.edit_reply_markup()
     await state.set_state('set_tntodo')
+
 
 @dp.callback_query_handler(text='cancel')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await bot.answer_callback_query(call.id, 'ЖАЛЬ :С\n\nесли передумаешь загляни в '
                                              'спискок команд ...', show_alert=True)
+    await call.message.edit_reply_markup()
     await state.finish()

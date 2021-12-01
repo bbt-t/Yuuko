@@ -14,8 +14,7 @@ from middlewares.throttling import rate_limit
 @rate_limit(5)
 @dp.message_handler(Command('set_tntodo'))
 async def late_day_todo_notification(message: Message, state: FSMContext):
-    await message.answer('Чтобы задать время для вечернего "брифинга" введи '
-                         'его (время) в формате -> <CODE>ЧАС : МИНУТЫ</CODE>\n\n')
+    await message.answer('Чтобы задать время для вечернего "брифинга" введи\n')
     await state.set_state('set_tntodo')
 
 
@@ -30,9 +29,10 @@ async def start_weather(message: Message, state: FSMContext):
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
             logger_guru.info(f"{user_id=} changed the notification time")
+
             await message.answer('Сделано !')
         except:
-            logger_guru.warning('---------- ERROR ADD WEATHER JOB ----------')
+            logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')
         finally:
             await state.finish()
     else:
@@ -40,5 +40,5 @@ async def start_weather(message: Message, state: FSMContext):
         await state.finish()
 
     if user_id not in db.select_all_users_weather():
-        await message.answer('А как же оповещения о погоде? когда тебя оповещать?')
+        await message.answer('когда тебя оповещать о погоде ?')
         await state.set_state('weather_on')

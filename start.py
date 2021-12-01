@@ -17,6 +17,7 @@ async def on_startup(dp):
     """
     import middlewares
     import handlers
+    import filters
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
     from utils.notify_admins import on_startup_notify

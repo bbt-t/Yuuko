@@ -8,7 +8,7 @@ def logger(statement):
     """
     Вывод в принте выполняемых команд.
     """
-    logger_guru.info(f"----------\nExecuting statement {statement}\n----------")
+    logger_guru.info(f"\n----------\nExecuting statement {statement}\n----------")
 
 class Database:
     def __init__(self, path_to_database='data/sql_db.db'):

@@ -58,7 +58,8 @@ except FileNotFoundError as err:
 @rate_limit(5)
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
-    await message.answer('<code>Привет! :) давай запишем что нужно сделать и когда</code>',
+    await message.reply_sticker('CAACAgIAAxkBAAEDZdthp74uT7HCmBSru9Ehma95SpVSIQACZQEAAhAabSJhjGLAZuk2oSIE')
+    await message.answer('<code>Привет! :)\nдавай запишем что сделать и когда</code>',
                          reply_markup=await SimpleCalendar().start_calendar())
     await state.set_state('todo')
 
@@ -71,7 +72,7 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
         async with state.proxy() as data:
             data['date']: str = time_todo
 
-        await call.message.answer(f'Что записать на <code>{time_todo}</code> число?')
+        await call.message.answer(f'Что планируешь на <code>{time_todo}</code> число?')
         await state.set_state('reception_todo')
 
 
@@ -96,11 +97,11 @@ async def set_calendar_date(message: Message, state: FSMContext):
             f"<code>{i})</code> <b>{val}</b>" for
             i, val in enumerate(all_todo_obj[name].todo[date], 1)
         )
-        await message.answer(f'сделано! вот список на этот день:\n\n{result}')
+        await message.answer(f'сделано!\n\nвот список на этот день:\n\n{result}')
     else:
         logger_guru.warning(f'{name} Trying to write a message that is too large.')
-
-        await message.answer('Слишком большое сообщение :С')
+        await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
+        await message.answer('Слишком большое сообщение !')
         await state.finish()
 
 

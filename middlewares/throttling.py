@@ -55,6 +55,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         delta = throttled.rate - throttled.delta
 
         if throttled.exceeded_count <= 2:
+            await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
             await message.reply('Слишком часто пишешь!')
 
         await asyncio.sleep(delta)

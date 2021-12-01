@@ -1,15 +1,18 @@
+from asyncio import sleep
 from sqlite3 import Error
 
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ChatActions
 
 from loader import bot, dp, db, logger_guru
+from middlewares.throttling import rate_limit
 from utils.keyboards.start_settings_kb import start_choice_kb
 
 
 
 
+@rate_limit(5)
 @dp.message_handler(CommandStart())
 async def bot_start(message: Message):
     """
@@ -21,22 +24,29 @@ async def bot_start(message: Message):
     except Error as err:
         logger_guru.warning(repr(err))
     finally:
+        await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
+        await sleep(2)
+        await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await message.answer(f"Привет, {name}!\n\n"
-                             f"Я твой 'домашний' бот :)\nчтобы я мог тебе помогать ответь на пару вопросов\n"
-                             f"Согласен?", reply_markup=start_choice_kb)
+                             f"Я твой 'домашний' бот :)\nчтобы я могла выполнять свои функции "
+                             f"ответь на пару вопросов\n"
+                             f"ОК ?", reply_markup=start_choice_kb)
 
 
 @dp.callback_query_handler(text='set_todo_inp')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
-    await call.message.answer('В какое время спрашивать тебя о запланированных делах в конце дня?\n\n'
-                              'напиши время в формате  ->  <CODE>ЧАС : МИНУТЫ</CODE>\n\n')
+    await call.message.answer_sticker('CAACAgIAAxkBAAEDZZphp4c3RNVqorg6zd0JRBzjB29bXwACcAEAAhAabSIN3A9bRLCgiyIE')
+    await call.message.answer('В какое время спрашивать тебя о запланированных делах ?\n')
     await call.message.edit_reply_markup()
     await state.set_state('set_tntodo')
 
 
 @dp.callback_query_handler(text='cancel')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
-    await bot.answer_callback_query(call.id, 'ЖАЛЬ :С\n\nесли передумаешь загляни в '
-                                             'спискок команд ...', show_alert=True)
+    await bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
+    await sleep(1)
+    await call.message.answer_sticker('CAACAgIAAxkBAAEDZaNhp4w03jKO6vfOzbiZ7E13RAwaZwACYQEAAhAabSLviIx9qppNByIE')
+    await bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
+                                             'через слеш (/)', show_alert=True)
     await call.message.edit_reply_markup()
     await state.finish()

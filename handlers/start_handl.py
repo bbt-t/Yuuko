@@ -1,4 +1,5 @@
 from asyncio import sleep
+from functools import wraps
 from sqlite3 import Error
 
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -12,8 +13,17 @@ from utils.keyboards.start_settings_kb import start_choice_kb
 
 
 
-@rate_limit(5)
+def auth(func):
+    @wraps(func)
+    async def wrapper(message):
+        if db.select_user(telegram_id=message.from_user.id):
+            return await message.reply('Мы же уже знакомы :)', reply=False)
+    return wrapper
+
+
 @dp.message_handler(CommandStart())
+@rate_limit(5)
+@auth
 async def bot_start(message: Message):
     """
     Such a response will be sent at the start of communication (/start)
@@ -24,9 +34,9 @@ async def bot_start(message: Message):
     except Error as err:
         logger_guru.warning(repr(err))
     finally:
+        await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
         await sleep(2)
-        await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await message.answer(f"Привет, {name}!\n\n"
                              f"Я твой 'домашний' бот :)\nчтобы я могла выполнять свои функции "
                              f"ответь на пару вопросов\n"
@@ -43,9 +53,9 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text='cancel')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
+    await call.message.answer_sticker('CAACAgIAAxkBAAEDZaNhp4w03jKO6vfOzbiZ7E13RAwaZwACYQEAAhAabSLviIx9qppNByIE')
     await bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
     await sleep(1)
-    await call.message.answer_sticker('CAACAgIAAxkBAAEDZaNhp4w03jKO6vfOzbiZ7E13RAwaZwACYQEAAhAabSLviIx9qppNByIE')
     await bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
                                              'через слеш (/)', show_alert=True)
     await call.message.edit_reply_markup()

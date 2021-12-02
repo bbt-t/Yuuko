@@ -38,7 +38,7 @@ class Database:
         return data
 
     def create_table_users(self):
-        sql ="""
+        sql = """
         CREATE TABLE Users
         (telegram_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
         full_name varchar(128) NOT NULL,
@@ -78,7 +78,7 @@ class Database:
     def select_user(self, **kwargs):
         sql = "SELECT * FROM Users WHERE "
         sql, parameters = self.format_args(sql, kwargs)
-        return self.execute(sql,parameters=parameters, fetchone=True)
+        return self.execute(sql, parameters=parameters, fetchone=True)
 
     def select_all_users_weather(self, **kwargs):
         sql = "SELECT telegram_id, weather_notif_status FROM Users WHERE weather_notif_status IS NOT NULL"
@@ -93,9 +93,3 @@ class Database:
 
     def del_table(self):
         self.execute("DROP TABLE Users")
-
-
-    # def update_email(self, email, id):
-    #     # пример sql-запрроса: "UPDATE email SET email=mail@mail.com WHERE id=123"
-    #     sql = "UPDATE Users SET email=? WHERE id=?"
-    #     return self.execute(sql, parameters=(email, id), commit=True)

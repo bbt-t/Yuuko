@@ -36,7 +36,8 @@ async def start_weather(message: Message, state: FSMContext):
         finally:
             await state.finish()
     else:
-        await message.answer('Не распознал что написано, попробуй ещё раз ...')
+        await message.reply_sticker('CAACAgIAAxkBAAEDZaFhp4qDluGGvnCQe2WhofQ3r2wtfgACrAEAAhAabSJ41lvmGuTmxyIE')
+        await message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 
     if user_id not in db.select_all_users_weather():

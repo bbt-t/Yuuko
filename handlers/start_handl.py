@@ -46,7 +46,7 @@ async def bot_start(message: Message):
 @dp.callback_query_handler(text='set_todo_inp')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await call.message.answer_sticker('CAACAgIAAxkBAAEDZZphp4c3RNVqorg6zd0JRBzjB29bXwACcAEAAhAabSIN3A9bRLCgiyIE')
-    await call.message.answer('В какое время спрашивать тебя о запланированных делах ?\n')
+    await call.message.answer('В какое время спрашивать тебя о запланированных делах ?')
     await call.message.edit_reply_markup()
     await state.set_state('set_tntodo')
 

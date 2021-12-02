@@ -106,8 +106,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
     else:
         logger_guru.warning(f'{name} Trying to write a message that is too large.')
         await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
-        await message.answer('Слишком большое сообщение !')
-        await state.finish()
+        await message.answer('Слишком большое сообщение ! Попробуй написать короче')
 
 
 @dp.message_handler(state='todo')

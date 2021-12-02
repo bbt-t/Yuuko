@@ -20,16 +20,16 @@ async def weather_notification_on(message: Message, state: FSMContext):
     await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
     await sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
-                         'Напиши время когда тебя оповещать\n\n'
-                         'или, если хочешь отменить уже заданное время --->  <CODE>ОТМЕНИТЬ</CODE>\n')
+                         'Напиши время когда тебя оповещать\n'
+                         'или, если хочешь отменить уже заданное время напиши мне об этом')
     await state.set_state('weather_on')
 
 
 @dp.message_handler(state='weather_on')
 async def start_weather(message: Message, state: FSMContext):
-
+    text = ''.join(num for num in message.text if num.isnumeric())
     user_id: int = message.from_user.id
-    if any((item.startswith(let) for item in message.text) for let in ('отм', 'вык', 'уда')):
+    if any(message.text.startswith(let) for let in ('отм', 'вык', 'уда')):
         try:
             db.update_weather_status(user_id, None)
             scheduler.remove_job(f'weather_add_id_{user_id}')
@@ -40,7 +40,8 @@ async def start_weather(message: Message, state: FSMContext):
         except (Error, JobLookupError) as err:
             logger_guru.warning(f'{repr(err)} : Error in the block of notification cancellation!')
 
-            await message.reply('Не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
+            await message.reply_sticker('CAACAgIAAxkBAAEDZnphqNiE9Hq7mRGha9j-nJfYGOSPgAACeg0AAsCf8Ev-fdx9cnSwwSIE')
+            await message.reply('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()
 
     elif match(r'^([01]\d|2[0-3])?([0-5]\d)$', text):
@@ -53,7 +54,7 @@ async def start_weather(message: Message, state: FSMContext):
             logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')
         else:
             logger_guru.info(f"{user_id=} : turned on weather notifications")
-            await bot.answer_callback_query('ОТЛИЧНО! включили тебе поповещение о погоде :)')
+            await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
             await state.finish()
     else:
         await message.reply_sticker('CAACAgIAAxkBAAEDZaFhp4qDluGGvnCQe2WhofQ3r2wtfgACrAEAAhAabSJ41lvmGuTmxyIE')

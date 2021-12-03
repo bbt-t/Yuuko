@@ -23,6 +23,9 @@ city = getenv('city')
 
 pkl_key = getenv('PKL_KEY')
 
+FOLDER_ID = getenv('FOLDER_ID')
+API_YA_STT = getenv('API_YA_STT')
+
 timezone = getenv('TIMEZONE')
 time_zone = pytz.timezone(timezone)
 time_now = time_zone.localize(datetime.now())

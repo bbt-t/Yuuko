@@ -2,8 +2,8 @@ from asyncio import sleep
 from functools import wraps
 from sqlite3 import Error
 
-from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
 
 from loader import bot, dp, db, logger_guru
@@ -15,7 +15,7 @@ from utils.keyboards.start_settings_kb import start_choice_kb
 
 def auth(func):
     @wraps(func)
-    async def wrapper(message):
+    async def wrapper(message: Message):
         if db.select_user(telegram_id=message.from_user.id):
             return await message.reply('Мы же уже знакомы :)', reply=False)
     return wrapper

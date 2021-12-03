@@ -1,13 +1,13 @@
 import json
 
-from requests import post, get, exceptions
+from requests import post, exceptions
 
 from loader import logger_guru
 
 
 
 
-def recognize_speech_by_Ya(msg: str, FOLDER_ID: str, API_YA_STT: str) -> str:
+def recognize_speech_by_Ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
     url: str = 'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize'
 
     headers: dict = {'Authorization': f'Api-Key {API_YA_STT}'}
@@ -21,7 +21,7 @@ def recognize_speech_by_Ya(msg: str, FOLDER_ID: str, API_YA_STT: str) -> str:
             url,
             params=data,
             headers=headers,
-            data=get(msg)
+            data=msg
         )
         text: str = json.loads(response.content.decode('UTF-8'))['result']
         return text

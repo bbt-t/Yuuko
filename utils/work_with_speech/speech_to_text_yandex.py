@@ -1,4 +1,5 @@
 import json
+from typing import Final
 
 from requests import post, exceptions
 
@@ -8,7 +9,14 @@ from loader import logger_guru
 
 
 def recognize_speech_by_Ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
-    url: str = 'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize'
+    """
+    We recognize the voice by means of the Yandex Speech API service.
+    :param msg: voice message
+    :param FOLDER_ID: your cloud name Yandex
+    :param API_YA_STT: API key
+    :return: what recognized
+    """
+    url: Final[str] = 'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize'
 
     headers: dict = {'Authorization': f'Api-Key {API_YA_STT}'}
     data: dict = {

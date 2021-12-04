@@ -14,6 +14,11 @@ from utils.keyboards.start_settings_kb import start_choice_kb
 
 
 def auth(func):
+    """
+    Wrap for check users
+    :param func: handler
+    :return: message or None
+    """
     @wraps(func)
     async def wrapper(message: Message):
         if db.select_user(telegram_id=message.from_user.id):

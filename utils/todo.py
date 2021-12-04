@@ -48,10 +48,13 @@ class ToDo:
             date_key = time_now
             self.todo[str((date_key + timedelta(days=1)).date())].extend(self.todo[str(date_key.date())])
         except Exception as err:
-            print(f"{repr(err)} : ОШИБКА ПЕРЕНОСА")
+            logger_guru.warning(f"{repr(err)} : ОШИБКА ПЕРЕНОСА")
 
 
 def todo_to_next_day():
+    """
+    Transfer all todo-entries to the next day
+    """
     try:
         if todo_handl.all_todo_obj.values():
             for val in todo_handl.all_todo_obj.values():

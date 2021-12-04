@@ -14,6 +14,8 @@ from middlewares.throttling import rate_limit
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_Ya
 
 
+
+
 @rate_limit(5)
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):

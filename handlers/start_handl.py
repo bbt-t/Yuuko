@@ -6,27 +6,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
 
-from config import FOLDER_ID, API_YA_TTS
 from loader import bot, dp, db, logger_guru
 from middlewares.throttling import rate_limit
 from utils.keyboards.start_settings_kb import start_choice_kb
-from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
-
-async def send_audio_contetnt(id, text):
-    await bot.send_voice(id, synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, text))
-
-def auth(func):
-    """
-    Wrap for check users
-    :param func: handler
-    :return: message or None
-    """
-    @wraps(func)
-    async def wrapper(message: Message):
-        if db.select_user(telegram_id=message.from_user.id):
-            return await message.reply('Мы же уже знакомы :)', reply=False)
-        return await func(message)
-    return wrapper
+from utils.notify_users import send_synthesize_voice_by_ya, auth
 
 
 @dp.message_handler(CommandStart())
@@ -47,7 +30,7 @@ async def bot_start(message: Message):
         await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
         await sleep(2)
-        await send_audio_contetnt(message.from_user.id, text)
+        await send_synthesize_voice_by_ya(message.from_user.id, text)
         await message.answer(text, reply_markup=start_choice_kb)
 
 

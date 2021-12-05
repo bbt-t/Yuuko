@@ -11,7 +11,7 @@ from config import FOLDER_ID, API_YA_STT
 from loader import dp, db, scheduler, logger_guru, bot
 from utils.notify_users import send_weather
 from middlewares.throttling import rate_limit
-from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_Ya
+from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 
@@ -33,7 +33,7 @@ async def start_weather(message: Message, state: FSMContext):
         text = ''.join(num for num in message.text if num.isnumeric())
     except TypeError:
         file_url = await message.voice.get_url()
-        text = recognize_speech_by_Ya(file_url, FOLDER_ID, API_YA_STT)
+        text = recognize_speech_by_ya(file_url, FOLDER_ID, API_YA_STT)
 
     user_id: int = message.from_user.id
 

@@ -37,12 +37,11 @@ async def on_startup(dp):
 @logger_guru.catch()
 async def on_shutdown(dp):
     """
-    Notifying admins about the stop of the bot
+    Notifying admins about the stop of the bot, save Todo objects.
     :param dp: Dispatcher
     """
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
-
     save_pkl_obj()
     raise SystemExit
 

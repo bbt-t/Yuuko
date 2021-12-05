@@ -5,17 +5,17 @@ from config import FOLDER_ID, API_YA_STT
 from loader import dp, logger_guru
 from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_on_their_own import recognize_locally
-from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_Ya
+from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 
 
 @dp.message_handler(content_types=ContentType.VOICE)
 async def determine_further_path(message: Message, state: FSMContext):
-    file_id = message.voice.file_id
+    file_id: str = message.voice.file_id
     try:
         msg: bytes = await message.bot.download_file_by_id(file_id)
-        text: str = recognize_speech_by_Ya(msg, FOLDER_ID, API_YA_STT)
+        text: str = recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
     except:
         logger_guru.error(f'{message.from_user.id} : unsuccessful request STT YANDEX!')
 
@@ -30,6 +30,3 @@ async def determine_further_path(message: Message, state: FSMContext):
         await state.set_state('weather_on')
     else:
         await message.answer('Не распознала :С')
-
-
-

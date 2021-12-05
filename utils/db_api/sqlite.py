@@ -4,11 +4,6 @@ from loader import logger_guru
 
 
 
-def logger(statement):
-    """
-    Вывод в принте выполняемых команд.
-    """
-    logger_guru.info(f"\n----------\nExecuting statement {statement}\n----------")
 
 class Database:
     def __init__(self, path_to_database='data/sql_db.db'):
@@ -18,16 +13,13 @@ class Database:
     def connection(self):
         return sqlite3.connect(self.path_to_database)
 
-    def execute(self, sql: str, parameters: tuple = None, fetchone=False, fetchall=False, commit=False):
-        if not parameters:
-            parameters = tuple()
+    def execute(self, sql: str, parameters: tuple = tuple(), fetchone=False, fetchall=False, commit=False):
         parameters = tuple(parameters)
         connection = self.connection
-        connection.set_trace_callback(logger)
+        connection.set_trace_callback(self.logger)
         cursor = connection.cursor()
-        data = None
         cursor.execute(sql, parameters)
-
+        data = None
         if commit:
             connection.commit()
         if fetchone:
@@ -36,6 +28,15 @@ class Database:
             data = cursor.fetchall()
         connection.close()
         return data
+
+    @staticmethod
+    def logger(statement):
+        logger_guru.info(f"\n----------\nExecuting statement {statement}\n----------")
+
+    @staticmethod
+    def format_args(sql, parameters: dict):
+        sql += " AND ".join(f"{item} = ?" for item in parameters.keys())
+        return sql, parameters.values()
 
     def create_table_users(self):
         sql = """
@@ -61,11 +62,6 @@ class Database:
         sql = "UPDATE Users SET weather_notif_status = ? WHERE ?"
         parameters = (weather_notif_status, telegram_id)
         self.execute(sql, parameters=parameters, commit=True)
-
-    @staticmethod
-    def format_args(sql, parameters: dict):
-        sql += " AND ".join(f"{item} = ?" for item in parameters.keys())
-        return sql, parameters.values()
 
     def select_all_id(self):
         sql = "SELECT telegram_id FROM Users"

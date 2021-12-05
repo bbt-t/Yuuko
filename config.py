@@ -25,6 +25,7 @@ pkl_key = getenv('PKL_KEY')
 
 FOLDER_ID = getenv('FOLDER_ID')
 API_YA_STT = getenv('API_YA_STT')
+API_YA_TTS = getenv('API_YA_TTS')
 
 timezone = getenv('TIMEZONE')
 time_zone = pytz.timezone(timezone)

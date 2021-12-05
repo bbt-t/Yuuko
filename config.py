@@ -19,7 +19,7 @@ BOT_TOKEN = getenv('BOT_TOKEN')
 
 API_WEATHER = getenv('API_WEATHER')
 API_WEATHER2 = getenv('API_WEATHER2')
-city = getenv('city')
+CITY_WEATHER = getenv('CITY_WEATHER')
 
 pkl_key = getenv('PKL_KEY')
 

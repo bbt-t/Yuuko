@@ -1,4 +1,4 @@
-from re import match
+from re import match as re_match
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
@@ -23,7 +23,7 @@ async def start_weather(message: Message, state: FSMContext):
     text: str = message.text.lower().replace(' ', '')
     user_id: int = message.from_user.id
 
-    if match(r'^([01]\d|2[0-3]):?([0-5]\d)$', text):
+    if re_match(r'^([01]\d|2[0-3]):?([0-5]\d)$', text):
         try:
             scheduler.add_job(send_evening_poll, 'cron', id=f'job_evening_poll_{user_id}', args=(user_id,),
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',

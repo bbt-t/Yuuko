@@ -2,7 +2,7 @@ from functools import wraps
 
 from aiogram.types import ParseMode, Message
 
-from config import API_WEATHER, API_WEATHER2, city, FOLDER_ID, API_YA_TTS
+from config import API_WEATHER, API_WEATHER2, FOLDER_ID, API_YA_TTS, CITY_WEATHER
 from loader import bot, db, logger_guru
 from utils.weather_compilation import create_weather_forecast
 from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
@@ -24,13 +24,14 @@ def auth(func):
 
 
 @logger_guru.catch()
-async def send_weather(id: int):
+async def send_weather(id: int, city: str = CITY_WEATHER):
     """
     Sends a message with the weather
+    :param city: city
     :param id: user id
     :return: message
     """
-    await bot.send_message(id, create_weather_forecast(city, API_WEATHER, API_WEATHER2), ParseMode.HTML)
+    await bot.send_message(id, create_weather_forecast(API_WEATHER, API_WEATHER2, city), ParseMode.HTML)
 
 
 @logger_guru.catch()

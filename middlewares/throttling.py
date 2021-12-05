@@ -1,5 +1,6 @@
+from functools import wraps
 from typing import Union
-import asyncio
+from asyncio import sleep as asyncio_sleep
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import DEFAULT_RATE_LIMIT
@@ -9,11 +10,12 @@ from aiogram.utils.exceptions import Throttled
 
 def rate_limit(limit: int, key=None):
     """
-    Декоратор для хендлера (для упрощения кода)
-    :param limit: таймаут сообщений от пользователя
-    :param key: дополнительный параметр, с помощью него функция отличает хендлерыдруг от друга
-    (можно катомизировать под определённый хендлер/группу хендлеров свой параметр тротлинга)
+    Decorator for the handler (to simplify the code)
+    :param limit: timeout messages from the user
+    :param key: an additional parameter, with the help of it the function distinguishes handlers from each other
+    (you can catomise your own trotting parameter for a specific handler / group of handlers)
     """
+    @wraps
     def decorator(func):
         setattr(func, 'throttling_rate_limit', limit)
         if key:
@@ -23,6 +25,9 @@ def rate_limit(limit: int, key=None):
 
 
 class ThrottlingMiddleware(BaseMiddleware):
+    """
+    Anti-flood
+    """
 
     def __init__(self, limit=DEFAULT_RATE_LIMIT, key_prefix='antiflood_'):
         self.rate_limit = limit
@@ -58,8 +63,8 @@ class ThrottlingMiddleware(BaseMiddleware):
             await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
             await message.reply('Слишком часто пишешь!')
 
-        await asyncio.sleep(delta)
+        await asyncio_sleep(delta)
 
         thr = await dispatcher.check_key(key)
         if thr.exceeded_count == throttled.exceeded_count:
-            await message.reply('Всё, можно писать.')
+            await message.answer('Всё, можно писать.')

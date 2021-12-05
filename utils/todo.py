@@ -13,7 +13,7 @@ import handlers.todo_handl as todo_handl
 class ToDo:
     """
     ======================
-      Класс 'список дел'
+      'To-do' list class
     ======================
 
     | class_object + 'task', время в формате г:м:д (опционально) -> добавит 'дело' в список дел на следующий день; |
@@ -60,7 +60,7 @@ def todo_to_next_day():
             for val in todo_handl.all_todo_obj.values():
                 val.transfer_next_day_method
             else:
-                logger_guru.info('----------- ALL TRANSFER_NEXT_DAY COMPLETE -----------')
+                logger_guru.info('--- ALL TRANSFER_NEXT_DAY COMPLETE ---')
     except Exception as err:
         logger_guru.error(f'{repr(err)} : TRANSFER NEXT DAY ERROR !')
 

@@ -1,4 +1,4 @@
-import json
+from json import loads as json_loads
 from pathlib import Path
 import subprocess
 
@@ -24,7 +24,7 @@ def recognize_locally(name_file: str) -> str:
                                 name_file,
                                 '-ar', str(sample_rate), '-ac', '1', '-f', 's16le', '-'],
                                stdout=subprocess.PIPE)
-    while True:
+    while 1:
         data = process.stdout.read(4000)
         if len(data) == 0:
             break
@@ -32,4 +32,5 @@ def recognize_locally(name_file: str) -> str:
 
     path = Path(name_file)
     path.unlink()
-    return json.loads(rec.FinalResult())['text']
+
+    return json_loads(rec.FinalResult())['text']

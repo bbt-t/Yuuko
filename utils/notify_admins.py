@@ -6,7 +6,7 @@ from config import AdminsBot
 
 async def on_startup_notify(dp):
     """
-    Рассылка админам при запуске бота
+    Newsletter to admins when the bot is started
     """
     try:
         await dp.bot.send_message(AdminsBot.creator.value, 'Бот запущен')
@@ -15,7 +15,7 @@ async def on_startup_notify(dp):
 
 async def on_shutdown_notify(dp):
     """
-    Рассылка админам при остановке бота
+    Newsletter to admins when the bot is stopped
     """
     try:
         await dp.bot.send_message(AdminsBot.creator.value, 'Бот остановлен!')

@@ -1,5 +1,4 @@
-from asyncio import sleep
-from functools import wraps
+from asyncio import sleep as asyncio_sleep
 from sqlite3 import Error
 
 from aiogram.dispatcher import FSMContext
@@ -10,6 +9,8 @@ from loader import bot, dp, db, logger_guru
 from middlewares.throttling import rate_limit
 from utils.keyboards.start_settings_kb import start_choice_kb
 from utils.notify_users import send_synthesize_voice_by_ya, auth
+
+
 
 
 @dp.message_handler(CommandStart())
@@ -29,7 +30,7 @@ async def bot_start(message: Message):
     finally:
         await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
-        await sleep(2)
+        await asyncio_sleep(2)
         await send_synthesize_voice_by_ya(message.from_user.id, text)
         await message.answer(text, reply_markup=start_choice_kb)
 
@@ -46,7 +47,7 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await call.message.answer_sticker('CAACAgIAAxkBAAEDZaNhp4w03jKO6vfOzbiZ7E13RAwaZwACYQEAAhAabSLviIx9qppNByIE')
     await bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
-    await sleep(1)
+    await asyncio_sleep(1)
     await bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
                                              'через слеш (/)', show_alert=True)
     await call.message.edit_reply_markup()

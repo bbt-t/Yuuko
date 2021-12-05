@@ -3,33 +3,39 @@ from typing import Final
 
 from requests import get as request_get
 
+from config import CITY_WEATHER
 from loader import logger_guru
 
 
 
 
 @logger_guru.catch()
-def create_weather_forecast(city: str, api_key_1: str, api_key_2: str) -> str:
+def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEATHER) -> str:
     """
     Weather api request func
     :param city: city
     :param api_key: api keys
     """
-    URL: Final[tuple] = (
-        f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key_1}&units=metric&lang=ru',
-        f'http://dataservice.accuweather.com/forecasts/v1/daily/1day/293686?{api_key_2}&language=ru-ru&metric=true&details=true'
-    )
 
-    req = request_get(URL[0])
-    if req.status_code == 200:
+    URL: Final[tuple] = (f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid='
+                         f'{api_key_1}&units=metric&lang=ru',
+                         f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey="
+                         f"{api_key_2}&language=ru-ru&metric=true&details=true"
+                         )
+    try:
+        req = request_get(URL[0])
         req = req.json()
 
         temp: int = ceil(req['main']['temp_min'])
         wind: float = req['wind']['speed']
         weather: str = req['weather'][0]['description']
         weather_main: str = req['weather'][0]['main']
-    else:
-        req = request_get(URL[1]).json()
+    except:
+        logger_guru.warning("Main API didn't work !")
+
+        city_spare_api = request_get(f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
+                                     f'{api_key_2}&q={city}').json()[0]['Key']
+        req = request_get(URL[1].replace('CITY', str(city_spare_api))).json()
 
         temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
         wind: float = round(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'] / 3.6)
@@ -55,6 +61,8 @@ def create_weather_forecast(city: str, api_key_1: str, api_key_2: str) -> str:
     else:
         rep_wind: str = 'Штормовой ветрище! Необходимо защититься от ветра и быть осторожным!'
 
-    return (f"Сегодня будет <CODE>{weather.upper()}</CODE> , <CODE>{temp}</CODE> градусов,\n<b>{rep_temp}</b>\n"
-            f"Скорость ветра <CODE>{wind}</CODE> м/с, {rep_wind}\n"
-            f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}")
+    return (
+        f"Сегодня будет <CODE>{weather.upper()}</CODE> , <CODE>{temp}</CODE> градусов,\n<b>{rep_temp}</b>\n"
+        f"Скорость ветра <CODE>{wind}</CODE> м/с, {rep_wind}\n"
+        f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
+    )

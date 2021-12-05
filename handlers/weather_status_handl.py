@@ -1,5 +1,5 @@
-from asyncio import sleep
-from re import match
+from asyncio import sleep as asyncio_sleep
+from re import match as re_match
 from sqlite3 import Error
 
 from aiogram.dispatcher import FSMContext
@@ -20,7 +20,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):
     await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
-    await sleep(2)
+    await asyncio_sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
                          'Напиши время когда тебя оповещать\n'
                          'или, если хочешь отменить уже заданное время напиши мне об этом')
@@ -30,10 +30,10 @@ async def weather_notification_on(message: Message, state: FSMContext):
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
     try:
-        text = ''.join(num for num in message.text if num.isnumeric())
+        text: str = ''.join(num for num in message.text if num.isnumeric())
     except TypeError:
         file_url = await message.voice.get_url()
-        text = recognize_speech_by_ya(file_url, FOLDER_ID, API_YA_STT)
+        text: str = recognize_speech_by_ya(file_url, FOLDER_ID, API_YA_STT)
 
     user_id: int = message.from_user.id
 
@@ -50,11 +50,11 @@ async def start_weather(message: Message, state: FSMContext):
 
             await message.reply_sticker('CAACAgIAAxkBAAEDZnphqNiE9Hq7mRGha9j-nJfYGOSPgAACeg0AAsCf8Ev-fdx9cnSwwSIE')
             await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
-            await sleep(1)
+            await asyncio_sleep(1)
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()
 
-    elif match(r'^([01]\d|2[0-3])?([0-5]\d)$', text.replace(' ', '')):
+    elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text.replace(' ', '')):
         try:
             db.update_weather_status(user_id, text)
             scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',

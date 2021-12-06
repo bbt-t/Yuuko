@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "bot-pet"
+version = "0.1.0"
+description = "aiogram bot"
+authors = ["bbt-t <FEjfewovhwovHVIEvh221fqiv!>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^2.16"
+aiogram-calendar = "^0.1.1"
+APScheduler = "^3.8.1"
+requests = "^2.26.0"
+python-dotenv = "^0.19.2"
+loguru = "^0.5.3"
+vosk = "^0.3.32"
+SQLAlchemy = "^1.4.27"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -2,7 +2,7 @@
 name = "bot-pet"
 version = "0.1.0"
 description = "aiogram bot"
-authors = ["bbt-t <FEjfewovhwovHVIEvh221fqiv!>"]
+authors = ["bbt-t github.com/bbt-t"]
 
 [tool.poetry.dependencies]
 python = "^3.10"

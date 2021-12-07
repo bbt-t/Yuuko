@@ -1,16 +1,16 @@
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot, Dispatcher, types
 from loguru import logger as logger_guru
 
-from config import BOT_TOKEN
+from config import BOT_TOKEN, redis
 from utils.db_api.sqlite import Database
 
 
 
 
-storage = MemoryStorage()
+storage = RedisStorage2(**redis)
 bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot, storage=storage)
 

@@ -43,6 +43,8 @@ async def on_shutdown(dp):
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
     save_pkl_obj()
+    await dp.storage.close()
+    await dp.storage.wait_closed()
     raise SystemExit
 
 

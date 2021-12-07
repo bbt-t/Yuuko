@@ -30,3 +30,15 @@ API_YA_TTS = getenv('API_YA_TTS')
 timezone = getenv('TIMEZONE')
 time_zone = pytz.timezone(timezone)
 time_now = time_zone.localize(datetime.now())
+
+HOST = getenv('HOST')
+
+PORT_REDIS = getenv('PORT_REDIS')
+PASS_REDIS = getenv('PASS_REDIS')
+
+redis = {
+    'host': HOST,
+    'port': PORT_REDIS,
+    'password': PASS_REDIS,
+    'prefix': 'fsm_key'
+}

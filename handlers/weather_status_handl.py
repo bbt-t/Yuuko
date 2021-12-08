@@ -19,25 +19,29 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 @rate_limit(5)
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):
+    await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
     await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
-                         'Напиши время когда тебя оповещать\n'
-                         'или, если хочешь отменить уже заданное время напиши мне об этом')
+                         'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
+                         'или может хочешь отменить уже заданное время?')
     await state.set_state('weather_on')
 
 
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
-    try:
-        text: str = ''.join(num for num in message.text if num.isnumeric())
-    except TypeError:
-        file_url = await message.voice.get_url()
-        text: str = recognize_speech_by_ya(file_url, FOLDER_ID, API_YA_STT)
-
     user_id: int = message.from_user.id
+    match message.content_type:
+        case 'voice':
+            msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
+            text: str = recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
+        case 'text':
+            text = message.text
 
-    if any(let.lower().startswith(x) for let in text.split() for x in ('отм', 'вык', 'уда')):
+    if any(
+            let.lower().startswith(x) for let in text.split()
+            for x in ('отм', 'вык', 'уда', 'да') if not let.isnumeric()
+    ):
         try:
             db.update_weather_status(user_id, None)
             scheduler.remove_job(f'weather_add_id_{user_id}')
@@ -54,7 +58,7 @@ async def start_weather(message: Message, state: FSMContext):
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()
 
-    elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text.replace(' ', '')):
+    elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', ''.join(num for num in text if num.isnumeric()).replace(' ', '')):
         try:
             db.update_weather_status(user_id, text)
             scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',

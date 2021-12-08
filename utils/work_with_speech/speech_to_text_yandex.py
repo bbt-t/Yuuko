@@ -32,6 +32,6 @@ def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
         )
         text: str = json_loads(response.content.decode('UTF-8'))['result']
         return text
-    except (BaseException, exceptions) as err:
-        logger_guru.warning(f'{repr(err)} : Error in Yandex STT func')
+    except:
+        logger_guru.warning('BAD REQUEST : Error in Yandex STT func')
         return 'ой :( попробуй позднее...'

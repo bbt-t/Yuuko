@@ -16,7 +16,7 @@ from utils.notify_users import send_synthesize_voice_by_ya, auth
 @dp.message_handler(CommandStart())
 @rate_limit(5)
 @auth
-async def bot_start(message: Message):
+async def start_working_with_bot(message: Message):
     """
     Such a response will be sent at the start of communication (/start)
     """

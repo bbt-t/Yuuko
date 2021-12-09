@@ -1,4 +1,4 @@
-from sqlite3 import Error
+from sqlite3 import Error as sqlite3_Error
 
 from aiogram.utils import executor
 
@@ -24,7 +24,8 @@ async def on_startup(dp):
     await on_startup_notify(dp)
     try:
         db.create_table_users()
-    except Error as err:
+        db.create_table_pass()
+    except sqlite3_Error as err:
         logger_guru.info(f'{repr(err)} : DB error on start bot')
 
     scheduler.add_job(todo_to_next_day, 'cron', id='todo_to_next_day',

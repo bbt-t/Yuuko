@@ -1,6 +1,6 @@
 from asyncio import sleep as asyncio_sleep
 from re import match as re_match
-from sqlite3 import Error
+from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
@@ -9,8 +9,8 @@ from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
 from loader import dp, db, scheduler, logger_guru, bot
-from utils.notify_users import send_weather
 from middlewares.throttling import rate_limit
+from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
@@ -26,6 +26,7 @@ async def weather_notification_on(message: Message, state: FSMContext):
                          'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
                          'или может хочешь отменить уже заданное время?')
     await state.set_state('weather_on')
+    await message.delete()
 
 
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
@@ -49,7 +50,7 @@ async def start_weather(message: Message, state: FSMContext):
 
             await message.answer('Отменено :)')
             await state.finish()
-        except (Error, JobLookupError) as err:
+        except (sqlite3_Error, JobLookupError) as err:
             logger_guru.warning(f'{repr(err)} : Error in the block of notification cancellation!')
 
             await message.reply_sticker('CAACAgIAAxkBAAEDZnphqNiE9Hq7mRGha9j-nJfYGOSPgAACeg0AAsCf8Ev-fdx9cnSwwSIE')

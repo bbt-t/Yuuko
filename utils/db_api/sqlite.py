@@ -44,18 +44,56 @@ class Database:
         (telegram_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
         full_name varchar(128) NOT NULL,
         weather_notif_status varchar(5),
-        todo_notif_status varchar(5))
+        todo_notif_status varchar(5),
+        personal_pass varchar(32))
         """
         self.execute(sql, commit=True)
+
+
+    def create_table_pass(self):
+        sql = """
+        CREATE TABLE Pass
+        (telegram_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        name_pass varchar(32),
+        pass_items varchar(32))
+        """
+        self.execute(sql, commit=True)
+
+    def check_personal_pass(self, **kwargs):
+        sql = "SELECT personal_pass FROM Users WHERE "
+        sql, parameters = self.format_args(sql, kwargs)
+        return self.execute(sql, parameters=parameters, fetchone=True)
+
+    def update_personal_pass(self, telegram_id: int, personal_pass):
+        sql = "UPDATE Users SET personal_pass = ? WHERE ?"
+        parameters = (personal_pass, telegram_id)
+        self.execute(sql, parameters=parameters, commit=True)
+
+    def update_item_pass(self, telegram_id: int, name_pass: str, pass_items: str):
+        sql = "UPDATE Pass SET pass_items = ? WHERE ?"
+        parameters = (telegram_id, name_pass, pass_items)
+        self.execute(sql, parameters=parameters, commit=True)
+
+    def add_pass(self, telegram_id: int, name_pass: str, pass_items: str):
+        sql = "INSERT INTO Pass (telegram_id, name_pass, pass_items) VALUES (?, ?, ?)"
+        parameters = (telegram_id, name_pass, pass_items)
+        self.execute(sql, parameters=parameters, commit=True)
+
+    def select_pass(self, **kwargs):
+        sql = "SELECT pass_items FROM Pass WHERE "
+        sql, parameters = self.format_args(sql, kwargs)
+        return self.execute(sql, parameters=parameters, fetchone=True)
 
     def add_user(self,
                  telegram_id: int,
                  full_name: str,
                  weather_notif_status: bool = None,
-                 todo_notif_status: bool = None):
+                 todo_notif_status: bool = None,
+                 personal_pass: str = None):
 
-        sql = "INSERT INTO Users (telegram_id, full_name, weather_notif_status, todo_notif_status) VALUES (?,?,?,?)"
-        parameters = (telegram_id, full_name, weather_notif_status, todo_notif_status)
+        sql = "INSERT INTO Users (telegram_id, full_name, weather_notif_status, " \
+              "todo_notif_status, personal_pass) VALUES (?, ?, ?, ?, ?)"
+        parameters = (telegram_id, full_name, weather_notif_status, todo_notif_status, personal_pass)
         self.execute(sql, parameters=parameters, commit=True)
 
     def update_weather_status(self, telegram_id: int, weather_notif_status: bool):
@@ -89,3 +127,4 @@ class Database:
 
     def del_table(self):
         self.execute("DROP TABLE Users")
+        self.execute("DROP TABLE Pass")

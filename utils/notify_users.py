@@ -18,6 +18,7 @@ def auth(func):
     @wraps(func)
     async def wrapper(message: Message):
         if db.select_user(telegram_id=message.from_user.id):
+            await message.delete()
             return await message.reply('Мы же уже знакомы :)', reply=False)
         return await func(message)
     return wrapper

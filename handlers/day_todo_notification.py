@@ -16,6 +16,7 @@ from middlewares.throttling import rate_limit
 async def late_day_todo_notification(message: Message, state: FSMContext):
     await message.answer('Чтобы задать время для вечернего "брифинга" введи\n')
     await state.set_state('set_tntodo')
+    await message.delete()
 
 
 @dp.message_handler(state='set_tntodo')

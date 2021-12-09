@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import pkl_key, time_now
-from loader import dp, logger_guru, bot
+from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
 from utils.todo import ToDo
 
@@ -62,6 +62,7 @@ async def bot_todo(message: Message, state: FSMContext):
     await message.answer('<code>Привет! :)\nдавай запишем что сделать и когда</code>',
                          reply_markup=await SimpleCalendar().start_calendar())
     await state.set_state('todo')
+    await message.delete()
 
 
 @dp.callback_query_handler(simple_cal_callback.filter(), state='todo')

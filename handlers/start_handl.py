@@ -1,5 +1,5 @@
 from asyncio import sleep as asyncio_sleep
-from sqlite3 import Error
+from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -23,16 +23,18 @@ async def start_working_with_bot(message: Message):
     name: str = message.from_user.full_name
     text = f"Привет, {name}!\n\nЯ твой 'домашний' бот,\nчтобы я могла выполнять свои функции " \
            f"ответь пожалуйста на пару вопросов..."
+    user_id = message.from_user.id
     try:
-        db.add_user(message.from_user.id, name)
-    except Error as err:
-        logger_guru.warning(repr(err))
+        db.add_user(user_id, name)
+    except sqlite3_Error:
+        logger_guru.warning(f'{user_id=} : sqlite3_Error in start handler!')
     finally:
         await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
-        await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
+        await bot.send_chat_action(user_id, ChatActions.TYPING)
         await asyncio_sleep(2)
-        await send_synthesize_voice_by_ya(message.from_user.id, text)
+        await send_synthesize_voice_by_ya(user_id, text)
         await message.answer(text, reply_markup=start_choice_kb)
+    await message.delete()
 
 
 @dp.callback_query_handler(text='set_todo_inp')

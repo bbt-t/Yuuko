@@ -13,8 +13,8 @@ async def contact_support_by_message(message: Message, state: FSMContext):
     kb = await sup_kb()
     await message.reply_sticker('CAACAgIAAxkBAAEDbxphr6Avra8WTksfENEkK1GuHIpwpQACZAEAAhAabSJJXz3XqubCyiME')
     await message.answer('Хочешь написать создателю?)', reply_markup=kb)
-    await state.reset_state()
-
+    await state.finish()
+    await message.delete()
 
 @dp.callback_query_handler(sup_cb.filter())
 async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data):

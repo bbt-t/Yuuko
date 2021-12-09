@@ -1,7 +1,7 @@
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from aiogram import Bot, Dispatcher, types
 from loguru import logger as logger_guru
 
 from config import BOT_TOKEN, redis

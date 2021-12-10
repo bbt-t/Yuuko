@@ -53,9 +53,9 @@ class Database:
     def create_table_pass(self):
         sql = """
         CREATE TABLE Pass
-        (telegram_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        (telegram_id integer NOT NULL,
         name_pass varchar(32),
-        pass_items varchar(32))
+        pass_items BLOB)
         """
         self.execute(sql, commit=True)
 
@@ -69,13 +69,13 @@ class Database:
         parameters = (personal_pass, telegram_id)
         self.execute(sql, parameters=parameters, commit=True)
 
-    def update_item_pass(self, telegram_id: int, name_pass: str, pass_items: str):
+    def update_item_pass(self, telegram_id: int, name_pass: str, pass_items: bytes):
         sql = "UPDATE Pass SET pass_items = ? WHERE ?"
         parameters = (telegram_id, name_pass, pass_items)
         self.execute(sql, parameters=parameters, commit=True)
 
-    def add_pass(self, telegram_id: int, name_pass: str, pass_items: str):
-        sql = "INSERT INTO Pass (telegram_id, name_pass, pass_items) VALUES (?, ?, ?)"
+    def add_pass(self, telegram_id: int, name_pass: str, pass_items: bytes):
+        sql = "INSERT INTO Pass VALUES (?, ?, ?)"
         parameters = (telegram_id, name_pass, pass_items)
         self.execute(sql, parameters=parameters, commit=True)
 

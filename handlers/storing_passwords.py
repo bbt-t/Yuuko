@@ -1,15 +1,35 @@
 from asyncio import sleep as asyncio_sleep
 from hashlib import scrypt as hashlib_scrypt
+from hmac import compare_digest as hmac_compare_digest
+from pickle import dumps, loads
 from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, CallbackQuery
+from pgpy import PGPMessage
 
 from loader import dp, db, logger_guru
 from utils.keyboards.pass_settings_bk import pass_choice_kb
 
 
+
+
+@logger_guru.catch()
+def convert_password_to_enc_object(user_id, name_pass, password):
+    """
+    Encrypts password and serializes for storage
+    :param user_id: ID who wrote
+    :param name_pass: given password name
+    :param password: password
+    :return: pickle object
+    """
+    very_useful_thing: str = hashlib_scrypt(name_pass.encode(), salt=f'{user_id}'.encode(),
+                                       n=8, r=512, p=4, dklen=16).hex()
+    encrypt_password = PGPMessage.new(password.encode()).encrypt(very_useful_thing)
+    serialized_object: bytes = dumps(encrypt_password)
+
+    return serialized_object
 
 
 @dp.message_handler(Command('pass'))
@@ -26,7 +46,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
     try:
         if check_pass := db.check_personal_pass(telegram_id=user_id)[0]:
-            if check_pass == msg:
+            if hmac_compare_digest(check_pass, msg):
                 await message.answer('ПРИНЯТО!')
                 await state.set_state('successful_auth_for_pass')
                 await message.answer('Что ты конкретно хочешь?', reply_markup=pass_choice_kb)
@@ -48,29 +68,36 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 async def accept_personal_key(call: CallbackQuery):
     await call.message.answer(f'Задай имя сохраняемого пароля ...\n'
                               f'(можешь сразу и сам пароль)')
+    await call.message.edit_reply_markup()
 
 
 @dp.message_handler(state='successful_auth_for_pass')
 async def set_name_and_write_pass(message: Message, state: FSMContext):
     msg: str = message.text
+    user_id = message.from_user.id
 
     async with state.proxy() as data:
-        is_temp: bool = data.get('temp')
+        name_pass: str = data.get('name')
 
     match msg.replace(',', ' ').split():
         case name_pass, password:
-            db.add_pass(telegram_id=message.from_user.id, name_pass=name_pass, pass_items=password)
-            await message.answer(f'Отлично! записала.')
             await message.delete()
+            enc_pass = convert_password_to_enc_object(user_id, name_pass, password)
+            db.add_pass(telegram_id=user_id, name_pass=name_pass, pass_items=enc_pass)
+            await message.delete()
+            await message.answer(f'Отлично! записала.')
             await state.finish()
         case _:
-            if not is_temp:
-                await message.answer(f'так... имя: {msg} записала, теперь сам пароль!')
+            if not name_pass:
                 async with state.proxy() as data:
-                    data['is_temp']: bool = True
+                    data['name']: str = msg
+                await message.delete()
+                await message.answer('А теперь пароль :)')
             else:
-                password: str = message.text
-                await message.answer(f'Пoлучила, записала! {password}')
+                enc_pass = convert_password_to_enc_object(user_id, name_pass, msg)
+                db.add_pass(telegram_id=user_id, name_pass=name_pass, pass_items=enc_pass)
+                await message.delete()
+                await message.answer(f'Пoлучила, записала!')
                 await state.finish()
 
 
@@ -83,21 +110,23 @@ async def get_existing_pass(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state='set_name_pass')
 async def get_name_of_the_requested_password(message: Message, state: FSMContext):
-    msg: str = message.text.replace(' ','')
+    msg: str = message.text.replace(' ', '')
+    user_id: int = message.from_user.id
     try:
-        if password := db.select_pass(name_pass=msg, telegram_id=message.from_user.id):
-            await message.answer(f'НАШЛА! вот пароль с именем {msg} : {password[0]}\n'
-                             f'у тебя 20 секунд чтобы его скопировать !')
-
+        if decrypt_password := loads(db.select_pass(name_pass=msg, telegram_id=user_id)[0]):
+            very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
+                                               n=8, r=512, p=4, dklen=16).hex()
+            password: str = decrypt_password.decrypt(very_useful_thing).message
+            removing_msg = await message.answer(
+                f'НАШЛА! вот пароль с именем {msg} : {password}\n'
+                f'у тебя 20 секунд чтобы его скопировать !'
+            )
             await asyncio_sleep(20)
-            await message.bot.delete_message(message.chat.id, message.message_id + 1)
+            await removing_msg.delete()
             await message.delete()
-            await message.answer('Надеюсь, ты успел записать :)')
 
+            await message.answer('Надеюсь, ты успел записать :)')
     except:
         await message.answer('Не нашла пароля с таким именем :С')
     finally:
         await state.finish()
-
-
-

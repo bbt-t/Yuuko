@@ -8,8 +8,9 @@ from aiogram.types import Message, ChatActions, ContentType
 from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
-from loader import dp, db, scheduler, logger_guru, bot
+from loader import dp, bot, scheduler, logger_guru
 from middlewares.throttling import rate_limit
+from utils.db_api.sql_commands import update_weather_status
 from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
@@ -44,7 +45,7 @@ async def start_weather(message: Message, state: FSMContext):
             for x in ('отм', 'вык', 'уда', 'да') if not let.isnumeric()
     ):
         try:
-            db.update_weather_status(user_id, None)
+            await update_weather_status(id=user_id, is_notise=False)
             scheduler.remove_job(f'weather_add_id_{user_id}')
             logger_guru.info(f"{user_id=} : turned off weather alerts")
 
@@ -61,7 +62,7 @@ async def start_weather(message: Message, state: FSMContext):
 
     elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', ''.join(num for num in text if num.isnumeric()).replace(' ', '')):
         try:
-            db.update_weather_status(user_id, text)
+            await update_weather_status(id=user_id, is_notise=True)
             scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
                               hour=text[:2], minute=text[-2:], end_date='2023-05-30', args=(user_id,),
                               misfire_grace_time=30,replace_existing=True, timezone="Europe/Moscow")

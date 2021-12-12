@@ -5,8 +5,9 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
 
-from loader import bot, dp, db, logger_guru
+from loader import bot, dp, logger_guru
 from middlewares.throttling import rate_limit
+from utils.db_api.sql_commands import add_user
 from utils.keyboards.start_settings_kb import start_choice_kb
 from utils.notify_users import send_synthesize_voice_by_ya, auth
 
@@ -25,7 +26,7 @@ async def start_working_with_bot(message: Message):
            f"ответь пожалуйста на пару вопросов..."
     user_id = message.from_user.id
     try:
-        db.add_user(user_id, name)
+        await add_user(id=user_id, name=name)
     except sqlite3_Error:
         logger_guru.warning(f'{user_id=} : sqlite3_Error in start handler!')
     finally:
@@ -54,4 +55,3 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
                                              'через слеш (/)', show_alert=True)
     await call.message.edit_reply_markup()
     await state.finish()
-

@@ -9,7 +9,8 @@ from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, CallbackQuery
 from pgpy import PGPMessage
 
-from loader import dp, db, logger_guru
+from loader import dp, logger_guru
+from utils.db_api.sql_commands import check_personal_pass, update_personal_pass, add_other_info, select_pass
 from utils.keyboards.pass_settings_bk import pass_choice_kb
 
 
@@ -44,8 +45,9 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     user_id: int = message.from_user.id
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
+
     try:
-        if check_pass := db.check_personal_pass(telegram_id=user_id)[0]:
+        if check_pass := await check_personal_pass(id=user_id):
             if hmac_compare_digest(check_pass, msg):
                 await message.answer('ПРИНЯТО!')
                 await state.set_state('successful_auth_for_pass')
@@ -56,7 +58,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                                      'подсказка: /support')
                 await state.finish()
         else:
-            db.update_personal_pass(telegram_id=user_id, personal_pass=msg)
+            await update_personal_pass(id=user_id, personal_pass=msg)
             await message.answer('Не нашла его в списке, добавила :)\nнапиши его ещё раз.')
         await message.delete()
     except sqlite3_Error as err:
@@ -83,8 +85,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
         case name_pass, password:
             await message.delete()
             enc_pass = convert_password_to_enc_object(user_id, name_pass, password)
-            db.add_pass(telegram_id=user_id, name_pass=name_pass, pass_items=enc_pass)
-            await message.delete()
+            await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
             await message.answer(f'Отлично! записала.')
             await state.finish()
         case _:
@@ -95,7 +96,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await message.answer('А теперь пароль :)')
             else:
                 enc_pass = convert_password_to_enc_object(user_id, name_pass, msg)
-                db.add_pass(telegram_id=user_id, name_pass=name_pass, pass_items=enc_pass)
+                await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
                 await message.delete()
                 await message.answer(f'Пoлучила, записала!')
                 await state.finish()
@@ -113,7 +114,7 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
     msg: str = message.text.replace(' ', '')
     user_id: int = message.from_user.id
     try:
-        if decrypt_password := loads(db.select_pass(name_pass=msg, telegram_id=user_id)[0]):
+        if decrypt_password := await select_pass(name=msg, id=user_id):
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message

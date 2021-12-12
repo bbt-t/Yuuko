@@ -3,7 +3,8 @@ from functools import wraps
 from aiogram.types import ParseMode, Message
 
 from config import API_WEATHER, API_WEATHER2, FOLDER_ID, API_YA_TTS, CITY_WEATHER
-from loader import bot, db, logger_guru
+from loader import bot, logger_guru
+from utils.db_api.sql_commands import select_user
 from utils.weather_compilation import create_weather_forecast
 from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
@@ -17,7 +18,7 @@ def auth(func):
     """
     @wraps(func)
     async def wrapper(message: Message):
-        if db.select_user(telegram_id=message.from_user.id):
+        if await select_user(id=message.from_user.id):
             await message.delete()
             return await message.reply('Мы же уже знакомы :)', reply=False)
         return await func(message)

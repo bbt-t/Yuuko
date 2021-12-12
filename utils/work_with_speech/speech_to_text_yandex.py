@@ -1,7 +1,7 @@
 from json import loads as json_loads
 from typing import Final
 
-from requests import post, exceptions
+from requests import post
 
 from loader import logger_guru
 

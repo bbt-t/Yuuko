@@ -5,10 +5,9 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 
 from handlers.question_at_the_end_day import send_evening_poll
-from loader import dp, logger_guru, scheduler, db
+from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-
-
+from utils.db_api.sql_commands import select_all_users_weather
 
 
 @rate_limit(5)
@@ -41,6 +40,6 @@ async def start_weather(message: Message, state: FSMContext):
         await message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 
-    if user_id not in db.select_all_users_weather():
+    if user_id not in await select_all_users_weather():
         await message.answer('когда тебя оповещать о погоде ?')
         await state.set_state('weather_on')

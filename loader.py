@@ -4,8 +4,11 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger as logger_guru
 
-from config import BOT_TOKEN, redis
-from utils.db_api.sqlite import Database
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from config import BOT_TOKEN, redis, DB_NAME
+# from utils.db_api.sqlite import Database
 
 
 
@@ -20,7 +23,13 @@ scheduler.configure(
     logger=logger_guru)
 
 # SQLite:
-db = Database()
+# db = Database()
+
+# SQLite with aiosqlite and async_sqlalchemy
+Base = declarative_base()
+engine = create_async_engine(f'sqlite+aiosqlite:///data/{DB_NAME}')
+
+
 
 logger_guru.add(
     'logging-bot-home.log',

@@ -42,3 +42,5 @@ redis = {
     'password': PASS_REDIS,
     'prefix': 'fsm_key'
 }
+
+DB_NAME = getenv('DB_NAME')

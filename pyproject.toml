@@ -17,6 +17,7 @@ SQLAlchemy = "^1.4.27"
 aioredis = "^2.0.0"
 asyncpg = "^0.25.0"
 PGPy = "^0.5.4"
+aiosqlite = "^0.17.0"
 
 [tool.poetry.dev-dependencies]
 

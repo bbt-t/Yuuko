@@ -62,39 +62,39 @@ async def select_user(id: int) -> str:
     :return: user info
     """
     async with engine.connect() as conn:
-        res = await conn.execute(select(Users).where(Users.telegram_id == id))
+        result = await conn.execute(select(Users).where(Users.telegram_id == id))
     await engine.dispose()
-    return res.fetchone()
+    return result.fetchone()
 
 
 async def select_pass(id: int, name: str) -> str:
     async with engine.connect() as conn:
-        res = await conn.execute(select(OtherInfo.pass_items).where(OtherInfo.telegram_id == id,
+        result = await conn.execute(select(OtherInfo.pass_items).where(OtherInfo.telegram_id == id,
                                                                     OtherInfo.name_pass == name))
     await engine.dispose()
-    return pickle_loads(res.fetchone()[0])
+    return pickle_loads(result.fetchone()[0])
 
 
 async def check_personal_pass(id: int) -> str:
     async with engine.connect() as conn:
-        res = await conn.execute(select(Users.personal_pass).where(Users.telegram_id == id))
-        result = res.fetchone()
+        sql = await conn.execute(select(Users.personal_pass).where(Users.telegram_id == id))
+        result = sql.fetchone()
     await engine.dispose()
     return result[0]
 
 
 async def update_personal_pass(id: int, personal_pass: str):
-    stmt = update(Users).where(Users.telegram_id == id).values(personal_pass=personal_pass)
+    sql = update(Users).where(Users.telegram_id == id).values(personal_pass=personal_pass)
     async with AsyncSession(engine) as session:
-        await session.execute(stmt)
+        await session.execute(sql)
         await session.commit()
     await engine.dispose()
 
 
 async def update_weather_status(id: int, is_notise: bool):
-    stmt = update(Users).where(Users.telegram_id == id).values(weather_notif_status=is_notise)
+    sql = update(Users).where(Users.telegram_id == id).values(weather_notif_status=is_notise)
     async with AsyncSession(engine) as session:
-        await session.execute(stmt)
+        await session.execute(sql)
         await session.commit()
     await engine.dispose()
 

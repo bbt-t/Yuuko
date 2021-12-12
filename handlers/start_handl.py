@@ -22,9 +22,9 @@ async def start_working_with_bot(message: Message):
     Such a response will be sent at the start of communication (/start)
     """
     name: str = message.from_user.full_name
-    text = f"Привет, {name}!\n\nЯ твой 'домашний' бот,\nчтобы я могла выполнять свои функции " \
+    text: str = f"Привет, {name}!\n\nЯ твой 'домашний' бот,\nчтобы я могла выполнять свои функции " \
            f"ответь пожалуйста на пару вопросов..."
-    user_id = message.from_user.id
+    user_id: int = message.from_user.id
     try:
         await add_user(id=user_id, name=name)
     except sqlite3_Error:

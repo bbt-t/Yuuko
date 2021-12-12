@@ -82,7 +82,3 @@ class ShoppingList:
             self.what: list = self.what.split(',')
         return '\n'.join(f"{i}) {val}" for i, val in enumerate(self.what, 1))
 
-
-
-
-

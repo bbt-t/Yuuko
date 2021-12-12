@@ -9,9 +9,8 @@ from aiogram_calendar import simple_cal_callback, SimpleCalendar
 from config import pkl_key, time_now
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
+
 from utils.todo import ToDo
-
-
 
 
 def save_pkl_obj():
@@ -88,7 +87,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         date: str = data['date']
     name: str = f'pref_todo_{message.from_user.id}'
     if len(message.text) <= 120:
-        message_task: list = message.text.replace(' ', '').split(',')
+        message_task: list = message.text.split(',')
         try:
             all_todo_obj[name].__add__(dispositions=message_task, time_todo=date)
         except Exception as err:

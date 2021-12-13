@@ -19,6 +19,8 @@ He doesn't know much yet, because I just started learning Python.
   Notify about weather</li>
   <li>Напомнить о делах :heavy_check_mark:<br>
   Remind me to do something</li>
+  <li>Сохранять пароли :heavy_check_mark:<br>
+  Save passwords</li>
 </ul>
 </details>
 

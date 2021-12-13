@@ -1,7 +1,7 @@
 from asyncio import sleep as asyncio_sleep
 from hashlib import scrypt as hashlib_scrypt
 from hmac import compare_digest as hmac_compare_digest
-from pickle import dumps, loads
+from pickle import dumps
 from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext

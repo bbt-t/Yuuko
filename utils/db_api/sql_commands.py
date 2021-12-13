@@ -68,6 +68,12 @@ async def select_user(id: int) -> str:
 
 
 async def select_pass(id: int, name: str) -> str:
+    """
+    gets password and extracts from pkl
+    :param id: telegram id
+    :param name: saved password name
+    :return: password
+    """
     async with engine.connect() as conn:
         result = await conn.execute(select(OtherInfo.pass_items).where(OtherInfo.telegram_id == id,
                                                                     OtherInfo.name_pass == name))
@@ -76,14 +82,24 @@ async def select_pass(id: int, name: str) -> str:
 
 
 async def check_personal_pass(id: int) -> str:
+    """
+    To check the entered password
+    :param id: telegram id
+    :return: password for verification
+    """
     async with engine.connect() as conn:
         sql = await conn.execute(select(Users.personal_pass).where(Users.telegram_id == id))
-        result = sql.fetchone()
+        result: tuple = sql.fetchone()
     await engine.dispose()
     return result[0]
 
 
 async def update_personal_pass(id: int, personal_pass: str):
+    """
+    Sets a new password for verification
+    :param id: telegram id
+    :param personal_pass: password
+    """
     sql = update(Users).where(Users.telegram_id == id).values(personal_pass=personal_pass)
     async with AsyncSession(engine) as session:
         await session.execute(sql)
@@ -92,6 +108,11 @@ async def update_personal_pass(id: int, personal_pass: str):
 
 
 async def update_weather_status(id: int, is_notise: bool):
+    """
+    Sets the status weather notif
+    :param id: telegram id
+    :param is_notise: True/False
+    """
     sql = update(Users).where(Users.telegram_id == id).values(weather_notif_status=is_notise)
     async with AsyncSession(engine) as session:
         await session.execute(sql)
@@ -100,6 +121,10 @@ async def update_weather_status(id: int, is_notise: bool):
 
 
 async def select_all_users_weather():
+    """
+    Checking for enabled notifications (weather)
+    :return: all users with status 'True'
+    """
     async with engine.connect() as conn:
         res = await conn.execute(select(Users.telegram_id).where(Users.weather_notif_status == True))
     await engine.dispose()

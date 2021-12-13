@@ -34,7 +34,6 @@ async def on_startup(dp):
     scheduler.add_job(send_todo_voice_by_ya, 'cron', id='todo_send_msg',
                       day_of_week='mon-sun', hour='7', minute='00', end_date='2023-05-30',
                       misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
-
     logger_guru.warning('START BOT')
 
 

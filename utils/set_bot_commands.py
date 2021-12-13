@@ -11,5 +11,5 @@ async def set_default_commands(dp):
         BotCommand('todo','Записать "список дел"'),
         BotCommand('start_weather', 'Оповещение о погоде'),
         BotCommand('pass', 'Записать/вспомнить пароль'),
-        BotCommand('support', 'Связаться с администрацией'),
+        BotCommand('support', 'Help/Связаться с администрацией'),
     ])

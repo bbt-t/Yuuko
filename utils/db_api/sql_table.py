@@ -3,6 +3,8 @@ from sqlalchemy import Column, String, PickleType, SmallInteger, Boolean
 from loader import Base
 
 
+
+
 class Users(Base):
     __tablename__ = 'users'
     telegram_id = Column(SmallInteger, primary_key=True)

@@ -8,7 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from config import BOT_TOKEN, redis, DB_NAME
-# from utils.db_api.sqlite import Database
 
 
 
@@ -28,8 +27,6 @@ scheduler.configure(
 # SQLite with aiosqlite and async_sqlalchemy
 Base = declarative_base()
 engine = create_async_engine(f'sqlite+aiosqlite:///data/{DB_NAME}')
-
-
 
 logger_guru.add(
     'logging-bot-home.log',

@@ -12,7 +12,7 @@ from utils.keyboards.choice_del_todo_kb import choice_del__todo_keyboard
 async def send_evening_poll(user_id: int):
     date = str(time_now.date())
 
-    result = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
+    result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
                        enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1))
     if result:
         await bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
@@ -32,9 +32,9 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(state='waiting_for_numbers_del')
 async def waiting_for_del(message: Message, state: FSMContext):
     date = str(time_now.date())
-    user_id = message.from_user.id
+    user_id: int = message.from_user.id
     try:
-        lst_for_del: list = message.text.replace(' ','').split(',')
+        lst_for_del: list = message.text.replace(' ', '').split(',')
         for i, item in enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date]):
             if i in lst_for_del:
                 td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date].pop(i)

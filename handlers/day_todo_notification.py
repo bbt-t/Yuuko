@@ -10,6 +10,8 @@ from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import select_all_users_weather
 
 
+
+
 @rate_limit(5)
 @dp.message_handler(Command('set_tntodo'))
 async def late_day_todo_notification(message: Message, state: FSMContext):

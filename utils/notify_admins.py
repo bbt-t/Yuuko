@@ -13,6 +13,7 @@ async def on_startup_notify(dp):
     except Exception as err:
         logger_guru.warning(f'{repr(err)} : Сan not send a message to the administrator')
 
+
 async def on_shutdown_notify(dp):
     """
     Newsletter to admins when the bot is stopped

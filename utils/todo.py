@@ -1,7 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import timedelta
-from typing import Union
 
 from config import time_now
 from loader import logger_guru
@@ -64,21 +62,4 @@ def todo_to_next_day():
     except Exception as err:
         logger_guru.error(f'{repr(err)} : TRANSFER NEXT DAY ERROR !')
 
-
-@dataclass
-class ShoppingList:
-    """
-    ==========================
-    Датакласс 'список покупок'
-    ==========================
-    Первое добавление списком (list).
-    (!) Строкой (опционально!) через зяпяту, использовать методы строки! (!)
-    """
-    __slots__ = 'what'
-    what: Union[str, list]
-
-    def __str__(self):
-        if not isinstance(self.what, list):
-            self.what: list = self.what.split(',')
-        return '\n'.join(f"{i}) {val}" for i, val in enumerate(self.what, 1))
 

@@ -16,7 +16,6 @@ def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEA
     :param city: city
     :param api_key: api keys
     """
-
     URL: Final[tuple] = (f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid='
                          f'{api_key_1}&units=metric&lang=ru',
                          f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey="

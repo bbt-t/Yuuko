@@ -10,6 +10,7 @@ from aiogram.types import Message, CallbackQuery
 from pgpy import PGPMessage
 
 from loader import dp, logger_guru
+from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import check_personal_pass, update_personal_pass, add_other_info, select_pass
 from utils.keyboards.pass_settings_bk import pass_choice_kb
 
@@ -33,6 +34,7 @@ def convert_password_to_enc_object(user_id, name_pass, password):
     return serialized_object
 
 
+@rate_limit(5)
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     await message.answer('Привет, я могу запонить твои пароли, '

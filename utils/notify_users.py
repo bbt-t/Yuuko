@@ -49,7 +49,6 @@ async def send_synthesize_voice_by_ya(id: int, text: str):
     await bot.send_voice(id, synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, text))
 
 
-
 @logger_guru.catch()
 async def send_todo_voice_by_ya():
     """

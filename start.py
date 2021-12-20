@@ -1,10 +1,10 @@
 from aiogram.utils import executor
+from sqlalchemy import exc
 
 from loader import dp, scheduler, logger_guru
-from handlers.todo_handl import save_pkl_obj
+from handlers.todo_handl import save_pkl_obj, delete_all_todo
 from utils.db_api.sql_commands import start_db
 from utils.notify_users import send_todo_voice_by_ya
-from utils.todo import todo_to_next_day
 
 
 
@@ -24,16 +24,16 @@ async def on_startup(dp):
     await on_startup_notify(dp)
     try:
         await start_db()
-    except:
+    except exc:
         logger_guru.info('DB error on start bot')
-
-    scheduler.add_job(todo_to_next_day, 'cron', id='todo_to_next_day',
-                      day_of_week='mon-fri', hour='23', minute='30', end_date='2023-05-30',
-                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
 
     scheduler.add_job(send_todo_voice_by_ya, 'cron', id='todo_send_msg',
                       day_of_week='mon-sun', hour='7', minute='00', end_date='2023-05-30',
                       misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+    scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
+                      day_of_week='mon-sun', hour='23', minute='30', end_date='2023-05-30',
+                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+
     logger_guru.warning('START BOT')
 
 

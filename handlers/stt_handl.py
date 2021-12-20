@@ -3,13 +3,14 @@ from aiogram.types import Message, ContentType
 
 from config import FOLDER_ID, API_YA_STT
 from loader import dp, logger_guru
+from middlewares.throttling import rate_limit
 from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_on_their_own import recognize_locally
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 
-
+@rate_limit(5)
 @dp.message_handler(content_types=ContentType.VOICE)
 async def determine_further_path(message: Message, state: FSMContext):
     file_id: str = message.voice.file_id

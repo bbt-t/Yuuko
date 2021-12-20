@@ -1,5 +1,5 @@
 from asyncio import sleep as asyncio_sleep
-from sqlite3 import Error as sqlite3_Error
+from sqlalchemy.exc import IntegrityError
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -27,8 +27,8 @@ async def start_working_with_bot(message: Message):
     user_id: int = message.from_user.id
     try:
         await add_user(id=user_id, name=name)
-    except sqlite3_Error:
-        logger_guru.warning(f'{user_id=} : sqlite3_Error in start handler!')
+    except IntegrityError:
+        logger_guru.warning(f'{user_id=} : Integrity Error in start handler!')
     finally:
         await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
         await bot.send_chat_action(user_id, ChatActions.TYPING)

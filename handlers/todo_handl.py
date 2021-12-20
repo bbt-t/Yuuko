@@ -1,5 +1,6 @@
 import hmac
 from pickle import PicklingError, loads, UnpicklingError, dumps
+from contextlib import suppress
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
@@ -9,8 +10,9 @@ from aiogram_calendar import simple_cal_callback, SimpleCalendar
 from config import pkl_key, time_now
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
-
 from utils.todo import ToDo
+
+
 
 
 def save_pkl_obj():
@@ -52,6 +54,16 @@ try:
 except FileNotFoundError as err:
     logger_guru.info(f'{repr(err)} : Create new dict object for todo.')
     all_todo_obj: dict = {}
+
+
+def delete_all_todo():
+    date: str = str(time_now.date())
+
+    for item in all_todo_obj.values():
+        with suppress(RuntimeError):
+            for key in item.todo:
+                if key == date:
+                    del item.todo[key]
 
 
 @rate_limit(5)

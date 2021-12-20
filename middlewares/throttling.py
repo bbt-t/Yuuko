@@ -1,5 +1,3 @@
-from functools import wraps
-from typing import Union
 from asyncio import sleep as asyncio_sleep
 
 from aiogram import Dispatcher, types
@@ -8,6 +6,11 @@ from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled
 
+from data.stickers_info import SendStickers
+
+
+
+
 def rate_limit(limit: int, key=None):
     """
     Decorator for the handler (to simplify the code)
@@ -15,7 +18,6 @@ def rate_limit(limit: int, key=None):
     :param key: an additional parameter, with the help of it the function distinguishes handlers from each other
     (you can catomise your own trotting parameter for a specific handler / group of handlers)
     """
-    @wraps
     def decorator(func):
         setattr(func, 'throttling_rate_limit', limit)
         if key:
@@ -28,13 +30,12 @@ class ThrottlingMiddleware(BaseMiddleware):
     """
     Anti-flood
     """
-
     def __init__(self, limit=DEFAULT_RATE_LIMIT, key_prefix='antiflood_'):
         self.rate_limit = limit
         self.prefix = key_prefix
         super(ThrottlingMiddleware, self).__init__()
 
-    async def on_process_message(self, message: Union[types.Message, types.CallbackQuery], data: dict):
+    async def on_process_message(self, message: types.Message | types.CallbackQuery, data: dict):
         handler = current_handler.get()
         dpr = Dispatcher.get_current()
         if handler:
@@ -49,7 +50,7 @@ class ThrottlingMiddleware(BaseMiddleware):
             await self.message_throttled(message, trot)
             raise CancelHandler()
 
-    async def message_throttled(self, message: Union[types.Message, types.CallbackQuery], throttled: Throttled):
+    async def message_throttled(self, message: types.Message | types.CallbackQuery, throttled: Throttled):
         handler = current_handler.get()
         dispatcher = Dispatcher.get_current()
         if handler:
@@ -60,7 +61,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         delta = throttled.rate - throttled.delta
 
         if throttled.exceeded_count <= 2:
-            await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
+            await message.reply_sticker(SendStickers.you_were_bad.value)
             await message.reply('Слишком часто пишешь!')
 
         await asyncio_sleep(delta)

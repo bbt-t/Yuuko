@@ -8,6 +8,7 @@ from aiogram.types import Message, ChatActions, ContentType
 from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
+from data.stickers_info import SendStickers
 from loader import dp, bot, scheduler, logger_guru
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import update_weather_status
@@ -54,7 +55,7 @@ async def start_weather(message: Message, state: FSMContext):
         except (sqlite3_Error, JobLookupError) as err:
             logger_guru.warning(f'{repr(err)} : Error in the block of notification cancellation!')
 
-            await message.reply_sticker('CAACAgIAAxkBAAEDZnphqNiE9Hq7mRGha9j-nJfYGOSPgAACeg0AAsCf8Ev-fdx9cnSwwSIE')
+            await message.reply_sticker(SendStickers.hmm.value)
             await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
             await asyncio_sleep(1)
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
@@ -73,6 +74,6 @@ async def start_weather(message: Message, state: FSMContext):
             await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
             await state.finish()
     else:
-        await message.reply_sticker('CAACAgIAAxkBAAEDZaFhp4qDluGGvnCQe2WhofQ3r2wtfgACrAEAAhAabSJ41lvmGuTmxyIE')
+        await message.reply_sticker(SendStickers.i_do_not_understand.value)
         await message.answer('КХМ ... попробуй ещё раз ...')
         await state.finish()

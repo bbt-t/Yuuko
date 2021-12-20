@@ -2,6 +2,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 
+from data.stickers_info import SendStickers
 from loader import dp
 from middlewares.throttling import rate_limit
 from utils.keyboards.support_contact_kb import sup_kb, sup_cb
@@ -13,7 +14,7 @@ from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 @dp.message_handler(Command('support'), state="*")
 async def contact_support_by_message(message: Message, state: FSMContext):
     kb = await sup_kb()
-    await message.reply_sticker('CAACAgIAAxkBAAEDbxphr6Avra8WTksfENEkK1GuHIpwpQACZAEAAhAabSJJXz3XqubCyiME')
+    await message.reply_sticker(SendStickers.fear.value)
     await message.answer('Хочешь написать создателю?)', reply_markup=kb)
     await state.finish()
     await message.delete()

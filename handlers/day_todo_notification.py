@@ -4,6 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 
+from data.stickers_info import SendStickers
 from handlers.question_at_the_end_day import send_evening_poll
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
@@ -38,7 +39,7 @@ async def start_weather(message: Message, state: FSMContext):
         finally:
             await state.finish()
     else:
-        await message.reply_sticker('CAACAgIAAxkBAAEDZaFhp4qDluGGvnCQe2WhofQ3r2wtfgACrAEAAhAabSJ41lvmGuTmxyIE')
+        await message.reply_sticker(SendStickers.i_do_not_understand.value)
         await message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 

@@ -8,6 +8,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import pkl_key, time_now
+from data.stickers_info import SendStickers
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
 from utils.todo import ToDo
@@ -69,7 +70,7 @@ def delete_all_todo():
 @rate_limit(5)
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
-    await message.reply_sticker('CAACAgIAAxkBAAEDZdthp74uT7HCmBSru9Ehma95SpVSIQACZQEAAhAabSJhjGLAZuk2oSIE')
+    await message.reply_sticker(SendStickers.yipee_2_girls.value)
     await message.answer('<code>Привет! :)\nдавай запишем что сделать и когда</code>',
                          reply_markup=await SimpleCalendar().start_calendar())
     await state.set_state('todo')
@@ -117,7 +118,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         await message.answer(f'сделано!\n\nвот список на этот день:\n\n{result}')
     else:
         logger_guru.warning(f'{name} Trying to write a message that is too large.')
-        await message.reply_sticker('CAACAgIAAxkBAAEDZZhhp4W7R60LkP0BQaSR3B-agVBpswACpAEAAhAabSIYtWa5P_cfjSIE')
+        await message.reply_sticker(SendStickers.you_were_bad.value)
         await message.answer('Слишком большое сообщение ! Попробуй написать короче')
 
 

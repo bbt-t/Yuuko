@@ -1,19 +1,15 @@
 from datetime import datetime
-from enum import IntEnum, unique
 from os import getenv
-import pytz
+from pytz import timezone as pytz_timezone
 
 from dotenv import load_dotenv
 load_dotenv()
 
 
-
-
-@unique
-class AdminsBot(IntEnum):
-    creator = getenv('creator')
-    assistant = getenv('assistant')
-
+admins_bot: dict = {
+    'creator': getenv('creator'),
+    'assistant': getenv('assistant'),
+}
 
 BOT_TOKEN = getenv('BOT_TOKEN')
 
@@ -28,7 +24,7 @@ API_YA_STT = getenv('API_YA_STT')
 API_YA_TTS = getenv('API_YA_TTS')
 
 timezone = getenv('TIMEZONE')
-time_zone = pytz.timezone(timezone)
+time_zone = pytz_timezone(timezone)
 time_now = time_zone.localize(datetime.now())
 
 HOST = getenv('HOST')

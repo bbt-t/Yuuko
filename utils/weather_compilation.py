@@ -32,7 +32,7 @@ def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEA
     except:
         logger_guru.warning("Main API didn't work !")
 
-        city_spare_api = request_get(f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
+        city_spare_api: str = request_get(f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
                                      f'{api_key_2}&q={city}').json()[0]['Key']
         req = request_get(URL[1].replace('CITY', str(city_spare_api))).json()
 

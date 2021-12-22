@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message
 from config import time_now
 import handlers.todo_handl as td_h
 from loader import bot, dp, logger_guru
-from utils.keyboards.choice_del_todo_kb import choice_del__todo_keyboard
+from utils.keyboards.choice_del_todo_kb import choice_del_todo_keyboard
 
 
 
@@ -17,7 +17,7 @@ async def send_evening_poll(user_id: int):
     if result:
         await bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
                                f'\n\nесли что-то из списка уже не актуально, можно удалить кнопкой ниже:\n',
-                               reply_markup=choice_del__todo_keyboard)
+                               reply_markup=choice_del_todo_keyboard)
     else:
         await bot.send_message(user_id, 'На сегодня ничего не было запланированно :С')
 

@@ -9,7 +9,7 @@ from utils.horoscope.getting_horoscope import get_user_horoscope
 
 
 
-@rate_limit(5, key='start')
+@rate_limit(5, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext):
     await message.answer('Заглянем в бууудууущее))...\n\n'

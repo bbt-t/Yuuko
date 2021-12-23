@@ -6,7 +6,8 @@ from loader import logger_guru
 
 
 
-def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> bytes:
+
+async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> bytes:
     """
     Here we translate the text into voice using Yandex TTS API
     :param FOLDER_ID: cloud folder

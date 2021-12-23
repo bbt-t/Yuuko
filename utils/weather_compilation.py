@@ -9,8 +9,7 @@ from loader import logger_guru
 
 
 
-@logger_guru.catch()
-def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEATHER) -> str:
+async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEATHER) -> str:
     """
     Weather api request func
     :param city: city

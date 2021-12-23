@@ -78,7 +78,7 @@ async def accept_personal_key(call: CallbackQuery):
 @dp.message_handler(state='successful_auth_for_pass')
 async def set_name_and_write_pass(message: Message, state: FSMContext):
     msg: str = message.text
-    user_id = message.from_user.id
+    user_id: int = message.from_user.id
 
     async with state.proxy() as data:
         name_pass: str = data.get('name')

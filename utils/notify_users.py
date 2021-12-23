@@ -35,7 +35,8 @@ async def send_weather(id: int, city: str = CITY_WEATHER):
     :param id: user id
     :return: message
     """
-    await bot.send_message(id, create_weather_forecast(API_WEATHER, API_WEATHER2, city), ParseMode.HTML)
+    text_msg = await create_weather_forecast(API_WEATHER, API_WEATHER2, city)
+    await bot.send_message(id, text_msg, ParseMode.HTML)
 
 
 @logger_guru.catch()
@@ -46,7 +47,8 @@ async def send_synthesize_voice_by_ya(id: int, text: str):
     :param text: text for synthesis
     :return: voice message
     """
-    await bot.send_voice(id, synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, text))
+    text_msg = await synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, text)
+    await bot.send_voice(id, text_msg)
 
 
 @logger_guru.catch()

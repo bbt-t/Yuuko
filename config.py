@@ -40,3 +40,5 @@ redis = {
 }
 
 DB_NAME = getenv('DB_NAME')
+
+HORO_XML = getenv('HORO_XML')

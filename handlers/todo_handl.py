@@ -16,7 +16,7 @@ from utils.todo import ToDo
 
 
 
-def save_pkl_obj():
+async def save_pkl_obj():
     """
     Write pickle with signature.
     """

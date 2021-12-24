@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 
 from data.stickers_info import SendStickers
-from handlers.question_at_the_end_day import send_evening_poll
+from utils.notify_users import send_evening_poll
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import select_all_users_weather

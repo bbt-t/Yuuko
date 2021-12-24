@@ -70,6 +70,11 @@ async def send_todo_voice_by_ya():
 
 
 async def send_evening_poll(user_id: int):
+    """
+    Sends a generated 'ToDo-list' to the specified telegram id, asks what to delete.
+    :param user_id: telegram id of the person to whom the message will be sent
+    :return: message
+    """
     date = str(time_now.date())
 
     result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in

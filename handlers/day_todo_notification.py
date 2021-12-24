@@ -8,7 +8,6 @@ from data.stickers_info import SendStickers
 from utils.notify_users import send_evening_poll
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-from utils.db_api.sql_commands import select_all_users_weather
 
 
 
@@ -42,6 +41,6 @@ async def start_weather(message: Message, state: FSMContext):
         await message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 
-    if user_id not in await select_all_users_weather():
+    if not any(job.id == f'weather_add_id_{user_id}' for job in scheduler.get_jobs()):
         await message.answer('когда тебя оповещать о погоде ?')
         await state.set_state('weather_on')

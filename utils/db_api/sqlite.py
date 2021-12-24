@@ -96,11 +96,6 @@ class Database:
         parameters = (telegram_id, full_name, weather_notif_status, todo_notif_status, personal_pass)
         self.execute(sql, parameters=parameters, commit=True)
 
-    def update_weather_status(self, telegram_id: int, weather_notif_status: bool):
-        sql = "UPDATE Users SET weather_notif_status = ? WHERE ?"
-        parameters = (weather_notif_status, telegram_id)
-        self.execute(sql, parameters=parameters, commit=True)
-
     def select_all_id(self):
         sql = "SELECT telegram_id FROM Users"
         return self.execute(sql, fetchall=True)
@@ -113,11 +108,6 @@ class Database:
         sql = "SELECT * FROM Users WHERE "
         sql, parameters = self.format_args(sql, kwargs)
         return self.execute(sql, parameters=parameters, fetchone=True)
-
-    def select_all_users_weather(self, **kwargs):
-        sql = "SELECT telegram_id, weather_notif_status FROM Users WHERE weather_notif_status IS NOT NULL"
-        sql, parameters = self.format_args(sql, kwargs)
-        return self.execute(sql,parameters=parameters, fetchall=True)
 
     def count_users(self):
         return self.execute("SELECT COUNT(*) FROM Users;", fetchone=True)

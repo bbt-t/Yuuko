@@ -107,25 +107,26 @@ async def update_personal_pass(id: int, personal_pass: str):
     await engine.dispose()
 
 
-async def update_weather_status(id: int, is_notise: bool):
+async def update_birthday(id: int, birthday) -> None:
     """
-    Sets the status weather notif
+    Sets the values of the user's birthday.
     :param id: telegram id
-    :param is_notise: True/False
+    :param birthday: birthday date
     """
-    sql = update(Users).where(Users.telegram_id == id).values(weather_notif_status=is_notise)
+    sql = update(Users).where(Users.telegram_id == id).values(birthday=birthday)
     async with AsyncSession(engine) as session:
         await session.execute(sql)
         await session.commit()
     await engine.dispose()
 
 
-async def select_all_users_weather():
+async def select_user_birthday(id: int) -> str:
     """
-    Checking for enabled notifications (weather)
-    :return: all users with status 'True'
+    Selects a user by his ID
+    :param id: telegram id
+    :return: user info
     """
     async with engine.connect() as conn:
-        res = await conn.execute(select(Users.telegram_id).where(Users.weather_notif_status == True))
+        result = await conn.execute(select(Users.birthday).where(Users.telegram_id == id))
     await engine.dispose()
-    return res.fetchone()
+    return result.fetchone()[0]

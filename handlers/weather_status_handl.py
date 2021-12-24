@@ -11,7 +11,6 @@ from config import FOLDER_ID, API_YA_STT
 from data.stickers_info import SendStickers
 from loader import dp, bot, scheduler, logger_guru
 from middlewares.throttling import rate_limit
-from utils.db_api.sql_commands import update_weather_status
 from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
@@ -46,7 +45,6 @@ async def start_weather(message: Message, state: FSMContext):
             for x in ('отм', 'вык', 'уда', 'да') if not let.isnumeric()
     ):
         try:
-            await update_weather_status(id=user_id, is_notise=False)
             scheduler.remove_job(f'weather_add_id_{user_id}')
             logger_guru.info(f"{user_id=} : turned off weather alerts")
 
@@ -62,14 +60,11 @@ async def start_weather(message: Message, state: FSMContext):
             await state.finish()
 
     elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', ''.join(num for num in text if num.isnumeric()).replace(' ', '')):
-        try:
-            await update_weather_status(id=user_id, is_notise=True)
+
             scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
                               hour=text[:2], minute=text[-2:], end_date='2023-05-30', args=(user_id,),
                               misfire_grace_time=30,replace_existing=True, timezone="Europe/Moscow")
-        except:
-            logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')
-        else:
+
             logger_guru.info(f"{user_id=} : turned on weather notifications")
             await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
             await state.finish()

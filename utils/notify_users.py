@@ -21,6 +21,9 @@ def auth(func):
     """
     @wraps(func)
     async def wrapper(message: Message):
+        if message.from_user.is_bot:
+            logger_guru.critical(f'{message.from_user.id=} : Bot is trying to log-in!')
+            return None
         if await select_user(id=message.from_user.id):
             await message.delete()
             return await message.reply('Мы же уже знакомы :)', reply=False)
@@ -78,7 +81,7 @@ async def send_evening_poll(user_id: int):
     date = str(time_now.date())
 
     result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
-                       enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1))
+                       enumerate(all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1))
     if result:
         await bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
                                f'\n\nесли что-то из списка уже не актуально, можно удалить кнопкой ниже:\n',

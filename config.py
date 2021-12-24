@@ -42,3 +42,4 @@ redis = {
 DB_NAME = getenv('DB_NAME')
 
 HORO_XML = getenv('HORO_XML')
+HAIRCUT_PARSE = getenv('HAIRCUT_PARSE')

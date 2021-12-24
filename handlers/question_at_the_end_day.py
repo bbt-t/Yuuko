@@ -17,8 +17,8 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state='waiting_for_numbers_del')
 async def waiting_for_del(message: Message, state: FSMContext):
-    date = str(time_now.date())
-    user_id: int = message.from_user.id
+    date, user_id = str(time_now.date()), message.from_user.id
+
     try:
         lst_for_del: list = message.text.replace(' ', '').split(',')
         for i, item in enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date]):

@@ -23,8 +23,7 @@ async def late_day_todo_notification(message: Message, state: FSMContext):
 
 @dp.message_handler(state='set_tntodo')
 async def start_weather(message: Message, state: FSMContext):
-    text: str = message.text.lower().replace(' ', '')
-    user_id: int = message.from_user.id
+    text, user_id = message.text.lower().replace(' ', ''), message.from_user.id
 
     if re_match(r'^([01]\d|2[0-3]):?([0-5]\d)$', text):
         try:

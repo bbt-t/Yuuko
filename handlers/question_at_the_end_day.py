@@ -3,23 +3,9 @@ from aiogram.types import CallbackQuery, Message
 
 from config import time_now
 import handlers.todo_handl as td_h
-from loader import bot, dp, logger_guru
-from utils.keyboards.choice_del_todo_kb import choice_del_todo_keyboard
+from loader import dp, logger_guru
 
 
-
-
-async def send_evening_poll(user_id: int):
-    date = str(time_now.date())
-
-    result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
-                       enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1))
-    if result:
-        await bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
-                               f'\n\nесли что-то из списка уже не актуально, можно удалить кнопкой ниже:\n',
-                               reply_markup=choice_del_todo_keyboard)
-    else:
-        await bot.send_message(user_id, 'На сегодня ничего не было запланированно :С')
 
 
 @dp.callback_query_handler(text='choice_del_todo')
@@ -53,7 +39,7 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
         date = str(time_now.date())
         del td_h.all_todo_obj[f'pref_todo_{call.from_user.id}'].todo[date]
 
-        await bot.answer_callback_query(call.id, '<code>Сделано!</code> спокойной ночи :)')
+        await call.bot.answer_callback_query(call.id, '<code>Сделано!</code> спокойной ночи :)')
     except Exception as err:
         logger_guru.warning(f'{repr(err)}')
     finally:

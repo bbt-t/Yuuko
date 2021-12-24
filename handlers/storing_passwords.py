@@ -18,7 +18,7 @@ from utils.keyboards.pass_settings_bk import pass_choice_kb
 
 
 @logger_guru.catch()
-def convert_password_to_enc_object(user_id, name_pass, password):
+async def convert_password_to_enc_object(user_id: int, name_pass: str, password: str) -> bytes:
     """
     Encrypts password and serializes for storage
     :param user_id: ID who wrote
@@ -86,7 +86,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
     match msg.replace(',', ' ').split():
         case name_pass, password:
             await message.delete()
-            enc_pass: bytes = convert_password_to_enc_object(user_id, name_pass, password)
+            enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, password)
             await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
             await message.answer(f'Отлично! записала.')
             await state.finish()
@@ -97,7 +97,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await message.delete()
                 await message.answer('А теперь пароль :)')
             else:
-                enc_pass: bytes = convert_password_to_enc_object(user_id, name_pass, msg)
+                enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, msg)
                 await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
                 await message.delete()
                 await message.answer(f'Пoлучила, записала!')

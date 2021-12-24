@@ -5,6 +5,7 @@ from aiogram.types import ParseMode, Message
 from config import API_WEATHER, API_WEATHER2, FOLDER_ID, API_YA_TTS, CITY_WEATHER, time_now
 from loader import bot, logger_guru
 from utils.db_api.sql_commands import select_user
+from utils.keyboards.choice_del_todo_kb import choice_del_todo_keyboard
 from utils.weather_compilation import create_weather_forecast
 from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 from handlers.todo_handl import all_todo_obj
@@ -66,3 +67,16 @@ async def send_todo_voice_by_ya():
                 msg: str = f'На сегодня у тебя запланированно:\n{msg_from_todo}'
                 await bot.send_voice(item.id, synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, msg))
                 await bot.send_message(item.id, msg)
+
+
+async def send_evening_poll(user_id: int):
+    date = str(time_now.date())
+
+    result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
+                       enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1))
+    if result:
+        await bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
+                               f'\n\nесли что-то из списка уже не актуально, можно удалить кнопкой ниже:\n',
+                               reply_markup=choice_del_todo_keyboard)
+    else:
+        await bot.send_message(user_id, 'На сегодня ничего не было запланированно :С')

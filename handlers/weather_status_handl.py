@@ -33,6 +33,7 @@ async def weather_notification_on(message: Message, state: FSMContext):
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
     user_id: int = message.from_user.id
+
     match message.content_type:
         case 'voice':
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
@@ -40,10 +41,7 @@ async def start_weather(message: Message, state: FSMContext):
         case 'text':
             text = message.text
 
-    if any(
-            let.lower().startswith(x) for let in text.split()
-            for x in ('отм', 'вык', 'уда', 'да') if not let.isnumeric()
-    ):
+    if any(text.lower().startswith(let) for let in ('отк', 'отм', 'уда')):
         try:
             scheduler.remove_job(f'weather_add_id_{user_id}')
             logger_guru.info(f"{user_id=} : turned off weather alerts")
@@ -59,17 +57,17 @@ async def start_weather(message: Message, state: FSMContext):
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()
 
-    elif re_match(
-            r'^([01]\d|2[0-3])?([0-5]\d)$',
-            ''.join(num for num in text if num.isnumeric()).zfill(4)):
+    elif all((
+            time_text := ''.join(num for num in text if num.isnumeric()),
+            re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', time_text.zfill(4))
+    )):
+        scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
+                          hour=time_text[:2], minute=time_text[-2:], end_date='2023-05-30', args=(user_id,),
+                          misfire_grace_time=30, replace_existing=True, timezone="Europe/Moscow")
 
-            scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
-                              hour=text[:2], minute=text[-2:], end_date='2023-05-30', args=(user_id,),
-                              misfire_grace_time=30,replace_existing=True, timezone="Europe/Moscow")
-
-            logger_guru.info(f"{user_id=} : turned on weather notifications")
-            await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
-            await state.finish()
+        logger_guru.info(f"{user_id=} : turned on weather notifications")
+        await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
+        await state.finish()
     else:
         await message.reply_sticker(SendStickers.i_do_not_understand.value)
         await message.answer('КХМ ... попробуй ещё раз ...')

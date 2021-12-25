@@ -26,7 +26,7 @@ async def get_horoscope(call: CallbackQuery, state: FSMContext):
     try:
         await call.message.edit_reply_markup(choice_day_zodiac_keyboard)
         async with state.proxy() as data:
-            data['zodiac']: str = call.data
+            data['zodiac'] = call.data
     except MessageNotModified:
         async with state.proxy() as data:
             zodiac: str = data['zodiac']

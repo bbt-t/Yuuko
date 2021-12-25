@@ -23,7 +23,7 @@ async def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) ->
         'lang': 'ru-RU'
     }
     try:
-        response = httpx_post(url=url, headers=headers, data=msg, params=params)
+        response = httpx_post(url=url, headers=headers, content=msg, params=params)
         text: str = response.json()['result']
 
         return text

@@ -6,6 +6,8 @@ from middlewares.throttling import rate_limit
 from utils.lunar_calendar.lunar_haircut import lunar_calendar_haircut
 
 
+
+
 @rate_limit(5, key='hair')
 @dp.message_handler(Command('hair'))
 async def show_days_for_haircuts(message: Message):

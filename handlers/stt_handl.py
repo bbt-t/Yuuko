@@ -18,6 +18,8 @@ async def determine_further_path(message: Message, state: FSMContext):
     try:
         msg: bytes = await message.bot.download_file_by_id(file_id)
         text: str = await recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
+        if not text:
+            raise AttributeError('BAD REQUEST : Yandex STT func returned None')
     except:
         logger_guru.error(f'{message.from_user.id} : unsuccessful request STT YANDEX!')
 
@@ -28,7 +30,6 @@ async def determine_further_path(message: Message, state: FSMContext):
 
     if any(let.lower().startswith('пого') for let in text.split()):
         await message.answer('Давай настроем оповещение о погоде, в какое время тебе написать о ней?')
-        await send_weather(message.from_user.id)
         await state.set_state('weather_on')
     else:
         await message.answer('Не распознала :С')

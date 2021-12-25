@@ -68,7 +68,7 @@ async def send_todo_voice_by_ya():
             if key == date:
                 msg_from_todo: str = '\n'.join(f"{i}. {val}." for i, val in enumerate(item.todo[key], 1))
                 msg: str = f'На сегодня у тебя запланированно:\n{msg_from_todo}'
-                await bot.send_voice(item.id, synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, msg))
+                await bot.send_voice(item.id, await synthesize_voice_by_ya(FOLDER_ID, API_YA_TTS, msg))
                 await bot.send_message(item.id, msg)
 
 

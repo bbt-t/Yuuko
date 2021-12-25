@@ -10,13 +10,14 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 
+
 @rate_limit(5)
 @dp.message_handler(content_types=ContentType.VOICE)
 async def determine_further_path(message: Message, state: FSMContext):
     file_id: str = message.voice.file_id
     try:
         msg: bytes = await message.bot.download_file_by_id(file_id)
-        text: str = recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
+        text: str = await recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
     except:
         logger_guru.error(f'{message.from_user.id} : unsuccessful request STT YANDEX!')
 

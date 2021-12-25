@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
-from requests import get as request_get
+
+from httpx import AsyncClient
 
 from config import HAIRCUT_PARSE, time_now
 from loader import logger_guru
@@ -7,10 +8,14 @@ from loader import logger_guru
 
 
 
-async def lunar_calendar_haircut():
-
+async def lunar_calendar_haircut() -> str:
+    """
+    Forms a list of "favorable" days.
+    """
     year, month = time_now.strftime('%Y'), time_now.strftime('%B').lower()
-    req = request_get('{}{}/{}'.format(HAIRCUT_PARSE, year, month))
+
+    async with AsyncClient() as request:
+        req = await request.get('{}{}/{}'.format(HAIRCUT_PARSE, year, month))
 
     if req.status_code != 200:
         logger_guru.warning(f"{req.status_code=} : Bad request!")
@@ -19,8 +24,7 @@ async def lunar_calendar_haircut():
     soup = BeautifulSoup(req.text, 'html.parser')
     items = soup.find_all(class_='next_phase month_row green2')
 
-    text: str = '\n'.join(sorted(
-        {' '.join(data.text.split()[:2]) for data in items if data.find('span', style='font-weight: bold;')},
-        key=lambda x: int(x[:2])
-    ))
+    text: str = ','.join(
+        sorted({data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')}, key=int)
+    )
     return text

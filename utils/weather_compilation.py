@@ -1,7 +1,7 @@
 from math import ceil
 from typing import Final
 
-from requests import get as request_get
+from httpx import AsyncClient
 
 from config import CITY_WEATHER
 from loader import logger_guru
@@ -21,7 +21,8 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
                          f"{api_key_2}&language=ru-ru&metric=true&details=true"
                          )
     try:
-        req = request_get(URL[0])
+        async with AsyncClient() as request:
+            req = await request.get(URL[0])
         req = req.json()
 
         temp: int = ceil(req['main']['temp_min'])
@@ -31,9 +32,11 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
     except:
         logger_guru.warning("Main API didn't work !")
 
-        city_spare_api: str = request_get(f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
-                                     f'{api_key_2}&q={city}').json()[0]['Key']
-        req = request_get(URL[1].replace('CITY', str(city_spare_api))).json()
+        async with AsyncClient() as request:
+            city_spare_api: str = request.get(
+                f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
+                f'{api_key_2}&q={city}').json()[0]['Key']
+            req = await request.get(URL[1].replace('CITY', city_spare_api)).json()
 
         temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
         wind: float = round(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'] / 3.6)
@@ -61,6 +64,6 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
 
     return (
         f"Сегодня будет <CODE>{weather.upper()}</CODE> , <CODE>{temp}</CODE> градусов,\n<b>{rep_temp}</b>\n"
-        f"Скорость ветра <CODE>{wind}</CODE> м/с, {rep_wind}\n"
+        f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
         f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
     )

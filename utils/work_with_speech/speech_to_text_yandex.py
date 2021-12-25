@@ -1,14 +1,13 @@
-from json import loads as json_loads
 from typing import Final
 
-from requests import post
+from httpx import post as httpx_post
 
 from loader import logger_guru
 
 
 
 
-def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
+async def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
     """
     We recognize the voice by means of the Yandex Speech API service.
     :param msg: voice message
@@ -24,14 +23,9 @@ def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
         'lang': 'ru-RU'
     }
     try:
-        response = post(
-            url,
-            params=params,
-            headers=headers,
-            data=msg
-        )
-        text: str = json_loads(response.content.decode('UTF-8'))['result']
+        response = httpx_post(url=url, headers=headers, data=msg, params=params)
+        text: str = response.json()['result']
+
         return text
     except:
         logger_guru.warning('BAD REQUEST : Error in Yandex STT func')
-        return 'ой :( попробуй позднее...'

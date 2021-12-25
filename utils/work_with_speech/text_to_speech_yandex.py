@@ -1,6 +1,6 @@
 from typing import Final
 
-from requests import post as request_post
+from httpx import AsyncClient
 
 from loader import logger_guru
 
@@ -24,10 +24,9 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
         'speed': '0.9',
     }
     try:
-        with request_post(url, headers=headers, data=data, stream=True) as resp:
-            if resp.status_code != 200:
-                raise RuntimeError(f"Invalid response received: {resp.status_code=}, {resp.text=}")
-            get_data: bytes = resp.content
-        return get_data
+        async with AsyncClient() as request:
+            response = await request.post(url=url, headers=headers, data=data)
+
+        return response.content
     except RuntimeError as err:
         logger_guru.warning(f'{repr(err)} : Error in synthesize_voice_by_ya.')

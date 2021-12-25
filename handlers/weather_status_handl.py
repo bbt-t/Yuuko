@@ -36,7 +36,7 @@ async def start_weather(message: Message, state: FSMContext):
     match message.content_type:
         case 'voice':
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
-            text: str = recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
+            text: str = await recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
         case 'text':
             text = message.text
 

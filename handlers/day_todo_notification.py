@@ -15,23 +15,23 @@ from middlewares.throttling import rate_limit
 @rate_limit(5)
 @dp.message_handler(Command('set_tntodo'))
 async def late_day_todo_notification(message: Message, state: FSMContext):
-    await message.answer('Чтобы задать время для вечернего "брифинга" введи\n')
+    await message.answer('когда начинаем?')
     await state.set_state('set_tntodo')
     await message.delete()
 
 
 @dp.message_handler(state='set_tntodo')
 async def start_weather(message: Message, state: FSMContext):
-    text, user_id = message.text.lower().replace(' ', ''), message.from_user.id
+    text, user_id = ''.join(let for let in message.text if let.isnumeric()), message.from_user.id
 
-    if re_match(r'^([01]\d|2[0-3]):?([0-5]\d)$', text.rjust(5, '0')):
+    if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text.zfill(4)):
         try:
             scheduler.add_job(send_evening_poll, 'cron', id=f'job_evening_poll_{user_id}', args=(user_id,),
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
             logger_guru.info(f"{user_id=} changed the notification time")
 
-            await message.answer('Сделано !')
+            await message.reply('Сделано !')
         except:
             logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')
         finally:

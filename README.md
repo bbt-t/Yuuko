@@ -21,6 +21,10 @@ He doesn't know much yet, because I just started learning Python.
   Remind me to do something</li>
   <li>Сохранять пароли :heavy_check_mark:<br>
   Save passwords</li>
+  <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:<br>
+  Which days are "good" for a haircut</li>
+  <li>Получить гороскоп :heavy_check_mark:<br>
+  Get a horoscope</li>
 </ul>
 </details>
 

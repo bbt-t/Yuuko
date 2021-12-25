@@ -59,7 +59,9 @@ async def start_weather(message: Message, state: FSMContext):
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()
 
-    elif re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', ''.join(num for num in text if num.isnumeric()).replace(' ', '')):
+    elif re_match(
+            r'^([01]\d|2[0-3])?([0-5]\d)$',
+            ''.join(num for num in text if num.isnumeric()).zfill(4)):
 
             scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
                               hour=text[:2], minute=text[-2:], end_date='2023-05-30', args=(user_id,),

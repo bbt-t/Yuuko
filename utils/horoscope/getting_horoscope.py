@@ -31,9 +31,9 @@ async def get_user_horoscope(zodiac: str, when: Literal['today', 'tomorrow']) ->
 
                     tree = ElementTree_fromstring(await resp.text())
 
-                    generated_msg: str = ''.join(
-                        msg.text for msg in (chunk.findall(when)[0] for chunk in tree.findall(zodiac))
-                    )
+            generated_msg: str = ''.join(
+                msg.text for msg in (chunk.findall(when)[0] for chunk in tree.findall(zodiac))
+            )
             await connect_redis.set(f'horoscope_{zodiac}_{when}', generated_msg)
 
     return generated_msg

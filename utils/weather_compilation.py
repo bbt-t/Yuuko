@@ -1,7 +1,7 @@
 from math import ceil
 from typing import Final
 
-from httpx import AsyncClient
+from aiohttp import ClientSession
 
 from config import CITY_WEATHER
 from loader import logger_guru
@@ -21,9 +21,9 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
                          f"{api_key_2}&language=ru-ru&metric=true&details=true"
                          )
     try:
-        async with AsyncClient() as request:
-            req = await request.get(URL[0])
-        req = req.json()
+        async with ClientSession() as session:
+            async with session.get(URL[0]) as resp:
+                req = await resp.json()
 
         temp: int = ceil(req['main']['temp_min'])
         wind: float = req['wind']['speed']
@@ -31,12 +31,14 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
         weather_main: str = req['weather'][0]['main']
     except:
         logger_guru.warning("Main API didn't work !")
-
-        async with AsyncClient() as request:
-            city_spare_api: str = request.get(
+        async with ClientSession() as session:
+            async with session.get(
                 f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
-                f'{api_key_2}&q={city}').json()[0]['Key']
-            req = await request.get(URL[1].replace('CITY', city_spare_api)).json()
+                f'{api_key_2}&q={city}') as resp_city:
+                city_spare_api: str = (await resp_city.json())[0]['Key']
+
+            async with session.get(URL[1].replace('CITY', city_spare_api)) as resp:
+                req = await resp.json()
 
         temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
         wind: float = round(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'] / 3.6)

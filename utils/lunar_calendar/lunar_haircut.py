@@ -27,13 +27,13 @@ async def lunar_calendar_haircut() -> str:
                         return 'Что-то пошло не так...попробуй позже.'
 
                     soup = BeautifulSoup(await resp.text(), 'lxml')
-                    items = soup.find_all(class_='next_phase month_row green2')
 
-                    text: str = ','.join(
-                        sorted(
-                            {data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')},
-                            key=int
-                        )
-                    )
+            items = soup.find_all(class_='next_phase month_row green2')
+
+            text: str = ','.join(
+                sorted(
+                    {data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')}, key=int
+                )
+            )
             await connect_redis.set('haircut', text)
     return text

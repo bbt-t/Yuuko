@@ -1,6 +1,6 @@
 from typing import Final
 
-from httpx import AsyncClient
+from aiohttp import ClientSession
 
 from loader import logger_guru
 
@@ -24,9 +24,9 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
         'speed': '0.9',
     }
     try:
-        async with AsyncClient() as request:
-            response = await request.post(url=url, headers=headers, data=data)
-
-        return response.content
+        async with ClientSession() as session:
+            async with session.post(url=url, headers=headers, data=data) as resp:
+                result: bytes = await resp.read()
+        return result
     except RuntimeError as err:
         logger_guru.warning(f'{repr(err)} : Error in synthesize_voice_by_ya.')

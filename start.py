@@ -1,8 +1,12 @@
+from asyncio import set_event_loop_policy as asyncio_set_event_loop_policy
+
+from uvloop import EventLoopPolicy as uvloop_Loop
 from aiogram.utils import executor
 from sqlalchemy import exc
 
 from loader import dp, scheduler, logger_guru
 from handlers.todo_handl import save_pkl_obj, delete_all_todo
+from utils.clear_redis_data import clear_redis
 from utils.db_api.sql_commands import start_db
 from utils.notify_users import send_todo_voice_by_ya
 
@@ -33,6 +37,9 @@ async def on_startup(dp):
     scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
                       day_of_week='mon-sun', hour='23', minute='30', end_date='2023-05-30',
                       misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+    scheduler.add_job(clear_redis, 'cron', id='redis_delete_keys',
+                      day_of_week='mon-sun', hour='00', minute='00', end_date='2023-05-30',
+                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
 
     logger_guru.warning('START BOT')
 
@@ -52,6 +59,7 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
+    asyncio_set_event_loop_policy(uvloop_Loop())
     scheduler.start()
     try:
         executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True)

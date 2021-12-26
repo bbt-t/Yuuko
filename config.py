@@ -38,6 +38,11 @@ redis = {
     'password': PASS_REDIS,
     'prefix': 'fsm_key'
 }
+redis_for_data = {
+    'url': f'redis:{HOST}',
+    'password': PASS_REDIS,
+    'db': 1
+}
 
 DB_NAME = getenv('DB_NAME')
 

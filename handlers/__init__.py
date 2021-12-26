@@ -8,4 +8,5 @@ from .stt_handl import dp
 from .storing_passwords import dp
 from .horoscope_handl import dp
 from .calendar_haircut_handl import dp
+
 __all__ = ['dp']

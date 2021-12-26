@@ -1,6 +1,6 @@
 from typing import Final
 
-from httpx import post as httpx_post
+from aiohttp import ClientSession
 
 from loader import logger_guru
 
@@ -23,9 +23,10 @@ async def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) ->
         'lang': 'ru-RU'
     }
     try:
-        response = httpx_post(url=url, headers=headers, content=msg, params=params)
-        text: str = response.json()['result']
-
+        async with ClientSession() as session:
+            async with session.post(url=url, headers=headers, data=msg, params=params) as resp:
+                result = await resp.json()
+        text: str = result.get('result')
         return text
     except:
         logger_guru.warning('BAD REQUEST : Error in Yandex STT func')

@@ -20,7 +20,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 @rate_limit(5)
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):
-    await message.answer_sticker('CAACAgIAAxkBAAEDZZZhp4UKWID3NNoRRLywpZPBSmpGUwACVwEAAhAabSKlKzxU-3o0qiIE')
+    await message.answer_sticker(SendStickers.welcome.value)
     await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
@@ -39,7 +39,7 @@ async def start_weather(message: Message, state: FSMContext):
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
             text: str = await recognize_speech_by_ya(msg, FOLDER_ID, API_YA_STT)
         case 'text':
-            text = message.text
+            text: str = message.text
 
     if any(text.lower().startswith(let) for let in ('отк', 'отм', 'уда')):
         try:
@@ -59,7 +59,7 @@ async def start_weather(message: Message, state: FSMContext):
 
     elif all((
             time_text := ''.join(num for num in text if num.isnumeric()),
-            re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', time_text.zfill(4))
+            re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', time_text := time_text.zfill(4))
     )):
         scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
                           hour=time_text[:2], minute=time_text[-2:], end_date='2023-05-30', args=(user_id,),

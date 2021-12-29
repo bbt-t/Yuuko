@@ -27,19 +27,19 @@ timezone = getenv('TIMEZONE')
 time_zone = pytz_timezone(timezone)
 time_now = time_zone.localize(datetime.now())
 
-HOST = getenv('HOST')
+HOST_REDIS = getenv('HOST_REDIS')
 
 PORT_REDIS = getenv('PORT_REDIS')
 PASS_REDIS = getenv('PASS_REDIS')
 
 redis = {
-    'host': HOST,
+    'host': HOST_REDIS,
     'port': PORT_REDIS,
     'password': PASS_REDIS,
     'prefix': 'fsm_key'
 }
 redis_for_data = {
-    'url': f'redis:{HOST}',
+    'url': f'redis://{HOST_REDIS}',
     'password': PASS_REDIS,
     'db': 1
 }

@@ -59,7 +59,7 @@ async def start_weather(message: Message, state: FSMContext):
 
     elif all((
             time_text := ''.join(num for num in text if num.isnumeric()),
-            re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', time_text := time_text.zfill(4))
+            re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', time_text := time_text.zfill(4)[:4])
     )):
         scheduler.add_job(send_weather, 'cron', day_of_week='mon-sun', id=f'weather_add_id_{user_id}',
                           hour=time_text[:2], minute=time_text[-2:], end_date='2023-05-30', args=(user_id,),

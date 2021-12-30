@@ -1,0 +1,6 @@
+.cache
+.gitignore
+__pycache__
+.venv
+.github
+*.log

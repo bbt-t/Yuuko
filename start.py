@@ -1,10 +1,11 @@
 from asyncio import set_event_loop_policy as asyncio_set_event_loop_policy
 
+from aiogram.utils.executor import start_webhook
 from uvloop import EventLoopPolicy as uvloop_Loop
-from aiogram.utils import executor
 from sqlalchemy import exc
 
-from loader import dp, scheduler, logger_guru
+from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
+from loader import dp, scheduler, logger_guru, bot
 from handlers.todo_handl import save_pkl_obj, delete_all_todo
 from utils.clear_redis_data import clear_redis
 from utils.db_api.sql_commands import start_db
@@ -22,6 +23,7 @@ async def on_startup(dp):
     import middlewares
     import handlers
     import filters
+    await bot.set_webhook(WEBHOOK_URL)
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
     from utils.notify_admins import on_startup_notify
@@ -50,6 +52,7 @@ async def on_shutdown(dp):
     Notifying admins about the stop of the bot, save Todo objects.
     :param dp: Dispatcher
     """
+    await bot.delete_webhook()
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
     await save_pkl_obj()
@@ -62,6 +65,13 @@ if __name__ == '__main__':
     asyncio_set_event_loop_policy(uvloop_Loop())
     scheduler.start()
     try:
-        executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True)
+        start_webhook(
+            dispatcher=dp,
+            webhook_path=WEBHOOK_PATH,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown,
+            skip_updates=True,
+            host=WEBAPP_HOST,
+            port=WEBAPP_PORT)
     except BaseException as err:
         logger_guru.critical(f'{repr(err)} : STOP BOT')

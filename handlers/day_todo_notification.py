@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 
-from data.stickers_info import SendStickers
+from utils.stickers_info import SendStickers
 from utils.notify_users import send_evening_poll
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit

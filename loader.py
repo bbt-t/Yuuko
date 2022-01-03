@@ -21,12 +21,11 @@ scheduler.configure(
     jobstores={'default': SQLAlchemyJobStore(url='sqlite:///data/jobs.sqlite')},
     logger=logger_guru)
 
-# SQLite with aiosqlite and async sqlalchemy
 Base = declarative_base()
 engine = create_async_engine(f'sqlite+aiosqlite:///data/{DB_NAME}')
 
 logger_guru.add(
-    'logging-bot-home.log',
+    'data/logs/logging-bot-home.log',
     format='{time} {level} {message}',
     level='WARNING',
     rotation='00:00',

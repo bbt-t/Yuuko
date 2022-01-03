@@ -8,7 +8,7 @@ from aiogram.types import Message, ChatActions, ContentType
 from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
-from data.stickers_info import SendStickers
+from utils.stickers_info import SendStickers
 from loader import dp, bot, scheduler, logger_guru
 from middlewares.throttling import rate_limit
 from utils.notify_users import send_weather

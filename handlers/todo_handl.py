@@ -8,7 +8,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import pkl_key, time_now
-from data.stickers_info import SendStickers
+from utils.stickers_info import SendStickers
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
 from utils.todo import ToDo

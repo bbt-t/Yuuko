@@ -23,7 +23,8 @@ async def on_startup(dp):
     import middlewares
     import handlers
     import filters
-    await bot.set_webhook(WEBHOOK_URL)
+    await bot.delete_webhook()
+    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
     from utils.notify_admins import on_startup_notify

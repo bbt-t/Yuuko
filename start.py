@@ -1,4 +1,4 @@
-from aiogram.utils.executor import start_webhook, start_polling
+from aiogram.utils.executor import start_webhook
 from sqlalchemy import exc
 
 from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT

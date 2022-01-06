@@ -24,9 +24,9 @@ async def late_day_todo_notification(message: Message, state: FSMContext):
 async def start_weather(message: Message, state: FSMContext):
     text, user_id = ''.join(let for let in message.text if let.isnumeric()), message.from_user.id
 
-    if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text.zfill(4)):
+    if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
-            scheduler.add_job(send_evening_poll, 'cron', id=f'job_evening_poll_{user_id}', args=(user_id,),
+            scheduler.add_job(send_evening_poll, 'cron', id=f'job_evening_poll_{user_id}', args=(user_id, ),
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
             logger_guru.info(f"{user_id=} changed the notification time")

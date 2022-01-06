@@ -1,7 +1,4 @@
-from asyncio import set_event_loop_policy as asyncio_set_event_loop_policy
-
-from aiogram.utils.executor import start_webhook
-from uvloop import EventLoopPolicy as uvloop_Loop
+from aiogram.utils.executor import start_webhook, start_polling
 from sqlalchemy import exc
 
 from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
@@ -25,15 +22,18 @@ async def on_startup(dp):
     import filters
     await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
     from utils.notify_admins import on_startup_notify
     await on_startup_notify(dp)
+
     try:
         await start_db()
     except exc:
         logger_guru.info('DB error on start bot')
 
+    scheduler.start()
     scheduler.add_job(send_todo_voice_by_ya, 'cron', id='todo_send_msg',
                       day_of_week='mon-sun', hour='7', minute='00', end_date='2023-05-30',
                       misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
@@ -53,7 +53,6 @@ async def on_shutdown(dp):
     Notifying admins about the stop of the bot, save Todo objects.
     :param dp: Dispatcher
     """
-    await bot.delete_webhook()
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
     await save_pkl_obj()
@@ -63,16 +62,11 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
-    asyncio_set_event_loop_policy(uvloop_Loop())
-    scheduler.start()
     try:
         start_webhook(
-            dispatcher=dp,
-            webhook_path=WEBHOOK_PATH,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            skip_updates=True,
-            host=WEBAPP_HOST,
-            port=WEBAPP_PORT)
+            dispatcher=dp, webhook_path=WEBHOOK_PATH,
+            on_startup=on_startup, on_shutdown=on_shutdown,
+            skip_updates=True, host=WEBAPP_HOST, port=WEBAPP_PORT
+        )
     except BaseException as err:
         logger_guru.critical(f'{repr(err)} : STOP BOT')

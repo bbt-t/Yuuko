@@ -1,6 +1,6 @@
 from datetime import datetime
 from os import getenv
-from pytz import timezone as pytz_timezone
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -23,9 +23,8 @@ FOLDER_ID = getenv('FOLDER_ID')
 API_YA_STT = getenv('API_YA_STT')
 API_YA_TTS = getenv('API_YA_TTS')
 
-timezone = getenv('TIMEZONE')
-time_zone = pytz_timezone(timezone)
-time_now = time_zone.localize(datetime.now())
+time_zone = ZoneInfo(getenv('TIMEZONE'))
+time_now = datetime.now(tz=time_zone)
 
 HOST_REDIS = getenv('HOST_REDIS')
 

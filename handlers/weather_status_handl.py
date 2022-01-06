@@ -9,7 +9,7 @@ from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
 from utils.stickers_info import SendStickers
-from loader import dp, bot, scheduler, logger_guru
+from loader import dp, scheduler, logger_guru
 from middlewares.throttling import rate_limit
 from utils.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
@@ -21,7 +21,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):
     await message.answer_sticker(SendStickers.welcome.value)
-    await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
+    await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
                          'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
@@ -52,7 +52,7 @@ async def start_weather(message: Message, state: FSMContext):
             logger_guru.warning(f'{repr(err)} : Error in the block of notification cancellation!')
 
             await message.reply_sticker(SendStickers.hmm.value)
-            await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
+            await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
             await asyncio_sleep(1)
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
             await state.finish()

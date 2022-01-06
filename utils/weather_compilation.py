@@ -41,7 +41,7 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
                 req = await resp.json()
 
         temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
-        wind: float = round(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'] / 3.6)
+        wind: float = req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value']
         weather: str = req['DailyForecasts'][0]['Day']['ShortPhrase']
         weather_main: str = ''
 
@@ -50,10 +50,10 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
         if req['DailyForecasts'][0]['Day']['RainProbability'] >= 40:
             weather_main: str = 'rain'
 
-    if 4 <= temp <= 11:
-        rep_temp: str = 'ХОЛОДНО! одевайся потеплее!'
+    if 4 <= temp <= 10:
+        rep_temp: str = 'Относительно холодно'
     elif temp <= 3:
-        rep_temp: str = 'ОЧЕНЬ холодно! одеться необходимо тепло!'
+        rep_temp: str = 'Холодно! одевайся потеплее!'
     else:
         rep_temp: str = 'Тепло, хорошо ! прекрасный тёплый день :)'
 

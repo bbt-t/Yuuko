@@ -16,6 +16,8 @@
 </ul>
 </details>
 
+***
+
 ### Запуск
 Собрать docker-контейнер и запустить:
 ```
@@ -26,6 +28,9 @@ docker run -p 8000:8000 --name bot bot-pet:latest
 ```
 python start.py
 ```
+
+***
+
 ### ВАЖНО!
 > redis обязателен!
 

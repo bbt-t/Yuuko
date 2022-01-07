@@ -38,11 +38,11 @@ async def on_startup(dp):
                       day_of_week='mon-sun', hour='7', minute='00', end_date='2023-05-30',
                       misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
     scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
-                      day_of_week='mon-sun', hour='23', minute='30', end_date='2023-05-30',
-                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+                      day_of_week='mon-sun', hour='23', minute='50', end_date='2023-05-30',
+                      misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
     scheduler.add_job(clear_redis, 'cron', id='redis_delete_keys',
-                      day_of_week='mon-sun', hour='00', minute='00', end_date='2023-05-30',
-                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+                      day_of_week='mon-sun', hour='23', minute='50', end_date='2023-05-30',
+                      misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
 
     logger_guru.warning('START BOT')
 
@@ -64,9 +64,9 @@ async def on_shutdown(dp):
 if __name__ == '__main__':
     try:
         start_webhook(
-            dispatcher=dp, webhook_path=WEBHOOK_PATH,
+            dispatcher=dp, skip_updates=True,
             on_startup=on_startup, on_shutdown=on_shutdown,
-            skip_updates=True, host=WEBAPP_HOST, port=WEBAPP_PORT
+            webhook_path=WEBHOOK_PATH, host=WEBAPP_HOST, port=WEBAPP_PORT
         )
     except BaseException as err:
         logger_guru.critical(f'{repr(err)} : STOP BOT')

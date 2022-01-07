@@ -14,7 +14,7 @@ from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 @dp.message_handler(Command('support'), state='*')
 async def contact_support_by_message(message: Message, state: FSMContext):
     kb = await sup_kb()
-    await message.reply_sticker(SendStickers.fear.value)
+    await message.answer_sticker(SendStickers.fear.value)
     await message.answer('Хочешь написать создателю?', reply_markup=kb)
     await state.finish()
     await message.delete()

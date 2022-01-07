@@ -70,7 +70,7 @@ def delete_all_todo():
 @rate_limit(5)
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
-    await message.reply_sticker(SendStickers.yipee_2_girls.value)
+    await message.answer_sticker(SendStickers.yipee_2_girls.value)
     await message.answer('<code>Привет! :)\nдавай запишем что сделать и когда</code>',
                          reply_markup=await SimpleCalendar().start_calendar())
     await state.set_state('todo')

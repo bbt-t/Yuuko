@@ -6,7 +6,7 @@
 
 
 <details>
- <summary>Что может бот на сегодня / What a bot can do for today</summary>
+ <summary>Что может бот на сегодня</summary>
 <ul>
   <li>Оповестить о погоде :heavy_check_mark:</li>
   <li>Напомнить о делах :heavy_check_mark:</li>

@@ -17,7 +17,7 @@
 </details>
 
 ### Запуск
-Для запуска необходимо собрать docker-контейнер и запустить:
+Собрать docker-контейнер и запустить:
 ```
 docker build -t bot-pet .
 docker run -p 8000:8000 --name bot bot-pet:latest 

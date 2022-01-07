@@ -17,7 +17,7 @@
 </details>
 
 ### Запуск
-Для запуска необходимо собрать docker-конейнер и запустить:
+Для запуска необходимо собрать docker-контейнер и запустить:
 ```
 docker build -t bot-pet .
 docker run -p 8000:8000 --name bot bot-pet:latest 
@@ -29,7 +29,7 @@ python start.py
 ### ВАЖНО!
 > redis обязателен!
 
-> если предполагается запуск/установка на локальной машине, то необходимо изменить "start_webhook" на "start_poling" см. > [пример](https://github.com/bbt-t/call-support/blob/master/start.py)
+> если предполагается запуск на локальной машине, то необходимо изменить "start_webhook" на "start_poling" см. > [пример](https://github.com/bbt-t/call-support/blob/master/start.py)
 
 > Для работы бота необходим python версии >= 3.10.x
 

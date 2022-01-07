@@ -30,7 +30,7 @@ python start.py
 ### ATTENTION!
 > redis is required!
 
-> if you intend to run / install on a local machine, then you need to change "start_webhook" to "start_poling" loock this > [example](https://github.com/bbt-t/call-support/blob/master/start.py)
+> if you intend to run on a local machine, then you need to change "start_webhook" to "start_poling" loock this > [example](https://github.com/bbt-t/call-support/blob/master/start.py)
 
 > For the bot to work, you need python version >= 3.10.x
 
@@ -45,5 +45,5 @@ python start.py
 HOST_REDIS = ...
 BOT_TOKEN = ...
 API_WEATHER = ...
-и т.д
+. . .
 ``` 

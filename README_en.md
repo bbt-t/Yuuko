@@ -16,6 +16,7 @@
 </ul>
 </details>
 
+***
 
 ### Start
 To start, you need to build a docker container and run:
@@ -27,6 +28,9 @@ Or without docker:
 ```
 python start.py
 ```
+
+***
+
 ### ATTENTION!
 > redis is required!
 

@@ -1,5 +1,9 @@
-[:us: English version](README_en.md)
+<p align="center">
+  <img alt="discord_bot.py" src="https://i.ibb.co/FX1jp6H/preview-logo.webp" width="500px">
+</p>
 
+
+[:us: English version](README_en.md)
 ### О боте
 
 >Телеграм бот на основе асинхронной библиотеки aiogram v2.x

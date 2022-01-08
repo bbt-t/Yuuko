@@ -8,7 +8,7 @@ from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_now
 from utils.stickers_info import SendStickers
-from loader import bot, dp, logger_guru
+from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import add_user, update_birthday
 from utils.keyboards.start_settings_kb import start_choice_kb
@@ -34,7 +34,7 @@ async def start_working_with_bot(message: Message):
         logger_guru.warning(f'{user_id=} : Integrity Error in start handler!')
     finally:
         await message.answer_sticker(SendStickers.welcome.value)
-        await bot.send_chat_action(user_id, ChatActions.TYPING)
+        await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
         await asyncio_sleep(2)
         await send_synthesize_voice_by_ya(user_id, text)
         await message.answer(text, reply_markup=start_choice_kb)
@@ -54,7 +54,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
     if date and selected:
         time_todo = date.date()
         if time_todo > time_now.date():
-            await bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
+            await dp.bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
             await call.message.answer('Ты не можешь выбрать эту дату!', reply_markup=await SimpleCalendar().start_calendar())
         else:
             await update_birthday(id=call.from_user.id, birthday=date.date())
@@ -65,9 +65,9 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
 @dp.callback_query_handler(text='cancel')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
     await call.message.answer_sticker(SendStickers.sad_ok.value)
-    await bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
+    await dp.bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
     await asyncio_sleep(1)
-    await bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
+    await dp.bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
                                              'через слеш (/)', show_alert=True)
     await call.message.edit_reply_markup()
     await state.finish()

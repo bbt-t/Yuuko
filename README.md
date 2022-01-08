@@ -1,54 +1,56 @@
-# bot-pet
-<p>
-<h3>
-Привет, :sunglasses: это мой 'пет проект' бота aiogram.<br>
-Hello, this is my 'pet project' of the aiogram bot.
-</h3>
-</p><br>
-
-# About
-<p>
-Он пока что совсем мал, и я работаю над расширением функциональности!<br>
-He doesn't know much yet, because I just started learning Python.
+<p align="center">
+  <img alt="" src="https://i.ibb.co/FX1jp6H/preview-logo.webp" width="500px">
 </p>
-<p>
+
+[:us: English version](README_en.md)
+### О боте
+
+>Телеграм бот на основе асинхронной библиотеки aiogram v2.x
+
+
 <details>
- <summary>Что может бот на сегодня / What a bot can do for today</summary>
+ <summary>Что может бот на сегодня</summary>
 <ul>
-  <li>Оповестить о погоде :heavy_check_mark:<br>
-  Notify about weather</li>
-  <li>Напомнить о делах :heavy_check_mark:<br>
-  Remind me to do something</li>
-  <li>Сохранять пароли :heavy_check_mark:<br>
-  Save passwords</li>
-  <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:<br>
-  Which days are "good" for a haircut</li>
-  <li>Получить гороскоп :heavy_check_mark:<br>
-  Get a horoscope</li>
+  <li>Оповестить о погоде :heavy_check_mark:</li>
+  <li>Напомнить о делах :heavy_check_mark:</li>
+  <li>Сохранять пароли :heavy_check_mark:</li>
+  <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:</li>
+  <li>Получить гороскоп :heavy_check_mark:</li>
 </ul>
 </details>
 
-<details>
- <summary>Какие планы / What are the plans :bulb:</summary>
-<ul>
-  <li>Общение с ботом голосовыми сообщениями (частично реализовано :))<br>
-  Chatting with the bot by voice messages</li>
-  <li>Добавить Google API (чтобы был выбор)<br>
-  Add Google API (to have a choice)</li>
-  <li>Ещё в поиске идей...<br>
-  Still in search of ideas...</li>
-</ul>
-</details>
- </p>
- 
-# Important info
+***
 
-<p>
-<details>
- <summary>Необходимые зависимости / Required dependencies</summary>
-- Для работы бота необходим python версии / For the bot to work, you need python version >= 3.10.x<br>
-- <a href="https://alphacephei.com/vosk/models"><b>СКАЧАТЬ / DOWNLOAD</b></a> отдельно VOSK-модель для офлайн распознавания голоса.<br>
-- Остальные зависимости смотри в / all required dependencies :fast_forward: <a href="https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock">poetry.lock</a><br>
-- Для распознавания и синтеза речи 'онлайн', получение прогноза погоды необходимо использовать свои :key: API / To recognize and synthesize speech 'online', to receive a weather forecast, you must use your API-keys.
-</details>
-</p>
+### Запуск
+Собрать docker-контейнер и запустить:
+```
+docker build -t bot-pet .
+docker run -p 8000:8000 --name bot bot-pet:latest 
+```
+или без docker'a:
+```
+python start.py
+```
+
+***
+
+### ВАЖНО!
+> redis обязателен!
+
+> если предполагается запуск на локальной машине, то необходимо изменить "start_webhook" на "start_poling" см. > [пример](https://github.com/bbt-t/call-support/blob/master/start.py)
+
+> Для работы бота необходим python версии >= 3.10.x
+
+> [СКАЧАТЬ модель VOSK](https://alphacephei.com/vosk/models) для офлайн распознавания голоса.
+
+> Для распознавания и синтеза речи 'онлайн', получение прогноза погоды необходимо использовать свои :key: API.
+
+> Остальные зависимости смотри в :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
+
+> Необходмо создать файл с именем .env, пописать туда консанты (или просто явно указать значения в config.py):
+```
+HOST_REDIS = ...
+BOT_TOKEN = ...
+API_WEATHER = ...
+и т.д
+``` 

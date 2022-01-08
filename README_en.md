@@ -1,3 +1,6 @@
+<p align="center">
+  <img alt="discord_bot.py" src="https://i.ibb.co/FX1jp6H/preview-logo.webp" width="500px">
+</p>
 
 [:russia: На русском](README.md)
 ### About

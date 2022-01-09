@@ -13,14 +13,14 @@ from middlewares.throttling import rate_limit
 
 
 @rate_limit(5)
-@dp.message_handler(Command('set_tntodo'))
+@dp.message_handler(Command('set_time_todo'))
 async def late_day_todo_notification(message: Message, state: FSMContext):
-    await message.answer('когда начинаем?')
-    await state.set_state('set_tntodo')
+    await message.answer('когда напоминать о делах?')
+    await state.set_state('set_time_todo')
     await message.delete()
 
 
-@dp.message_handler(state='set_tntodo')
+@dp.message_handler(state='set_time_todo')
 async def start_weather(message: Message, state: FSMContext):
     text, user_id = ''.join(let for let in message.text if let.isnumeric()), message.from_user.id
 
@@ -39,8 +39,8 @@ async def start_weather(message: Message, state: FSMContext):
     else:
         await message.reply_sticker(SendStickers.i_do_not_understand.value)
         await message.answer('Не понятно что написано, попробуй ещё раз ...')
-        await state.finish()
+        await state.reset_state()
 
     if not any(job.id == f'weather_add_id_{user_id}' for job in scheduler.get_jobs()):
-        await message.answer('когда тебя оповещать о погоде ?')
+        await message.answer('Может ещё писать тебе о погоде?)')
         await state.set_state('weather_on')

@@ -4,8 +4,6 @@ from aiogram.types import Update
 from loader import dp, logger_guru
 
 
-
-
 @dp.errors_handler(exception=BotBlocked)
 async def bot_blocked_error(update: Update, exception: BotBlocked):
     """

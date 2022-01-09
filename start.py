@@ -1,3 +1,4 @@
+from aiogram import Dispatcher
 from aiogram.utils.executor import start_webhook
 from sqlalchemy import exc
 
@@ -11,7 +12,7 @@ from utils.notify_users import send_todo_voice_by_ya
 
 
 
-async def on_startup(dp):
+async def on_startup(dp: Dispatcher):
     """
     Registration of handlers, middlewares, notifying admins about the start of the bot,
     an attempt to create a table User if it does not exist.
@@ -19,7 +20,7 @@ async def on_startup(dp):
     """
     import middlewares
     import handlers
-    import filters
+
     await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
@@ -48,7 +49,7 @@ async def on_startup(dp):
 
 
 @logger_guru.catch()
-async def on_shutdown(dp):
+async def on_shutdown(dp: Dispatcher):
     """
     Notifying admins about the stop of the bot, save Todo objects.
     :param dp: Dispatcher

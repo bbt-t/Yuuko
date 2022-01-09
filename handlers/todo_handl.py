@@ -125,4 +125,4 @@ async def set_calendar_date(message: Message, state: FSMContext):
 @dp.message_handler(state='todo')
 async def cancel_todo(message: Message, state: FSMContext):
     await message.answer('Тебе нужно выбрать дату :) попробуй ещё раз')
-    await state.finish()
+    await state.reset_state()

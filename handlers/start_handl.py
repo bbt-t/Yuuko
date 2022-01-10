@@ -69,5 +69,5 @@ async def exit_handling(call: CallbackQuery, state: FSMContext):
     await asyncio_sleep(1)
     await dp.bot.answer_callback_query(call.id, 'ЖАЛЬ :С если что мои команды можно подглядеть '
                                              'через слеш (/)', show_alert=True)
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
     await state.finish()

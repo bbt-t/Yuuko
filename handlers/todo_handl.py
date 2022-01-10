@@ -1,4 +1,5 @@
 import hmac
+from datetime import timedelta
 from pickle import PicklingError, loads, UnpicklingError, dumps
 from contextlib import suppress
 
@@ -58,12 +59,12 @@ except FileNotFoundError as err:
 
 
 def delete_all_todo():
-    date: str = str(time_now.date())
+    date = (time_now - timedelta(days=1)).date()
 
     for item in all_todo_obj.values():
         with suppress(RuntimeError):
             for key in item.todo:
-                if key == date:
+                if key == str(date):
                     del item.todo[key]
 
 

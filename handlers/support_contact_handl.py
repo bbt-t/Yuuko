@@ -24,7 +24,7 @@ async def contact_support_by_message(message: Message, state: FSMContext):
 async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dict):
     await state.set_state('msg_for_admin')
     await state.update_data(second_id=callback_data.get('telegram_id'))
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
     await call.message.answer('пиши ...')
 
 

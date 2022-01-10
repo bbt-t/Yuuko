@@ -72,7 +72,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 async def accept_personal_key(call: CallbackQuery):
     await call.message.answer(f'Задай имя сохраняемого пароля ...\n'
                               f'(можешь сразу и сам пароль)')
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
 
 
 @dp.message_handler(state='successful_auth_for_pass')
@@ -107,7 +107,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
 @dp.callback_query_handler(text='receive_pass', state='successful_auth_for_pass')
 async def get_existing_pass(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Какое имя пароля?')
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
     await state.set_state('set_name_pass')
 
 

@@ -3,7 +3,6 @@ from datetime import timedelta
 
 from config import time_now
 from loader import logger_guru
-import handlers.todo_handl as todo_handl
 
 
 
@@ -48,18 +47,5 @@ class ToDo:
         except Exception as err:
             logger_guru.warning(f"{repr(err)} : ОШИБКА ПЕРЕНОСА")
 
-
-def todo_to_next_day():
-    """
-    Transfer all todo-entries to the next day
-    """
-    try:
-        if todo_handl.all_todo_obj.values():
-            for val in todo_handl.all_todo_obj.values():
-                val.transfer_next_day_method
-            else:
-                logger_guru.info('--- ALL TRANSFER_NEXT_DAY COMPLETE ---')
-    except Exception as err:
-        logger_guru.error(f'{repr(err)} : TRANSFER NEXT DAY ERROR !')
 
 

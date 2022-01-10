@@ -2,8 +2,9 @@ from re import match as re_match
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
+from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.stickers_info import SendStickers
 from utils.notify_users import send_evening_poll
 from loader import dp, logger_guru, scheduler
@@ -39,8 +40,15 @@ async def start_weather(message: Message, state: FSMContext):
     else:
         await message.reply_sticker(SendStickers.i_do_not_understand.value)
         await message.answer('Не понятно что написано, попробуй ещё раз ...')
-        await state.reset_state()
+        await state.finish()
 
     if not any(job.id == f'weather_add_id_{user_id}' for job in scheduler.get_jobs()):
-        await message.answer('Может ещё писать тебе о погоде?)')
-        await state.set_state('weather_on')
+        await message.answer('Я могу ещё писать тебе о погоде...', reply_markup=yes_no_choice_kb)
+
+
+@dp.callback_query_handler(text='weather_add')
+async def weather_accept(call: CallbackQuery, state: FSMContext):
+    await call.message.delete_reply_markup()
+
+    await call.message.edit_text('время?')
+    await state.set_state('weather_on')

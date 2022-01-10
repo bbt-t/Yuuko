@@ -81,8 +81,7 @@ async def send_evening_poll(user_id: int):
     try:
         if result := '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
                         enumerate(all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1)):
-            await dp.bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}'
-                                f'\n\nесли что-то из списка уже не актуально, можно удалить кнопкой ниже:\n')
+            await dp.bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}')
         else:
             raise KeyError
     except KeyError:

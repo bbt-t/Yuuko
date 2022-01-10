@@ -10,7 +10,7 @@ from loader import dp, logger_guru
 
 @dp.callback_query_handler(text='choice_del_todo')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
     await call.message.answer('вышли мне их номер из списка чтобы я мог удалить.')
     await state.set_state('waiting_for_numbers_del')
 
@@ -34,7 +34,7 @@ async def waiting_for_del(message: Message, state: FSMContext):
 
 @dp.callback_query_handler(text='delete_all_todo')
 async def inl_test_send(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_reply_markup()
+    await call.message.delete_reply_markup()
     try:
         date = str(time_now.date())
         del td_h.all_todo_obj[f'pref_todo_{call.from_user.id}'].todo[date]

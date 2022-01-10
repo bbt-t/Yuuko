@@ -32,6 +32,6 @@ async def get_horoscope(call: CallbackQuery, state: FSMContext):
             zodiac: str = data['zodiac']
         text_msg: str = await get_user_horoscope(zodiac=zodiac, when=call.data)
 
-        await call.message.edit_reply_markup()
+        await call.message.delete_reply_markup()
         await call.message.edit_text(text_msg)
         await state.finish()

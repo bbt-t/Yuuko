@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery
 
 from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.stickers_info import SendStickers
-from utils.notify_users import send_evening_poll
+from utils.notify_users import send_todo_voice_by_ya
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 
@@ -27,7 +27,7 @@ async def start_weather(message: Message, state: FSMContext):
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
-            scheduler.add_job(send_evening_poll, 'cron', id=f'job_evening_poll_{user_id}', args=(user_id, ),
+            scheduler.add_job(send_todo_voice_by_ya, 'cron', id=f'job_send_todo_voice_by_ya_{user_id}', args=(user_id,),
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
             logger_guru.info(f"{user_id=} changed the notification time")

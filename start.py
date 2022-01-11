@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
-from aiogram.utils.executor import start_webhook
+from aiogram.utils.executor import start_webhook, start_polling
 from sqlalchemy import exc
 
 from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
@@ -7,7 +7,6 @@ from loader import dp, scheduler, logger_guru, bot
 from handlers.todo_handl import save_pkl_obj, delete_all_todo
 from utils.clear_redis_data import clear_redis
 from utils.db_api.sql_commands import start_db
-from utils.notify_users import send_todo_voice_by_ya
 
 
 
@@ -35,9 +34,6 @@ async def on_startup(dp: Dispatcher):
         logger_guru.info('DB error on start bot')
 
     scheduler.start()
-    scheduler.add_job(send_todo_voice_by_ya, 'cron', id='todo_send_msg',
-                      day_of_week='mon-sun', hour='7', minute='00', end_date='2023-05-30',
-                      misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
     scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
                       day_of_week='mon-sun', hour='23', minute='50', end_date='2023-05-30',
                       misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")

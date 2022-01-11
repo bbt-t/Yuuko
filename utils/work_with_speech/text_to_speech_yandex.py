@@ -21,7 +21,7 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
         'text': text,
         'folderId': FOLDER_ID,
         'voice': 'alena',
-        'speed': '0.9',
+        'speed': '0.8',
     }
     try:
         async with ClientSession() as session:

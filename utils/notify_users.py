@@ -55,34 +55,25 @@ async def send_synthesize_voice_by_ya(id: int, text: str, folder=FOLDER_ID, api_
 
 
 @logger_guru.catch()
-async def send_todo_voice_by_ya(folder: str=FOLDER_ID, api_ya_tts: str=API_YA_TTS):
+async def send_todo_voice_by_ya(user_id: int | str, folder: str=FOLDER_ID, api_ya_tts: str=API_YA_TTS):
     """
     Sends a message with the synthesize voice message
+    :param user_id: telegram id of the person to whom the message will be sent
     :return: voice message and text message
     """
-    date: str = str(time_now.date())
-
-    for item in all_todo_obj.values():
-        for key in item.todo:
-            if key == date:
-                msg_from_todo: str = '\n'.join(f"{i}. {val}." for i, val in enumerate(item.todo[key], 1))
-                msg: str = f'На сегодня у тебя запланированно:\n{msg_from_todo}'
-                await dp.bot.send_voice(item.id, await synthesize_voice_by_ya(folder, api_ya_tts, msg))
-                await dp.bot.send_message(item.id, msg)
-
-
-async def send_evening_poll(user_id: int):
-    """
-    Sends a generated 'ToDo-list' to the specified telegram id, asks what to delete.
-    :param user_id: telegram id of the person to whom the message will be sent
-    :return: message
-    """
     date = str(time_now.date())
+
     try:
-        if result := '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in
-                        enumerate(all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1)):
-            await dp.bot.send_message(user_id, f'Напоминаю что на сегодня был список \n\n{result}')
-        else:
-            raise KeyError
-    except KeyError:
+        text_msg: str = '\n\n'.join(f"{i}. {val}." for i, val in enumerate(
+            all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1)
+                               )
+        voice_msg: bytes = await synthesize_voice_by_ya(
+            folder, api_ya_tts, f"Привет! Напоминаю что на сегодня список дел таков: {text_msg.replace('я', 'ты')}"
+        )
+
+        await dp.bot.send_message(user_id, f'Напоминаю что на сегодня список дел таков: \n\n{text_msg}')
+        await dp.bot.send_voice(user_id, voice_msg)
+
+    except Exception as err:
+        logger_guru.warning(f"{repr(err)} : {user_id}")
         await dp.bot.send_message(user_id, 'На сегодня ничего не было запланированно :С')

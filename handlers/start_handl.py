@@ -62,7 +62,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             await state.set_state('set_tntodo')
 
 
-@dp.callback_query_handler(text='cancel')
+@dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
     await call.message.answer_sticker(SendStickers.sad_ok.value)
     await dp.bot.send_chat_action(call.from_user.id, ChatActions.TYPING)

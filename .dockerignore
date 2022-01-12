@@ -4,3 +4,9 @@ __pycache__
 .venv
 .github
 *.log
+README.md
+README_en.md
+LICENSE
+data/
+.idea
+.pytest_cache

@@ -4,8 +4,7 @@ from aiogram.types import Message
 from loader import dp
 from middlewares.throttling import rate_limit
 from utils.lunar_calendar.lunar_haircut import lunar_calendar_haircut
-
-
+from utils.stickers_info import SendStickers
 
 
 @rate_limit(5, key='hair')
@@ -16,4 +15,5 @@ async def show_days_for_haircuts(message: Message):
                              f'<code>{text_msg}</code>')
         await message.delete()
     else:
+        await message.reply_sticker(SendStickers.something_is_wrong.value)
         await message.answer('Что-то пошло не так...попробуй позже.')

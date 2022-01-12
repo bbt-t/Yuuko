@@ -13,8 +13,7 @@ from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import check_personal_pass, update_personal_pass, add_other_info, select_pass
 from utils.keyboards.pass_settings_bk import pass_choice_kb
-
-
+from utils.stickers_info import SendStickers
 
 
 @logger_guru.catch()
@@ -51,6 +50,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     try:
         if check_pass := await check_personal_pass(id=user_id):
             if hmac_compare_digest(check_pass, msg):
+                await message.reply_sticker(SendStickers.order_accepted.value)
                 await message.answer('ПРИНЯТО!')
                 await state.set_state('successful_auth_for_pass')
                 await message.answer('Что ты конкретно хочешь?', reply_markup=pass_choice_kb)

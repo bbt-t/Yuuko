@@ -32,6 +32,7 @@ async def start_weather(message: Message, state: FSMContext):
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
             logger_guru.info(f"{user_id=} changed the notification time")
 
+            await message.reply_sticker(SendStickers.great.value)
             await message.reply('Сделано !')
         except:
             logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')

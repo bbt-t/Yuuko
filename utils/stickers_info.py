@@ -13,3 +13,6 @@ class SendStickers(Enum):
     yipee_2_girls = 'CAACAgIAAxkBAAEDZdthp74uT7HCmBSru9Ehma95SpVSIQACZQEAAhAabSJhjGLAZuk2oSIE'
     hmm = 'CAACAgIAAxkBAAEDZnphqNiE9Hq7mRGha9j-nJfYGOSPgAACeg0AAsCf8Ev-fdx9cnSwwSIE'
     fear = 'CAACAgIAAxkBAAEDbxphr6Avra8WTksfENEkK1GuHIpwpQACZAEAAhAabSJJXz3XqubCyiME'
+    great = 'CAACAgIAAxkBAAEDq65h3qyS-PLtDPPMqsVTJqzk5fiNVQACWQEAAhAabSIdlWw5X85AHyME'
+    order_accepted = 'CAACAgIAAxkBAAEDq7Bh3q377Dt2SZfuysrGb-QDkNgf3AACagEAAhAabSLoW9qOycF19iME'
+    something_is_wrong = 'CAACAgIAAxkBAAEDq7Jh3q39AYPYM8HiYb9PEsH6ja0dYAACYgEAAhAabSLNwhNkGRe1tyME'

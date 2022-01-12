@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
-from aiogram.utils.executor import start_webhook, start_polling
+from aiogram.utils.executor import start_webhook
 from sqlalchemy import exc
 
 from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
@@ -35,10 +35,10 @@ async def on_startup(dp: Dispatcher):
 
     scheduler.start()
     scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
-                      day_of_week='mon-sun', hour='23', minute='50', end_date='2023-05-30',
+                      day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
                       misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
     scheduler.add_job(clear_redis, 'cron', id='redis_delete_keys',
-                      day_of_week='mon-sun', hour='23', minute='50', end_date='2023-05-30',
+                      day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
                       misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
 
     logger_guru.warning('START BOT')

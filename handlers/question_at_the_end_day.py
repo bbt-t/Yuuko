@@ -4,8 +4,7 @@ from aiogram.types import CallbackQuery, Message
 from config import time_now
 import handlers.todo_handl as td_h
 from loader import dp, logger_guru
-
-
+from utils.stickers_info import SendStickers
 
 
 @dp.callback_query_handler(text='choice_del_todo')
@@ -25,6 +24,7 @@ async def waiting_for_del(message: Message, state: FSMContext):
             if i in lst_for_del:
                 td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date].pop(i)
 
+        await message.reply_sticker(SendStickers.great.value)
         await message.answer('Сделано!')
     except Exception as err:
         logger_guru.warning(f'{repr(err)}')

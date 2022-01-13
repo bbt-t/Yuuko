@@ -8,10 +8,10 @@ from aiogram.types import Message, ChatActions, ContentType
 from apscheduler.jobstores.base import JobLookupError
 
 from config import FOLDER_ID, API_YA_STT
-from utils.stickers_info import SendStickers
 from loader import dp, scheduler, logger_guru
 from middlewares.throttling import rate_limit
 from utils.notify_users import send_weather
+from utils.stickers_info import SendStickers
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 

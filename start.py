@@ -4,9 +4,9 @@ from sqlalchemy import exc
 
 from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
 from loader import dp, scheduler, logger_guru, bot
-from handlers.todo_handl import save_pkl_obj, delete_all_todo
 from utils.clear_redis_data import clear_redis
 from utils.db_api.sql_commands import start_db
+from utils.todo import delete_all_todo
 
 
 
@@ -19,13 +19,13 @@ async def on_startup(dp: Dispatcher):
     """
     import middlewares
     import handlers
+    from utils.set_bot_commands import set_default_commands
+    from utils.notify_admins import on_startup_notify
 
     await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
-    from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
-    from utils.notify_admins import on_startup_notify
     await on_startup_notify(dp)
 
     try:
@@ -52,7 +52,6 @@ async def on_shutdown(dp: Dispatcher):
     """
     from utils.notify_admins import on_shutdown_notify
     await on_shutdown_notify(dp)
-    await save_pkl_obj()
     await dp.storage.close()
     await dp.storage.wait_closed()
     raise SystemExit

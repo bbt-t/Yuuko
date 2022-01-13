@@ -25,8 +25,9 @@ async def start_working_with_bot(message: Message):
     Such a response will be sent at the start of communication (/start)
     """
     name: str = message.from_user.full_name
-    text: str = f"Привет, {name}!\n\nЯ твой 'домашний' бот,\nчтобы я могла выполнять свои функции " \
-           f"ответь пожалуйста на пару вопросов..."
+    text: str = (
+        f"Привет, {name}!\n\nЯ твой 'домашний' бот,\n"
+        f"чтобы я могла выполнять свои функции ответь пожалуйста на пару вопросов...")
     user_id: int = message.from_user.id
     try:
         await add_user(id=user_id, name=name)
@@ -55,7 +56,9 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
         time_todo = date.date()
         if time_todo > time_now.date():
             await dp.bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
-            await call.message.answer('Ты не можешь выбрать эту дату!', reply_markup=await SimpleCalendar().start_calendar())
+            await call.message.answer(
+                'Ты не можешь выбрать эту дату!',
+                reply_markup=await SimpleCalendar().start_calendar())
         else:
             await update_birthday(id=call.from_user.id, birthday=date.date())
             await call.message.answer('В какое время спрашивать тебя о запланированных делах ?')

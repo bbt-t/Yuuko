@@ -10,6 +10,14 @@ python-versions = "*"
 pycares = ">=4.0.0"
 
 [[package]]
+name = "aiofiles"
+version = "0.8.0"
+description = "File support for asyncio."
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "aiogram"
 version = "2.18"
 description = "Is a pretty simple and fully asynchronous framework for Telegram Bot API"
@@ -521,12 +529,16 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "eb3ba0f40c203959bdd9c4600384f901fbda7d3373dc61338aa3513a01f7a28f"
+content-hash = "eeeb69190cfeabcd365757cd7a4b1963e349e372cbd38926629e55b7873511d3"
 
 [metadata.files]
 aiodns = [
     {file = "aiodns-3.0.0-py3-none-any.whl", hash = "sha256:2b19bc5f97e5c936638d28e665923c093d8af2bf3aa88d35c43417fa25d136a2"},
     {file = "aiodns-3.0.0.tar.gz", hash = "sha256:946bdfabe743fceeeb093c8a010f5d1645f708a241be849e17edfb0e49e08cd6"},
+]
+aiofiles = [
+    {file = "aiofiles-0.8.0-py3-none-any.whl", hash = "sha256:7a973fc22b29e9962d0897805ace5856e6a566ab1f0c8e5c91ff6c866519c937"},
+    {file = "aiofiles-0.8.0.tar.gz", hash = "sha256:8334f23235248a3b2e83b2c3a78a22674f39969b96397126cc93664d9a901e59"},
 ]
 aiogram = [
     {file = "aiogram-2.18-py3-none-any.whl", hash = "sha256:ffe51749cdc92d24db74a2636b5ca8e6a5a3e504d01f47b47a206d93ea6cad18"},

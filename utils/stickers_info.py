@@ -16,3 +16,4 @@ class SendStickers(Enum):
     great = 'CAACAgIAAxkBAAEDq65h3qyS-PLtDPPMqsVTJqzk5fiNVQACWQEAAhAabSIdlWw5X85AHyME'
     order_accepted = 'CAACAgIAAxkBAAEDq7Bh3q377Dt2SZfuysrGb-QDkNgf3AACagEAAhAabSLoW9qOycF19iME'
     something_is_wrong = 'CAACAgIAAxkBAAEDq7Jh3q39AYPYM8HiYb9PEsH6ja0dYAACYgEAAhAabSLNwhNkGRe1tyME'
+    love_you = 'CAACAgIAAxkBAAEDrIdh3yzY_T_l_z6lYv0DPtnjyYyB8wACkgEAAhAabSLrhFu8iLyTaSME'

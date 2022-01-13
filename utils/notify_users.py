@@ -4,10 +4,10 @@ from aiogram.types import ParseMode, Message
 
 from config import API_WEATHER, API_WEATHER2, CITY_WEATHER, time_now, FOLDER_ID, API_YA_TTS
 from loader import dp, logger_guru
-from utils.db_api.sql_commands import select_user
-from utils.weather_compilation import create_weather_forecast
-from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
-from handlers.todo_handl import all_todo_obj
+from .db_api.sql_commands import select_user
+from .todo import load_todo_obj
+from .weather_compilation import create_weather_forecast
+from .work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
 
 
@@ -38,7 +38,7 @@ async def send_weather(id: int, api: str=API_WEATHER, api2: str=API_WEATHER2, ci
     :param id: user id
     :return: message
     """
-    text_msg = await create_weather_forecast(api, api2, city)
+    text_msg: str = await create_weather_forecast(api, api2, city)
     await dp.bot.send_message(id, text_msg, ParseMode.HTML)
 
 
@@ -50,29 +50,35 @@ async def send_synthesize_voice_by_ya(id: int, text: str, folder=FOLDER_ID, api_
     :param text: text for synthesis
     :return: voice message
     """
-    text_msg = await synthesize_voice_by_ya(folder, api_ya_tts, text)
+    text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text)
     await dp.bot.send_voice(id, text_msg)
 
 
 @logger_guru.catch()
-async def send_todo_voice_by_ya(user_id: int | str, folder: str=FOLDER_ID, api_ya_tts: str=API_YA_TTS):
+async def send_todo_msg(user_id: int | str, is_voice: bool = False, folder: str=FOLDER_ID, api_ya_tts: str=API_YA_TTS):
     """
     Sends a message with the synthesize voice message
     :param user_id: telegram id of the person to whom the message will be sent
+    :param voice: send voice message or not
     :return: voice message and text message
     """
     date = str(time_now.date())
 
     try:
+        todo_obj: dict = await load_todo_obj()
         text_msg: str = '\n\n'.join(f"{i}. {val}." for i, val in enumerate(
-            all_todo_obj[f'pref_todo_{user_id}'].todo[date], 1)
+            todo_obj[f'pref_todo_{user_id}'].todo[date], 1)
                                )
-        voice_msg: bytes = await synthesize_voice_by_ya(
-            folder, api_ya_tts, f"Привет! Напоминаю что на сегодня список дел таков: {text_msg.replace('я', 'ты')}"
-        )
-
+        try:
+            if is_voice:
+                voice_msg: bytes = await synthesize_voice_by_ya(
+                    folder, api_ya_tts,
+                    f"Привет! Напоминаю что на сегодня список дел таков: {text_msg.replace('я', 'ты')}"
+                )
+                await dp.bot.send_voice(user_id, voice_msg)
+        except:
+            logger_guru.warning('ERROR IN VOICE API REQ')
         await dp.bot.send_message(user_id, f'Напоминаю что на сегодня список дел таков: \n\n{text_msg}')
-        await dp.bot.send_voice(user_id, voice_msg)
 
     except Exception as err:
         logger_guru.warning(f"{repr(err)} : {user_id}")

@@ -4,11 +4,12 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
-from utils.keyboards.yes_no import yes_no_choice_kb
-from utils.stickers_info import SendStickers
-from utils.notify_users import send_todo_voice_by_ya
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
+from utils.keyboards.choice_voice_todo import choice_voice_todo_keyboard
+from utils.keyboards.yes_no import yes_no_choice_kb
+from utils.notify_users import send_todo_msg
+from utils.stickers_info import SendStickers
 
 
 
@@ -22,29 +23,41 @@ async def late_day_todo_notification(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state='set_time_todo')
-async def start_weather(message: Message, state: FSMContext):
-    text, user_id = ''.join(let for let in message.text if let.isnumeric()), message.from_user.id
+async def question_set_time_todo(message: Message, state: FSMContext):
+    await message.answer_sticker(SendStickers.love_you.value)
+    await message.answer('а можно я тебе буду голосовые сообщения слать?', reply_markup=choice_voice_todo_keyboard)
+    await state.set_data(message.text)
+
+
+@dp.callback_query_handler(state='set_time_todo')
+async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
+    await call.message.delete_reply_markup()
+
+    msg, choice, user_id = await state.get_data(), call.data, call.from_user.id
+    text: str = ''.join(let for let in msg if let.isnumeric())
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
-            scheduler.add_job(send_todo_voice_by_ya, 'cron', id=f'job_send_todo_voice_by_ya_{user_id}', args=(user_id,),
+            args = (user_id,) if choice == 'choice_voice_no' else (user_id, True)
+
+            scheduler.add_job(send_todo_msg, 'cron', id=f'job_send_todo_voice_by_ya_{user_id}', args=args,
                               day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
                               misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
-            logger_guru.info(f"{user_id=} changed the notification time")
 
-            await message.reply_sticker(SendStickers.great.value)
-            await message.reply('Сделано !')
+            logger_guru.info(f"{user_id=} changed the notification time")
+            await call.message.answer_sticker(SendStickers.great.value)
+            await call.message.answer('Сделано !')
         except:
             logger_guru.warning(f'{user_id=} : ERROR ADD WEATHER JOB')
         finally:
             await state.finish()
     else:
-        await message.reply_sticker(SendStickers.i_do_not_understand.value)
-        await message.answer('Не понятно что написано, попробуй ещё раз ...')
+        await call.message.answer_sticker(SendStickers.i_do_not_understand.value)
+        await call.message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 
     if not any(job.id == f'weather_add_id_{user_id}' for job in scheduler.get_jobs()):
-        await message.answer('Я могу ещё писать тебе о погоде...', reply_markup=yes_no_choice_kb)
+        await call.message.answer('Я могу ещё писать тебе о погоде...', reply_markup=yes_no_choice_kb)
 
 
 @dp.callback_query_handler(text='weather_add')

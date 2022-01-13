@@ -20,9 +20,9 @@ async def waiting_for_del(message: Message, state: FSMContext):
 
     try:
         lst_for_del: list = message.text.replace(' ', '').split(',')
-        for i, item in enumerate(td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date]):
+        for i, item in enumerate(td_h.todo_obj[f'pref_todo_{user_id}'].todo[date]):
             if i in lst_for_del:
-                td_h.all_todo_obj[f'pref_todo_{user_id}'].todo[date].pop(i)
+                td_h.todo_obj[f'pref_todo_{user_id}'].todo[date].pop(i)
 
         await message.reply_sticker(SendStickers.great.value)
         await message.answer('Сделано!')
@@ -37,7 +37,7 @@ async def inl_test_send(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
     try:
         date = str(time_now.date())
-        del td_h.all_todo_obj[f'pref_todo_{call.from_user.id}'].todo[date]
+        del td_h.todo_obj[f'pref_todo_{call.from_user.id}'].todo[date]
 
         await call.bot.answer_callback_query(call.id, '<code>Сделано!</code> спокойной ночи :)')
     except Exception as err:

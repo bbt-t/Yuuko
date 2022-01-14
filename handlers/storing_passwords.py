@@ -1,7 +1,8 @@
 from asyncio import sleep as asyncio_sleep
 from hashlib import scrypt as hashlib_scrypt
 from hmac import compare_digest as hmac_compare_digest
-from pickle import dumps
+from pickle import dumps as pickle_dumps
+from pickletools import optimize as pickletools_optimize
 from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
@@ -25,10 +26,10 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
     :param password: password
     :return: pickle object
     """
-    very_useful_thing: str = hashlib_scrypt(name_pass.encode(), salt=f'{user_id}'.encode(),
-                                       n=8, r=512, p=4, dklen=16).hex()
+    very_useful_thing: str = hashlib_scrypt(
+        name_pass.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=16).hex()
     encrypt_password = PGPMessage.new(password.encode()).encrypt(very_useful_thing)
-    serialized_object: bytes = dumps(encrypt_password)
+    serialized_object: bytes = pickletools_optimize(pickle_dumps(encrypt_password))
 
     return serialized_object
 

@@ -17,8 +17,6 @@ API_WEATHER = getenv('API_WEATHER')
 API_WEATHER2 = getenv('API_WEATHER2')
 CITY_WEATHER = getenv('CITY_WEATHER')
 
-pkl_key = getenv('PKL_KEY')
-
 FOLDER_ID = getenv('FOLDER_ID')
 API_YA_STT = getenv('API_YA_STT')
 API_YA_TTS = getenv('API_YA_TTS')

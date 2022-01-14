@@ -59,21 +59,21 @@ async def send_todo_msg(user_id: int | str, is_voice: bool = False, folder: str=
     """
     Sends a message with the synthesize voice message
     :param user_id: telegram id of the person to whom the message will be sent
-    :param voice: send voice message or not
+    :param is_voice: send voice message or not
     :return: voice message and text message
     """
-    date = str(time_now.date())
+    date, name = str(time_now.date()), f'todo_{user_id}'
 
     try:
         todo_obj: dict = await load_todo_obj()
-        text_msg: str = '\n\n'.join(f"{i}. {val}." for i, val in enumerate(
-            todo_obj[f'pref_todo_{user_id}'].todo[date], 1)
+        text_msg: str = '\n\n'.join(f"{i}. {val}" for i, val in enumerate(
+            todo_obj[name][date], 1)
                                )
         try:
             if is_voice:
                 voice_msg: bytes = await synthesize_voice_by_ya(
                     folder, api_ya_tts,
-                    f"Привет! Напоминаю что на сегодня список дел таков: {text_msg.replace('я', 'ты')}"
+                    f"Привет! Напоминаю что на сегодня список дел таков: {text_msg}"
                 )
                 await dp.bot.send_voice(user_id, voice_msg)
         except:

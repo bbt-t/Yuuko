@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -7,7 +9,7 @@ from config import time_now
 from utils.stickers_info import SendStickers
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
-from utils.todo import ToDo, load_todo_obj, dump_todo_obj
+from utils.todo import load_todo_obj, dump_todo_obj
 
 
 
@@ -44,31 +46,30 @@ async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
         date: str = data['date']
 
-    name: str = f'pref_todo_{message.from_user.id}'
+    user_id = message.from_user.id
+    name = f'todo_{user_id}'
 
     if len(message.text) <= 500:
-        message_task: list = message.text.split('\n')
+        message_task: list = message.text.replace('я', 'ты').split('\n')
         try:
             todo_obj: dict = await load_todo_obj()
-            todo_obj[name].__add__(dispositions=message_task, time_todo=date)
+            todo_obj[name][date].extend(message_task)
         except Exception as err:
             logger_guru.info(f'{repr(err)} : Obj todo not found, create new entry. . .')
-            todo_obj: dict = {}
-            pref_obj = ToDo(message.from_user.id)
-            pref_obj.__add__(dispositions=message_task, time_todo=date)
-            todo_obj[name] = pref_obj
+            todo_obj = defaultdict(dict)
+            todo_obj[name][date] = message_task
         finally:
             await state.finish()
         result: str = '\n'.join(
             f"<code>{i})</code> <b>{val}</b>" for
-            i, val in enumerate(todo_obj[name].todo[date], 1)
+            i, val in enumerate(todo_obj[name][date], 1)
         )
         await dump_todo_obj(todo_obj)
         await message.answer_sticker(SendStickers.great.value)
         await message.delete()
         await message.answer(f'сделано!\n\nвот список на этот день:\n\n{result}')
     else:
-        logger_guru.warning(f'{name} Trying to write a message that is too large.')
+        logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
         await message.answer_sticker(SendStickers.you_were_bad.value)
         await message.answer('Слишком большое сообщение ! Попробуй написать короче')
 

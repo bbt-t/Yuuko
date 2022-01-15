@@ -14,7 +14,7 @@ from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import check_personal_pass, update_personal_pass, add_other_info, select_pass
 from utils.keyboards.pass_settings_bk import pass_choice_kb
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 
 
 @logger_guru.catch()

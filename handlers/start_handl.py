@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery, ChatActions
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_now
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import add_user, update_birthday

@@ -1,37 +1,27 @@
 from math import ceil
-from typing import Final
 
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import CITY_WEATHER, time_now, redis_for_data
+from config import time_now, redis_for_data
 from loader import logger_guru
+from .enums_data import ApiInfo
 
 
 
 
-
-
-
-async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CITY_WEATHER) -> str:
+async def create_weather_forecast() -> str:
     """
     Weather api request func
-    :param city: city
-    :param api_key: api keys
+    :return: weather for the current hour
     """
-    URL: Final[tuple] = (f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid='
-                         f'{api_key_1}&units=metric&lang=ru',
-                         f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey="
-                         f"{api_key_2}&language=ru-ru&metric=true&details=true"
-                         )
-
     async with aioredis_from_url(**redis_for_data) as connect_redis:
         if data := await connect_redis.get(f'weather_cache_{time_now.date()}'):
             generated_msg: str = data.decode()
         else:
             try:
                 async with ClientSession() as session:
-                    async with session.get(URL[0]) as resp:
+                    async with session.get(ApiInfo.weather_api_basic.value) as resp:
                         req = await resp.json()
 
                 temp: int = ceil(req['main']['temp_min'])
@@ -40,14 +30,7 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
                 weather_main: str = req['weather'][0]['main']
             except:
                 logger_guru.warning("Main API didn't work !")
-                async with ClientSession() as session:
-                    async with session.get(
-                        f'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey='
-                        f'{api_key_2}&q={city}') as resp_city:
-                        city_spare_api: str = (await resp_city.json())[0]['Key']
-
-                    async with session.get(URL[1].replace('CITY', city_spare_api)) as resp:
-                        req = await resp.json()
+                req = await accesses_fallback_api()
 
                 temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
                 wind: float = req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value']
@@ -73,12 +56,22 @@ async def create_weather_forecast(api_key_1: str, api_key_2: str, city: str = CI
             else:
                 rep_wind: str = 'Штормовой ветрище! Необходимо защититься от ветра и быть осторожным!'
 
-            generated_msg = (
+            generated_msg: str = (
                 f"Сегодня будет <CODE>{weather.upper()}</CODE> , <CODE>{temp}</CODE> градусов,\n<b>{rep_temp}</b>\n"
                 f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
                 f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
             )
-            await connect_redis.setex(f'weather_cache_{time_now.date()}', 7200, generated_msg)
+            await connect_redis.setex(f'weather_cache_{time_now.date()}', 3600, generated_msg)
 
     return generated_msg
 
+
+async def accesses_fallback_api():
+    async with ClientSession() as session:
+        async with session.get(ApiInfo.get_city_id.value) as resp_city:
+            received_city: str = (await resp_city.json())[0]['Key']
+
+        async with session.get(ApiInfo.weather_api_reserve.value.replace('CITY', received_city)) as resp:
+            result = await resp.json()
+
+    return result

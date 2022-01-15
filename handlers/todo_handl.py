@@ -1,12 +1,10 @@
-from collections import defaultdict
-
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_now
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 from loader import dp, bot, logger_guru
 from middlewares.throttling import rate_limit
 from utils.todo import load_todo_obj, dump_todo_obj
@@ -49,24 +47,22 @@ async def set_calendar_date(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = f'todo_{user_id}'
 
-    if len(message.text) <= 500:
+    if len(message.text) <= 1000:
         message_task: list = message.text.replace('я', 'ты').split('\n')
+        todo_obj: dict = await load_todo_obj()
         try:
-            todo_obj: dict = await load_todo_obj()
             todo_obj[name][date].extend(message_task)
-        except Exception as err:
-            logger_guru.info(f'{repr(err)} : Obj todo not found, create new entry. . .')
-            todo_obj = defaultdict(dict)
+        except KeyError as err:
+            logger_guru.info(f'{repr(err)} : Key not found, create new.')
             todo_obj[name][date] = message_task
         finally:
+            await message.delete()
             await state.finish()
-        result: str = '\n'.join(
-            f"<code>{i})</code> <b>{val}</b>" for
-            i, val in enumerate(todo_obj[name][date], 1)
-        )
+
+        result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
+
         await dump_todo_obj(todo_obj)
         await message.answer_sticker(SendStickers.great.value)
-        await message.delete()
         await message.answer(f'сделано!\n\nвот список на этот день:\n\n{result}')
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')

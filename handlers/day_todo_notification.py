@@ -9,7 +9,7 @@ from middlewares.throttling import rate_limit
 from utils.keyboards.choice_voice_todo import choice_voice_todo_keyboard
 from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.notify_users import send_todo_msg
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 
 
 
@@ -38,11 +38,11 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
-            args = (user_id,) if choice == 'choice_voice_no' else (user_id, True)
+            is_voice = True if choice != 'choice_voice_no' else False
 
-            scheduler.add_job(send_todo_msg, 'cron', id=f'job_send_todo_voice_by_ya_{user_id}', args=args,
-                              day_of_week='mon-sun', hour=text[:2], minute=text[-2:], end_date='2023-05-30',
-                              misfire_grace_time=10, replace_existing=True, timezone="Europe/Moscow")
+            scheduler.add_job(send_todo_msg, 'cron', day_of_week='mon-sun', id=f'job_send_todo_{user_id}',
+                              hour=text[:2], minute=text[-2:], end_date='2025-05-30', args=(user_id, is_voice),
+                              misfire_grace_time=30, replace_existing=True, timezone="Europe/Moscow")
 
             logger_guru.info(f"{user_id=} changed the notification time")
             await call.message.answer_sticker(SendStickers.great.value)

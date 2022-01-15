@@ -1,10 +1,7 @@
-from typing import Final
-
 from aiohttp import ClientSession
 
 from loader import logger_guru
-
-
+from utils.enums_data import ApiInfo
 
 
 async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> bytes:
@@ -15,7 +12,7 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
     :param text: text to convert
     :return: bytes-object (.ogg)
     """
-    url: Final[str] = 'https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize'
+    url: str = ApiInfo.tts_yandex.value
     headers: dict = {'Authorization': f'Api-key {API_YA_TTS}'}
     data: dict = {
         'text': text,
@@ -28,5 +25,5 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
             async with session.post(url=url, headers=headers, data=data) as resp:
                 result: bytes = await resp.read()
         return result
-    except RuntimeError as err:
+    except BaseException as err:
         logger_guru.warning(f'{repr(err)} : Error in synthesize_voice_by_ya.')

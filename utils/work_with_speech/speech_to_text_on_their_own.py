@@ -1,4 +1,4 @@
-from json import loads as json_loads
+from ujson import loads as ujson_loads
 from pathlib import Path
 import subprocess
 
@@ -33,4 +33,4 @@ def recognize_locally(name_file: str) -> str:
     path = Path(name_file)
     path.unlink()
 
-    return json_loads(rec.FinalResult())['text']
+    return ujson_loads(rec.FinalResult())['text']

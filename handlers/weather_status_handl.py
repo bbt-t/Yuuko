@@ -11,7 +11,7 @@ from config import FOLDER_ID, API_YA_STT
 from loader import dp, scheduler, logger_guru
 from middlewares.throttling import rate_limit
 from utils.notify_users import send_weather
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 

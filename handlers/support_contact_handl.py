@@ -2,7 +2,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
-from utils.stickers_info import SendStickers
+from utils.enums_data import SendStickers
 from loader import dp
 from middlewares.throttling import rate_limit
 from utils.keyboards.support_contact_kb import sup_kb, sup_cb

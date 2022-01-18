@@ -2,8 +2,8 @@ from functools import wraps
 
 from aiogram.types import ParseMode, Message
 
-from config import time_now, FOLDER_ID, API_YA_TTS
-from loader import dp, logger_guru
+from config import FOLDER_ID, API_YA_TTS, time_zone
+from loader import dp, logger_guru, get_time_now
 from .db_api.sql_commands import select_user
 from .todo import load_todo_obj
 from .weather_compilation import create_weather_forecast
@@ -34,7 +34,6 @@ def auth(func):
 async def send_weather(id: int):
     """
     Sends a message with the weather
-    :param city: city
     :param id: user id
     :return: message
     """
@@ -43,7 +42,7 @@ async def send_weather(id: int):
 
 
 @logger_guru.catch()
-async def send_synthesize_voice_by_ya(id: int, text: str, folder=FOLDER_ID, api_ya_tts: str=API_YA_TTS):
+async def send_synthesize_voice_by_ya(id: int, text: str, folder: str = FOLDER_ID, api_ya_tts: str = API_YA_TTS):
     """
     Sends a message with the synthesize voice message
     :param id: user id
@@ -55,15 +54,17 @@ async def send_synthesize_voice_by_ya(id: int, text: str, folder=FOLDER_ID, api_
 
 
 @logger_guru.catch()
-async def send_todo_msg(user_id: int | str, is_voice: bool = False,
-                        folder: str = FOLDER_ID, api_ya_tts: str = API_YA_TTS):
+async def send_todo_msg(
+        user_id: int | str, is_voice: bool = False,
+        folder: str = FOLDER_ID, api_ya_tts: str = API_YA_TTS
+        ):
     """
     Sends a message with the synthesize voice message
     :param user_id: telegram id of the person to whom the message will be sent
     :param is_voice: send voice message or not
     :return: voice message and text message
     """
-    name, date = f'todo_{user_id}', time_now.date()
+    name, date = f'todo_{user_id}', get_time_now(time_zone).strftime('%Y-%m-%d')
 
     try:
         todo_obj: dict = await load_todo_obj()

@@ -1,6 +1,4 @@
-from datetime import datetime
 from os import getenv
-from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,8 +19,7 @@ FOLDER_ID = getenv('FOLDER_ID')
 API_YA_STT = getenv('API_YA_STT')
 API_YA_TTS = getenv('API_YA_TTS')
 
-time_zone = ZoneInfo(getenv('TIMEZONE'))
-time_now = datetime.now(tz=time_zone)
+time_zone = getenv('TIMEZONE')
 
 HOST_REDIS = getenv('HOST_REDIS')
 
@@ -35,7 +32,7 @@ redis = {
     'password': PASS_REDIS,
     'prefix': 'fsm_key'
 }
-redis_for_data = {
+redis_data_cache = {
     'url': f'redis://{HOST_REDIS}',
     'password': PASS_REDIS,
     'db': 1

@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import HAIRCUT_PARSE, time_now, redis_for_data
-from loader import logger_guru
+from config import HAIRCUT_PARSE, time_zone, redis_data_cache
+from loader import logger_guru, get_time_now
 
 
 
@@ -12,9 +12,10 @@ async def lunar_calendar_haircut() -> str:
     """
     Forms a list of "favorable" days.
     """
-    year, month = time_now.strftime('%Y'), time_now.strftime('%B').lower()
+    time = get_time_now(time_zone)
+    year, month = time.strftime('%Y'), time.strftime('%B').lower()
 
-    async with aioredis_from_url(**redis_for_data) as connect_redis:
+    async with aioredis_from_url(**redis_data_cache) as connect_redis:
 
         if data := await connect_redis.get('haircut'):
             text: str = data.decode()

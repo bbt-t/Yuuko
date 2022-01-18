@@ -11,9 +11,8 @@ RUN apt update &&  \
     apt clean &&  \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install -U pip poetry
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-dev
+RUN pip install -U pip poetry && poetry install --no-dev
 
 COPY . .
 

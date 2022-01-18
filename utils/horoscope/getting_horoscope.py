@@ -4,7 +4,7 @@ from xml.etree.ElementTree import fromstring as ElementTree_fromstring
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import HORO_XML, redis_for_data
+from config import HORO_XML, redis_data_cache
 from loader import logger_guru
 
 
@@ -17,7 +17,7 @@ async def get_user_horoscope(zodiac: str, when: Literal['today', 'tomorrow']) ->
     :param when: horoscope for today or tomorrow
     :return: horoscope-string
     """
-    async with aioredis_from_url(**redis_for_data) as connect_redis:
+    async with aioredis_from_url(**redis_data_cache) as connect_redis:
 
         if data := await connect_redis.get(f'horoscope_{zodiac}_{when}'):
             generated_msg: str = data.decode()

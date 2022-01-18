@@ -6,9 +6,9 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
-from config import time_now
+from config import time_zone
 from utils.enums_data import SendStickers
-from loader import dp, logger_guru
+from loader import dp, logger_guru, get_time_now
 from middlewares.throttling import rate_limit
 from utils.db_api.sql_commands import add_user, update_birthday
 from utils.keyboards.start_settings_kb import start_choice_kb
@@ -27,7 +27,8 @@ async def start_working_with_bot(message: Message):
     name: str = message.from_user.full_name
     text: str = (
         f"Привет, {name}!\n\nЯ твой 'домашний' бот,\n"
-        f"чтобы я могла выполнять свои функции ответь пожалуйста на пару вопросов...")
+        f"чтобы я могла выполнять свои функции ответь пожалуйста на пару вопросов..."
+    )
     user_id: int = message.from_user.id
     try:
         await add_user(id=user_id, name=name)
@@ -54,7 +55,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
     selected, date = await SimpleCalendar().process_selection(call, callback_data)
     if date and selected:
         time_todo = date.date()
-        if time_todo > time_now.date():
+        if time_todo > get_time_now(time_zone).date():
             await dp.bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
             await call.message.answer(
                 'Ты не можешь выбрать эту дату!',

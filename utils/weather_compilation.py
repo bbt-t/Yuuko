@@ -3,7 +3,7 @@ from math import ceil
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import time_now, redis_for_data
+from config import redis_data_cache
 from loader import logger_guru
 from .enums_data import ApiInfo
 
@@ -15,8 +15,8 @@ async def create_weather_forecast() -> str:
     Weather api request func
     :return: weather for the current hour
     """
-    async with aioredis_from_url(**redis_for_data) as connect_redis:
-        if data := await connect_redis.get(f'weather_cache_{time_now.date()}'):
+    async with aioredis_from_url(**redis_data_cache) as connect_redis:
+        if data := await connect_redis.get(f'weather_cache'):
             generated_msg: str = data.decode()
         else:
             try:
@@ -25,7 +25,7 @@ async def create_weather_forecast() -> str:
                         req = await resp.json()
 
                 temp: int = ceil(req['main']['temp_min'])
-                wind: float = req['wind']['speed']
+                wind: float = ceil(req['wind']['speed'])
                 weather: str = req['weather'][0]['description']
                 weather_main: str = req['weather'][0]['main']
             except:
@@ -33,7 +33,7 @@ async def create_weather_forecast() -> str:
                 req = await accesses_fallback_api()
 
                 temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
-                wind: float = req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value']
+                wind: float = ceil(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'])
                 weather: str = req['DailyForecasts'][0]['Day']['ShortPhrase']
                 weather_main: str = ''
 
@@ -61,7 +61,7 @@ async def create_weather_forecast() -> str:
                 f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
                 f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
             )
-            await connect_redis.setex(f'weather_cache_{time_now.date()}', 3600, generated_msg)
+            await connect_redis.setex(f'weather_cache', 3600, generated_msg)
 
     return generated_msg
 

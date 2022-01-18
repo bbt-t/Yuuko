@@ -1,4 +1,6 @@
 from asyncio import set_event_loop_policy as asyncio_set_event_loop_policy
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
@@ -33,3 +35,8 @@ logger_guru.add(
     rotation='00:00',
     compression='gz',
     )
+
+
+def get_time_now(tz):
+    zone = ZoneInfo(tz)
+    return datetime.now(tz=zone)

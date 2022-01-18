@@ -3,9 +3,9 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
-from config import time_now
+from config import time_zone
 from utils.enums_data import SendStickers
-from loader import dp, bot, logger_guru
+from loader import dp, logger_guru, get_time_now
 from middlewares.throttling import rate_limit
 from utils.todo import load_todo_obj, dump_todo_obj
 
@@ -28,8 +28,8 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
 
     if date and selected:
         time_todo = date.date()
-        if time_todo < time_now.date():
-            await bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
+        if time_todo < get_time_now(time_zone).date():
+            await dp.bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
             await call.message.answer('Выбирай с умом :)', reply_markup=await SimpleCalendar().start_calendar())
         else:
             async with state.proxy() as data:

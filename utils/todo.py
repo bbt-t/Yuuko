@@ -5,8 +5,8 @@ from ujson import loads as ujson_loads
 from ujson import dumps as ujson_dumps
 from aiofiles import open as aiofiles_open
 
-from config import time_now
-from loader import logger_guru
+from config import time_zone
+from loader import logger_guru, get_time_now
 
 
 
@@ -39,7 +39,7 @@ async def delete_all_todo() -> None:
     """
     Deletes keys at a given time.
     """
-    date, read_data = str((time_now - timedelta(days=1)).date()), await load_todo_obj()
+    date, read_data = (get_time_now(time_zone) - timedelta(days=1)).strftime('%Y-%m-%d'), await load_todo_obj()
 
     todo_obj: dict = {
         userid: {

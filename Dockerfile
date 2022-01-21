@@ -7,6 +7,7 @@ ENV PIP_NO_CACHE_DIR=true \
     PYTHONDONTWRITEBYTECODE=true
 
 RUN apt update &&  \
+    apt upgrade && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean &&  \
     rm -rf /var/lib/apt/lists/*

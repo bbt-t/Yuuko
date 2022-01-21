@@ -57,7 +57,7 @@ async def create_weather_forecast() -> str:
                 rep_wind: str = 'Штормовой ветрище! Необходимо защититься от ветра и быть осторожным!'
 
             generated_msg: str = (
-                f"Сегодня будет <CODE>{weather.upper()}</CODE> , <CODE>{temp}</CODE> градусов,\n<b>{rep_temp}</b>\n"
+                f"Сегодня будет <CODE>{weather.upper()} {temp}&#176;</CODE>\n<b>{rep_temp}</b>\n"
                 f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
                 f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
             )

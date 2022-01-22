@@ -23,7 +23,7 @@
 ***
 
 ### Start
-To start, you need to build a docker container and run:
+To start, you need to build a `docker` container and run:
 ```
 docker build -t bot-pet .
 docker run -p 8000:8000 --name bot bot-pet:latest 
@@ -36,17 +36,11 @@ python start.py
 ***
 
 ### ATTENTION!
-> redis is required!
+`redis` is required!
 
-> if you intend to run on a local machine, then you need to change "start_webhook" to "start_poling" loock this > [example](https://github.com/bbt-t/call-support/blob/master/start.py)
+If you intend to run on a local machine, then you need to change `start_webhook` to `start_poling` loock this > [example](https://github.com/bbt-t/call-support/blob/master/start.py)
 
-> For the bot to work, you need python version >= 3.10.x
 
-> [DOWNLOAD VOSK model](https://alphacephei.com/vosk/models) for offline voice recognition.
-
-> To recognize and synthesize speech 'online', to receive a weather forecast, you must use your :key: API-keys. 
-
-> all required dependencies :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 
 > It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py):
 ```
@@ -55,7 +49,15 @@ BOT_TOKEN = ...
 API_WEATHER = ...
 . . .
 ``` 
-> For text recognition, you need to [look here](https://github.com/bbt-t/what_is_there) and uncomment the corresponding [handler](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+For the bot to work, you need python version >= `3.10.x`
+
+To recognize and synthesize voice `online`, to receive a weather forecast, you must use your :key: API-keys. 
+
+[DOWNLOAD VOSK model](https://alphacephei.com/vosk/models) for `offline` voice recognition.
+
+For text recognition, you need to [look here](https://github.com/bbt-t/what_is_there) and uncomment the corresponding [handler](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+
+> all required dependencies :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 
 ### Try in action
 (russian lang)

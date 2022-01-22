@@ -14,7 +14,7 @@ async def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) ->
     :param API_YA_STT: API key
     :return: what recognized
     """
-    url: str = ApiInfo.stt_yandex.value
+    url: str = ApiInfo.STT_YANDEX.value
     headers: dict = {'Authorization': f'Api-Key {API_YA_STT}'}
     params: dict = {
         'topic': 'general',

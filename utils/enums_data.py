@@ -23,9 +23,8 @@ class SendStickers(Enum):
 
 @unique
 class ApiInfo(Enum):
-    weather_api_basic = f"https://api.openweathermap.org/data/2.5/weather?q={CITY_WEATHER}&appid={API_WEATHER}&units=metric&lang=ru"
-    weather_api_reserve = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey={API_WEATHER2}&language=ru-ru&metric=true&details=true"
-    get_city_id = f"http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey={API_WEATHER2}&q={CITY_WEATHER}"
-    stt_yandex = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
-    tts_yandex = "https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize"
-
+    WEATHER_API_BASIC = f"https://api.openweathermap.org/data/2.5/weather?q={CITY_WEATHER}&appid={API_WEATHER}&units=metric&lang=ru"
+    WEATHER_API_RESERVE = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey={API_WEATHER2}&language=ru-ru&metric=true&details=true"
+    GET_CITY_ID = f"http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey={API_WEATHER2}&q={CITY_WEATHER}"
+    STT_YANDEX = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
+    TTS_YANDEX = "https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize"

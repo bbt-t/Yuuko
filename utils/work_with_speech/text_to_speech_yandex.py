@@ -12,7 +12,7 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
     :param text: text to convert
     :return: bytes-object (.ogg)
     """
-    url: str = ApiInfo.tts_yandex.value
+    url: str = ApiInfo.TTS_YANDEX.value
     headers: dict = {'Authorization': f'Api-key {API_YA_TTS}'}
     data: dict = {
         'text': text,

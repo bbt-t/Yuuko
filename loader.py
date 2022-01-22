@@ -10,13 +10,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from uvloop import EventLoopPolicy as uvloop_Loop
 
-from config import BOT_TOKEN, redis, DB_NAME
+from config import BOT_TOKEN, redis_for_bot, DB_NAME
 from loguru import logger as logger_guru
 
 
 asyncio_set_event_loop_policy(uvloop_Loop())
 
-storage = RedisStorage2(**redis)
+storage = RedisStorage2(**redis_for_bot)
 bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot, storage=storage)
 

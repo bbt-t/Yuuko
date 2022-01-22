@@ -9,7 +9,6 @@ class Users(Base):
     __tablename__ = 'users'
     telegram_id = Column(BigInteger, primary_key=True)
     full_name = Column(VARCHAR(256), nullable=False)
-    todo_notif_status = Column(Boolean)
     personal_pass = Column(VARCHAR(32))
     birthday = Column(Date)
 

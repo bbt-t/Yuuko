@@ -21,7 +21,7 @@ async def create_weather_forecast() -> str:
         else:
             try:
                 async with ClientSession() as session:
-                    async with session.get(ApiInfo.weather_api_basic.value) as resp:
+                    async with session.get(ApiInfo.WEATHER_API_BASIC.value) as resp:
                         req = await resp.json()
 
                 temp: int = ceil(req['main']['temp_min'])
@@ -68,10 +68,10 @@ async def create_weather_forecast() -> str:
 
 async def accesses_fallback_api():
     async with ClientSession() as session:
-        async with session.get(ApiInfo.get_city_id.value) as resp_city:
+        async with session.get(ApiInfo.GET_CITY_ID.value) as resp_city:
             received_city: str = (await resp_city.json())[0]['Key']
 
-        async with session.get(ApiInfo.weather_api_reserve.value.replace('CITY', received_city)) as resp:
+        async with session.get(ApiInfo.WEATHER_API_RESERVE.value.replace('CITY', received_city)) as resp:
             result = await resp.json()
 
     return result

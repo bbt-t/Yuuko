@@ -16,6 +16,7 @@
   <li>Сохранять пароли :heavy_check_mark:</li>
   <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:</li>
   <li>Получить гороскоп :heavy_check_mark:</li>
+  <li>Распознать текст на фото ️:warning:</li>
 </ul>
 </details>
 
@@ -54,3 +55,10 @@ BOT_TOKEN = ...
 API_WEATHER = ...
 и т.д
 ``` 
+> Для распознавания текста необходимо  [заглянуть сюда](https://github.com/bbt-t/what_is_there) и раскомментировать соответствующий [хендлер](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+
+### Попробовать бота
+можно тут:
+```
+@simple_brain_bot
+```

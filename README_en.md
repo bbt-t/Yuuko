@@ -16,6 +16,7 @@
   <li>Save passwords :heavy_check_mark:</li>
   <li>Which days are "good" for a haircut :heavy_check_mark:</li>
   <li>Get a horoscope :heavy_check_mark:</li>
+  <li>Recognize text on photo ️:warning:</li>
 </ul>
 </details>
 
@@ -54,3 +55,10 @@ BOT_TOKEN = ...
 API_WEATHER = ...
 . . .
 ``` 
+> For text recognition, you need to [look here](https://github.com/bbt-t/what_is_there) and uncomment the corresponding [handler](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+
+### Try in action
+(russian lang)
+```
+python start.py
+```

@@ -1,4 +1,6 @@
-from asyncio import set_event_loop_policy as asyncio_set_event_loop_policy
+from asyncio import set_event_loop_policy, get_running_loop
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -14,7 +16,7 @@ from config import BOT_TOKEN, redis_for_bot, DB_NAME
 from loguru import logger as logger_guru
 
 
-asyncio_set_event_loop_policy(uvloop_Loop())
+set_event_loop_policy(uvloop_Loop())
 
 storage = RedisStorage2(**redis_for_bot)
 bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML)
@@ -37,6 +39,37 @@ logger_guru.add(
     )
 
 
-def get_time_now(tz):
+def get_time_now(tz: str):
+    """
+    Take time and date in the time-zone.
+    :param tz: time-zone
+    :return: datatime object
+    """
     zone = ZoneInfo(tz)
     return datetime.now(tz=zone)
+
+
+async def blocking_io_run_func(func, *args):
+    """
+    Run in a custom thread pool (IO).
+    :param func: func to run in the pool
+    :param args: func arguments
+    :return: func result
+    """
+    loop = get_running_loop()
+    with ThreadPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, func, *args)
+    return result
+
+
+async def cpu_bound_run_func(func, *args):
+    """
+    Run in a custom process pool (CPU-bound operations).
+    :param func: func to run in the pool
+    :param args: func arguments
+    :return: func result
+    """
+    loop = get_running_loop()
+    with ProcessPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, func, *args)
+    return result

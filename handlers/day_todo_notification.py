@@ -8,8 +8,8 @@ from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.keyboards.choice_voice_todo import choice_voice_todo_keyboard
 from utils.keyboards.yes_no import yes_no_choice_kb
-from utils.notify_users import send_todo_msg
-from utils.enums_data import SendStickers
+from utils.misc.notify_users import send_todo_msg
+from utils.misc.enums_data import SendStickers
 
 
 

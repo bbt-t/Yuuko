@@ -3,8 +3,8 @@ from aiogram.types import Message
 
 from loader import dp
 from middlewares.throttling import rate_limit
-from utils.lunar_calendar.lunar_haircut import lunar_calendar_haircut
-from utils.enums_data import SendStickers
+from utils.lunar_haircut import lunar_calendar_haircut
+from utils.misc.enums_data import SendStickers
 
 
 @rate_limit(5, key='hair')

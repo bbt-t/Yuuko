@@ -11,3 +11,4 @@ data/
 .idea
 .git
 .pytest_cache
+/tests

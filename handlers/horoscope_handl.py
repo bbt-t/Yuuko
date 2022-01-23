@@ -5,7 +5,7 @@ from aiogram.utils.exceptions import MessageNotModified
 
 from loader import dp
 from middlewares.throttling import rate_limit
-from utils.horoscope.getting_horoscope import get_user_horoscope
+from utils.getting_horoscope import get_user_horoscope
 from utils.keyboards.for_choosing_zodiac_kb import choice_zodiac_keyboard, choice_day_zodiac_keyboard
 
 

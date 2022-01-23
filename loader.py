@@ -24,11 +24,11 @@ dp = Dispatcher(bot, storage=storage)
 
 scheduler = AsyncIOScheduler()
 scheduler.configure(
-    jobstores={'default': SQLAlchemyJobStore(url='sqlite:///data/jobs.sqlite')},
+    jobstores={'default': SQLAlchemyJobStore(url='sqlite:///data/db/jobs.sqlite')},
     logger=logger_guru)
 
 Base = declarative_base()
-engine = create_async_engine(f'sqlite+aiosqlite:///data/{DB_NAME}')
+engine = create_async_engine(f'sqlite+aiosqlite:///data/db/{DB_NAME}')
 
 logger_guru.add(
     'data/logs/logging-bot-home.log',

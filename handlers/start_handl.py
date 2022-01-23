@@ -7,12 +7,12 @@ from aiogram.types import Message, CallbackQuery, ChatActions
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_zone
-from utils.enums_data import SendStickers
+from utils.misc.enums_data import SendStickers
 from loader import dp, logger_guru, get_time_now
 from middlewares.throttling import rate_limit
-from utils.db_api.sql_commands import add_user, update_birthday
+from utils.database_manage.sql.sql_commands import add_user, update_birthday
 from utils.keyboards.start_settings_kb import start_choice_kb
-from utils.notify_users import send_synthesize_voice_by_ya, auth
+from utils.misc.notify_users import send_synthesize_voice_by_ya, auth
 
 
 

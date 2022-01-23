@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import update
 
 from loader import Base, engine
-from utils.db_api.sql_table import OtherInfo, Users
+from utils.database_manage.sql.sql_table import OtherInfo, Users
 
 
 

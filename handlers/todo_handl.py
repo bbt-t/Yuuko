@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_zone
-from utils.enums_data import SendStickers
+from utils.misc.enums_data import SendStickers
 from loader import dp, logger_guru, get_time_now
 from middlewares.throttling import rate_limit
 from utils.todo import load_todo_obj, dump_todo_obj
@@ -48,7 +48,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
     name = f'todo_{user_id}'
 
     if len(message.text) <= 1000:
-        message_task: list = message.text.replace('я', 'ты').split('\n')
+        message_task: list = message.text.split('\n')
         todo_obj: dict = await load_todo_obj()
         try:
             todo_obj[name][date].extend(message_task)

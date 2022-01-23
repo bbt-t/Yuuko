@@ -6,7 +6,7 @@ from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled
 
-from utils.enums_data import SendStickers
+from utils.misc.enums_data import SendStickers
 
 
 

@@ -17,7 +17,7 @@ async def dump_todo_obj(todo_obj: dict) -> None:
     :param todo_obj: all_todo
     """
     data = ujson_dumps(todo_obj)
-    async with aiofiles_open('data/data_todo.json', mode='w') as f:
+    async with aiofiles_open('data/db/data_todo.json', mode='w') as f:
         await f.write(data)
 
 
@@ -26,7 +26,7 @@ async def load_todo_obj() -> dict:
     Read ToDo_object.
     """
     try:
-        async with aiofiles_open('data/data_todo.json', mode='r') as f:
+        async with aiofiles_open('data/db/data_todo.json', mode='r') as f:
             read_obj: dict = ujson_loads(await f.read())
     except FileNotFoundError as err:
         logger_guru.warning(f'{repr(err)} : Obj todo not found, create new entry. . .')

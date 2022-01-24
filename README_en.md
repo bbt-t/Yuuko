@@ -60,7 +60,9 @@ For text recognition, you need to [look here](https://github.com/bbt-t/what_is_t
 > all required dependencies :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 
 ### Try in action
-(russian lang)
+
+`incomplete translation incomplete from Russian lang (work in progress)`
+
 ```
-python start.py
+@simple_brain_bot
 ```

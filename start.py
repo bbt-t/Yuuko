@@ -7,8 +7,9 @@ from loader import dp, scheduler, logger_guru
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
 from utils.misc.notify_admins import on_startup_notify, on_shutdown_notify
-from utils.set_bot_commands import set_default_commands
+from utils.misc.set_bot_commands import set_default_commands
 from utils.todo import delete_all_todo
+
 import middlewares
 import handlers
 

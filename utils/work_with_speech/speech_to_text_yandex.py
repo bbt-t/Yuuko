@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 
 from loader import logger_guru
-from utils.misc.enums_data import ApiInfo
+from ..misc.enums_data import ApiInfo
 
 
 

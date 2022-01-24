@@ -4,10 +4,10 @@ from aiogram.types import ParseMode, Message
 
 from config import FOLDER_ID, API_YA_TTS, time_zone
 from loader import dp, logger_guru, get_time_now
-from utils.database_manage.sql.sql_commands import select_user
-from utils.todo import load_todo_obj
-from utils.weather_compilation import create_weather_forecast
-from utils.work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
+from ..database_manage.sql.sql_commands import select_user
+from ..todo import load_todo_obj
+from ..weather_compilation import create_weather_forecast
+from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
 
 

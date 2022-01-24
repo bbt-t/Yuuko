@@ -5,7 +5,7 @@ from aioredis import from_url as aioredis_from_url
 
 from config import redis_data_cache
 from loader import logger_guru
-from utils.misc.enums_data import ApiInfo
+from .misc.enums_data import ApiInfo
 
 
 

@@ -1,7 +1,4 @@
-from .errors.messagemotmodified import dp
-from .errors.messagecantedit import dp
-from .errors.exception_botblocked import dp
-from .errors.trying_to_send_quote import dp
+from .errors import dp
 
 from .support_contact_handl import dp
 from .start_handl import dp

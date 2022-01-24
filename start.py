@@ -24,6 +24,8 @@ async def on_startup(dp: Dispatcher):
     await dp.bot.delete_webhook()
     await dp.bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
+    middlewares.setup(dp)
+        
     await set_default_commands(dp)
     await on_startup_notify(dp)
 

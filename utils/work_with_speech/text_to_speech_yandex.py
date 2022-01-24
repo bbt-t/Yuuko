@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 
 from loader import logger_guru
-from utils.misc.enums_data import ApiInfo
+from ..misc.enums_data import ApiInfo
 
 
 async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> bytes:

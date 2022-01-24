@@ -64,5 +64,5 @@ For text recognition, you need to [look here](https://github.com/bbt-t/what_is_t
 `incomplete translation incomplete from Russian lang (work in progress)`
 
 ```
-python start.py
+@simple_brain_bot
 ```

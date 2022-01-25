@@ -1,6 +1,6 @@
 from enum import Enum, unique
 
-from config import CITY_WEATHER, API_WEATHER, API_WEATHER2
+from config import work_with_api
 
 
 @unique
@@ -23,8 +23,8 @@ class SendStickers(Enum):
 
 @unique
 class ApiInfo(Enum):
-    WEATHER_API_BASIC = f"https://api.openweathermap.org/data/2.5/weather?q={CITY_WEATHER}&appid={API_WEATHER}&units=metric&lang=ru"
-    WEATHER_API_RESERVE = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey={API_WEATHER2}&language=ru-ru&metric=true&details=true"
-    GET_CITY_ID = f"http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey={API_WEATHER2}&q={CITY_WEATHER}"
+    WEATHER_API_BASIC = f"https://api.openweathermap.org/data/2.5/weather?q={work_with_api['WEATHER']['CITY_WEATHER']}&appid={work_with_api['WEATHER']['API_WEATHER']}&units=metric&lang=ru"
+    WEATHER_API_RESERVE = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/CITY?apikey={work_with_api['WEATHER']['API_WEATHER2']}&language=ru-ru&metric=true&details=true"
+    GET_CITY_ID = f"http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey={work_with_api['WEATHER']['API_WEATHER2']}&q={work_with_api['WEATHER']['CITY_WEATHER']}"
     STT_YANDEX = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
     TTS_YANDEX = "https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize"

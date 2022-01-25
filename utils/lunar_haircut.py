@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import HAIRCUT_PARSE, time_zone, redis_data_cache
+from config import time_zone, redis_data_cache, work_with_api
 from loader import logger_guru, get_time_now
 
 
@@ -21,7 +21,7 @@ async def lunar_calendar_haircut() -> str:
             text: str = data.decode()
         else:
             async with ClientSession() as session:
-                async with session.get('{}{}/{}'.format(HAIRCUT_PARSE, year, month)) as resp:
+                async with session.get('{}{}/{}'.format(work_with_api['OTHER']['HAIRCUT_PARSE'], year, month)) as resp:
 
                     if resp.status != 200:
                         logger_guru.warning(f"{resp.status=} : Bad request!")

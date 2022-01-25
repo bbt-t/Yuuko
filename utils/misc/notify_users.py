@@ -2,7 +2,7 @@ from functools import wraps
 
 from aiogram.types import ParseMode, Message
 
-from config import FOLDER_ID, API_YA_TTS, time_zone
+from config import work_with_api, time_zone
 from loader import dp, logger_guru, get_time_now
 from ..database_manage.sql.sql_commands import select_user
 from ..todo import load_todo_obj
@@ -42,11 +42,16 @@ async def send_weather(id: int):
 
 
 @logger_guru.catch()
-async def send_synthesize_voice_by_ya(id: int, text: str, folder: str = FOLDER_ID, api_ya_tts: str = API_YA_TTS):
+async def send_synthesize_voice_by_ya(
+        id: int, text: str,
+        folder: str = work_with_api['YANDEX']['FOLDER_ID'],
+        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']):
     """
     Sends a message with the synthesize voice message
     :param id: user id
     :param text: text for synthesis
+    :param: folder: your cloud name Yandex
+    :param: api_ya_tts: api-key
     :return: voice message
     """
     text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text)
@@ -56,12 +61,15 @@ async def send_synthesize_voice_by_ya(id: int, text: str, folder: str = FOLDER_I
 @logger_guru.catch()
 async def send_todo_msg(
         user_id: int | str, is_voice: bool = False,
-        folder: str = FOLDER_ID, api_ya_tts: str = API_YA_TTS
+        folder: str = work_with_api['YANDEX']['FOLDER_ID'],
+        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']
         ):
     """
     Sends a message with the synthesize voice message
     :param user_id: telegram id of the person to whom the message will be sent
     :param is_voice: send voice message or not
+    :param: folder: your cloud name Yandex
+    :param: api_ya_tts: api-key
     :return: voice message and text message
     """
     name, date = f'todo_{user_id}', get_time_now(time_zone).strftime('%Y-%m-%d')

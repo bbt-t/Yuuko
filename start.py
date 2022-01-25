@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.utils.executor import start_webhook
 from sqlalchemy import exc
 
-from config import WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
+from config import hook_info
 from loader import dp, scheduler, logger_guru
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
@@ -23,7 +23,7 @@ async def on_startup(dp: Dispatcher):
     :param dp: Dispatcher
     """
     await dp.bot.delete_webhook()
-    await dp.bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+    await dp.bot.set_webhook(hook_info.get('WEBHOOK_URL'), drop_pending_updates=True)
 
     middlewares.setup(dp)
         
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         start_webhook(
             dispatcher=dp, skip_updates=True,
             on_startup=on_startup, on_shutdown=on_shutdown,
-            webhook_path=WEBHOOK_PATH, host=WEBAPP_HOST, port=WEBAPP_PORT
+            **hook_info.get('WEBHOOK')
         )
     except BaseException as err:
         logger_guru.critical(f'{repr(err)} : STOP BOT')

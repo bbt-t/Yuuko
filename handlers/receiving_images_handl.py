@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiohttp import ClientSession
 from ujson import dumps as ujson_dumps
 
-from config import OCR_URL
+from config import work_with_api
 from loader import dp
 
 
@@ -26,7 +26,7 @@ async def take_image_for_ocr(message: Message, state: FSMContext):
     headers: dict = {'Content-Type': 'application/json', 'accept': 'application/json'}
 
     async with ClientSession() as session:
-        async with session.post(url=OCR_URL, headers=headers, data=data) as resp:
+        async with session.post(url=work_with_api['OTHER']['OCR_URL'], headers=headers, data=data) as resp:
             result: str = '\n'.join(await resp.text())
 
     if result:

@@ -52,16 +52,3 @@ work_with_api: dict = {
         'OCR_URL': getenv('OCR_URL'),
     }
 }
-
-# HORO_XML: str = getenv('HORO_XML')
-# HAIRCUT_PARSE: str = getenv('HAIRCUT_PARSE')
-#
-# API_WEATHER: str = getenv('API_WEATHER')
-# API_WEATHER2: str = getenv('API_WEATHER2')
-# CITY_WEATHER: str = getenv('CITY_WEATHER')
-#
-# FOLDER_ID: str = getenv('FOLDER_ID')
-# API_YA_STT: str = getenv('API_YA_STT')
-# API_YA_TTS: str = getenv('API_YA_TTS')
-#
-# OCR_URL: str = getenv('OCR_URL')

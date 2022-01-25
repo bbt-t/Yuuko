@@ -2,8 +2,6 @@
 .gitignore
 __pycache__
 .venv
-.github
-*.log
 README.md
 README_en.md
 LICENSE
@@ -11,3 +9,4 @@ LICENSE
 .git
 .pytest_cache
 tests
+Dockerfile

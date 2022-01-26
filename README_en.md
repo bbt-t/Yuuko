@@ -51,11 +51,15 @@ API_WEATHER = ...
 ``` 
 For the bot to work, you need python version >= `3.10.x`
 
-To recognize and synthesize voice `online`, to receive a weather forecast, you must use your :key: API-keys. 
+To recognize and synthesize voice `online`, to receive a weather forecast, you must use your :key: API-keys:
+- [Yandex STT](https://cloud.yandex.ru/docs/speechkit/stt/)
+- [Yandex TTS](https://cloud.yandex.ru/docs/speechkit/tts/)
+- [Weather](https://openweathermap.org/api)
+- [Weather (alternative)](https://developer.accuweather.com)
 
-[DOWNLOAD VOSK model](https://alphacephei.com/vosk/models) for `offline` voice recognition.
+[DOWNLOAD VOSK model](https://alphacephei.com/vosk/models) for `offline` voice recognition (put in the root folder).
 
-For text recognition, you need to [look here](https://github.com/bbt-t/what_is_there) and uncomment the corresponding [handler](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+For text recognition on a photo, you need to [look here](https://github.com/bbt-t/what_is_there) and uncomment the corresponding [handler](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
 
 > all required dependencies :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 

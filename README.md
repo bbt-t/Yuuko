@@ -49,11 +49,15 @@ API_WEATHER = ...
 ``` 
 Для работы бота необходим python версии >= `3.10.x`
 
-Для распознавания/синтеза речи `онлайн` и получение прогноза погоды необходимо использовать свои :key: API.
+Для распознавания/синтеза речи `онлайн` и получение прогноза погоды необходимо использовать свои :key: API:
+- [Yandex STT](https://cloud.yandex.ru/docs/speechkit/stt/)
+- [Yandex TTS](https://cloud.yandex.ru/docs/speechkit/tts/)
+- [Погода](https://openweathermap.org/api)
+- [Погода (альтернатива)](https://developer.accuweather.com)
 
-Для  распознавания речи `офлайн` > [модель VOSK](https://alphacephei.com/vosk/models)
+Для  распознавания речи `офлайн` > [модель VOSK](https://alphacephei.com/vosk/models) закинуть в корневую папку.
 
-Для распознавания текста необходимо  [заглянуть сюда](https://github.com/bbt-t/what_is_there) и раскомментировать соответствующий [хендлер](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
+Для распознавания текста на фото необходимо [заглянуть сюда](https://github.com/bbt-t/what_is_there) и раскомментировать соответствующий [хендлер](https://github.com/bbt-t/bot-pet/blob/master/handlers/__init__.py)
 
 >Остальные зависимости смотри в :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 

@@ -14,9 +14,12 @@ from utils.keyboards.for_choosing_zodiac_kb import choice_zodiac_keyboard, choic
 @rate_limit(5, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext):
-    await message.answer('Заглянем в бууудууущее))...\n\n'
-                         'так, СТОП! мне же нужна инфа о тебе,\n'
-                         'говори свой знак зодиака!', reply_markup=choice_zodiac_keyboard)
+    await message.answer(
+        'Заглянем в бууудууущее))...\n\nтак, СТОП! мне же нужна инфа о тебе,\n'
+        'говори свой знак зодиака!' if message.from_user.language_code == 'ru' else
+        "Let's look into the future))...\n\nhmm, STOP! I need info about you,\n"
+        "tell me your zodiac sign!", reply_markup=choice_zodiac_keyboard
+    )
     await message.delete()
     await state.set_state('waiting_for_zodiac_sign')
 

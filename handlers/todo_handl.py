@@ -15,27 +15,43 @@ from utils.todo import load_todo_obj, dump_todo_obj
 @rate_limit(5)
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
+    lang: str = message.from_user.language_code
     await message.answer_sticker(SendStickers.yipee_2_girls.value)
-    await message.answer('<code>Привет! :)\nдавай запишем что сделать и когда</code>',
-                         reply_markup=await SimpleCalendar().start_calendar())
+    await message.answer(
+        '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
+        reply_markup=await SimpleCalendar().start_calendar())
     await state.set_state('todo')
+    async with state.proxy() as data:
+        data['lang']: str = lang
     await message.delete()
 
 
 @dp.callback_query_handler(simple_cal_callback.filter(), state='todo')
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
+    async with state.proxy() as data:
+        lang: str = data['lang']
     selected, date = await SimpleCalendar().process_selection(call, callback_data)
 
     if date and selected:
         time_todo = date.date()
         if time_todo < get_time_now(time_zone).date():
-            await dp.bot.answer_callback_query(call.id, 'Выбрать можно только на сегодня и позже !', show_alert=True)
-            await call.message.answer('Выбирай с умом :)', reply_markup=await SimpleCalendar().start_calendar())
+            await dp.bot.answer_callback_query(
+                call.id,
+                'Выбрать можно только на сегодня и позже !' if lang == 'ru' else
+                'You can only choose for today and later!', show_alert=True
+            )
+            await call.message.answer(
+                'Выбирай с умом :)' if lang == 'ru' else 'Choose wisely :)',
+                reply_markup=await SimpleCalendar().start_calendar()
+            )
         else:
             async with state.proxy() as data:
                 data['date']: str = str(time_todo)
 
-            await call.message.edit_text(f'Что планируешь на <code>{time_todo}</code> число?')
+            await call.message.edit_text(
+                f'Что планируешь на <code>{time_todo}</code> число?' if lang == 'ru' else
+                f'What are you planning for the <code>{time_todo}</code>?'
+            )
             await state.set_state('reception_todo')
 
 
@@ -43,6 +59,7 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
 async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
         date: str = data['date']
+        lang: str = data['lang']
 
     user_id = message.from_user.id
     name = f'todo_{user_id}'
@@ -63,14 +80,25 @@ async def set_calendar_date(message: Message, state: FSMContext):
 
         await dump_todo_obj(todo_obj)
         await message.answer_sticker(SendStickers.great.value)
-        await message.answer(f'сделано!\n\nвот список на этот день:\n\n{result}')
+        await message.answer(
+            f'сделано!\n\nвот список на этот день:\n\n{result}' if lang == 'ru' else
+            f'did!\n\nhere is the list for this day:\n\n{result}'
+        )
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
         await message.answer_sticker(SendStickers.you_were_bad.value)
-        await message.answer('Слишком большое сообщение ! Попробуй написать короче')
+        await message.answer(
+            'Слишком большое сообщение ! Попробуй написать короче' if lang == 'ru' else
+            'Too big message! Try to write shorter'
+        )
 
 
 @dp.message_handler(state='todo')
 async def cancel_todo(message: Message, state: FSMContext):
-    await message.answer('Тебе нужно выбрать дату :) попробуй ещё раз')
+    async with state.proxy() as data:
+        lang: str = data['lang']
+    await message.answer(
+        'Тебе нужно выбрать дату :) попробуй ещё раз' if lang == 'ru' else
+        'You need to choose a date :) try again'
+    )
     await state.finish()

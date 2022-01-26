@@ -5,7 +5,7 @@
 [:russia: На русском](README.md)
 ### About
 
->Telegram bot based on aiogram v2.x asynchronous library 
+>Telegram bot based on aiogram v2.x asynchronous library, supports 2 languages [RU, EN]
 
 
 <details>
@@ -65,7 +65,7 @@ For text recognition on a photo, you need to [look here](https://github.com/bbt-
 
 ### Try in action
 
-`incomplete translation incomplete from Russian lang (work in progress)`
+`incomplete translation from Russian lang (work in progress)`
 
 ```
 @simple_brain_bot

@@ -4,7 +4,7 @@ from loader import logger_guru
 from ..misc.enums_data import ApiInfo
 
 
-async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> bytes:
+async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str, lang: str) -> bytes:
     """
     Here we translate the text into voice using Yandex TTS API
     :param FOLDER_ID: cloud folder
@@ -12,12 +12,16 @@ async def synthesize_voice_by_ya(FOLDER_ID: str, API_YA_TTS: str, text: str) -> 
     :param text: text to convert
     :return: bytes-object (.ogg)
     """
+    translate_table = {'ru': 'ru-RU', 'en': 'en-US'}
+    lang_tranl: str = ''.join(val for key, val in translate_table.items() if key == lang)
+
     url: str = ApiInfo.TTS_YANDEX.value
     headers: dict = {'Authorization': f'Api-key {API_YA_TTS}'}
     data: dict = {
+        'lang': lang_tranl,
         'text': text,
         'folderId': FOLDER_ID,
-        'voice': 'alena',
+        'voice': 'alena' if lang == 'ru' else 'oksana',
         'speed': '0.8',
     }
     try:

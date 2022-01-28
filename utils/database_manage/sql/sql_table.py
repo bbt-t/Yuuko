@@ -1,20 +1,17 @@
-from sqlalchemy import Column, VARCHAR, PickleType, BigInteger, Boolean, Date
+from sqlalchemy import Column, VARCHAR, PickleType, BigInteger, Date, Boolean
 
 from loader import Base
-
-
 
 
 class Users(Base):
     __tablename__ = 'users'
     telegram_id = Column(BigInteger, primary_key=True)
-    full_name = Column(VARCHAR(256), nullable=False)
     personal_pass = Column(VARCHAR(32))
-    birthday = Column(Date)
+    birthday = Column(Date, nullable=True)
 
 
 class OtherInfo(Base):
     __tablename__ = 'other'
-    telegram_id = Column(BigInteger, primary_key=True)
-    name_pass = Column(VARCHAR(256), nullable=False, unique=True)
+    telegram_id = Column(BigInteger, nullable=False)
+    name_pass = Column(VARCHAR(256), primary_key=True)
     pass_items = Column(PickleType, nullable=False)

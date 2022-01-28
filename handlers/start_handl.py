@@ -24,41 +24,41 @@ async def start_working_with_bot(message: Message):
     """
     Such a response will be sent at the start of communication (/start)
     """
-    name: str = message.from_user.full_name
     user_id: int = message.from_user.id
-
-    match message.from_user.language_code:
+    name: str = message.from_user.full_name
+    match lang := message.from_user.language_code:
         case 'ru':
             text_msg: str = (
                 f"Привет, {name}!\n\nЯ твой 'домашний' бот,"
                 f"чтобы я могла выполнять свои функции ответь пожалуйста на пару вопросов..."
             )
-        case 'en':
+        case _:
             text_msg: str = (
                 f"Hi, {name}!\n\nI'm your home bot,"
                 f"so that I can perform my functions, please answer a couple of questions..."
             )
     try:
-        await add_user(id=user_id, name=name)
+        await add_user(id=user_id)
     except IntegrityError:
         logger_guru.warning(f'{user_id=} : Integrity Error in start handler!')
     finally:
         await message.answer_sticker(SendStickers.welcome.value)
         await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
         await asyncio_sleep(2)
-        await send_synthesize_voice_by_ya(user_id, text_msg)
+        await send_synthesize_voice_by_ya(user_id, text_msg, lang)
         await message.answer(text_msg, reply_markup=start_choice_kb)
 
 
 @dp.callback_query_handler(text='set_birthday')
 async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     lang: str = call.from_user.language_code
-
-    await call.message.answer_sticker(SendStickers.seeking.value)
-    removing_msg = await call.message.answer(
+    text_msg: str = (
         'Укажи свой ДР (настоящее, его всё равно никто не увидит кроме меня:))' if lang == 'ru' else
         'Specify your DR (real, no one will see it except me anyway :))'
     )
+    removing_msg = await call.message.answer(text_msg)
+
+    await call.message.answer_sticker(SendStickers.seeking.value)
     await call.message.edit_reply_markup(await SimpleCalendar().start_calendar())
     await state.set_state('set_birthday_and_todo')
     async with state.proxy() as data:
@@ -76,16 +76,17 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
     if date and selected:
         time_todo = date.date()
         if time_todo > get_time_now(time_zone).date():
-            await dp.bot.answer_callback_query(
-                call.id,
+            text_msg_send_error: str = (
                 'Выбрать можно только на сегодня и позже !' if lang == 'ru' else
-                'You can only choose today and later!', show_alert=True
+                'You can only choose today and later!'
             )
-            await call.message.answer(
+            await dp.bot.answer_callback_query(call.id, text_msg_send_error, show_alert=True)
+
+            text_msg_error: str = (
                 'Ты не можешь выбрать эту дату!' if lang == 'ru' else
-                "You can't choose this date!",
-                reply_markup=await SimpleCalendar().start_calendar()
+                "You can't choose this date!"
             )
+            await call.message.answer(text_msg_error, reply_markup=await SimpleCalendar().start_calendar())
         else:
             await update_birthday(id=call.from_user.id, birthday=date.date())
             await dp.bot.delete_message(message_id=removing_msg_id, chat_id=call.message.chat.id)
@@ -100,10 +101,10 @@ async def exit_handling(call: CallbackQuery, state: FSMContext):
     await call.message.answer_sticker(SendStickers.sad_ok.value)
     await dp.bot.send_chat_action(call.from_user.id, ChatActions.TYPING)
     await asyncio_sleep(1)
-    await dp.bot.answer_callback_query(
-        call.id,
+    text_msg: str = (
         'ЖАЛЬ :С если что мои команды можно подглядеть через слеш (/)' if call.from_user.language_code == 'ru' else
-        'SORRY :C if you change your mind, you can see my commands through a forward slash (/)', show_alert=True
+        'SORRY :C if you change your mind, you can see my commands through a forward slash (/)'
     )
+    await dp.bot.answer_callback_query(call.id, text_msg, show_alert=True)
     await call.message.delete_reply_markup()
     await state.finish()

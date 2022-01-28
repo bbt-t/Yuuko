@@ -19,13 +19,13 @@ async def start_db():
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def add_user(id: int, name: str):
+async def add_user(id: int):
     """
     Add user in table 'Users'
     :param id: telegram id
     :param name: user name
     """
-    user = Users(telegram_id=id, full_name=name)
+    user = Users(telegram_id=id)
     async_session = sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
     )

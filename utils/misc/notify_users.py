@@ -43,7 +43,7 @@ async def send_weather(id: int):
 
 @logger_guru.catch()
 async def send_synthesize_voice_by_ya(
-        id: int, text: str,
+        id: int, text: str, lang: str,
         folder: str = work_with_api['YANDEX']['FOLDER_ID'],
         api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']):
     """
@@ -54,7 +54,7 @@ async def send_synthesize_voice_by_ya(
     :param: api_ya_tts: api-key
     :return: voice message
     """
-    text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text)
+    text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text, lang)
     await dp.bot.send_voice(id, text_msg)
 
 

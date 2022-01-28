@@ -37,14 +37,22 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
 @rate_limit(5)
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
-    await message.answer('Привет, я могу запонить твои пароли, '
-                         'для этого мне нужно знать твоё кодовое слово...')
-    await state.set_state('check_personal_code')
+    match lang := message.from_user.language_code:
+        case 'ru':
+            text_msg: str = 'Привет, я могу запонить твои пароли, для этого мне нужно знать твоё кодовое слово...'
+        case _:
+            text_msg: str = 'Hello, I can remember your passwords, for this I need to know your codeword...'
     await message.delete()
+    await message.answer(text_msg)
+    await state.set_state('check_personal_code')
+    async with state.proxy() as data:
+        data['lang']: str = lang
 
 
 @dp.message_handler(state='check_personal_code')
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        lang: str = data['lang']
     user_id: int = message.from_user.id
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
 
@@ -52,17 +60,29 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
         if check_pass := await check_personal_pass(id=user_id):
             if hmac_compare_digest(check_pass, msg):
                 await message.reply_sticker(SendStickers.order_accepted.value)
-                await message.answer('ПРИНЯТО!')
+                await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
                 await state.set_state('successful_auth_for_pass')
-                await message.answer('Что ты конкретно хочешь?', reply_markup=pass_choice_kb)
+                async with state.proxy() as data:
+                    data['lang'] = lang
+                tex_msg: str = 'Что ты конкретно хочешь?' if lang == 'ru' else 'What do you specifically want?'
+                await message.answer(tex_msg, reply_markup=pass_choice_kb)
             else:
-                await message.answer('НЕ ВЕРНО! попробуй ещё раз :С\n\n'
-                                     'п.с: если твой пароль потерялся, то нашиши в саппорт!\n'
-                                     'подсказка: /support')
+                match lang:
+                    case 'ru':
+                        await message.answer('НЕВЕРНО! попробуй ещё раз :С\n\n'
+                                             'п.с: если твой пароль потерялся, то нашиши в саппорт!\n'
+                                             'подсказка: /support')
+                    case _:
+                        await message.answer('WRONG! try again :С\n\n'
+                                             'п.с: If your codeword is lost, then write to support!\n'
+                                             'подсказка: /support')
                 await state.finish()
         else:
             await update_personal_pass(id=user_id, personal_pass=msg)
-            await message.answer('Не нашла его в списке, добавила :)\nнапиши его ещё раз.')
+            await message.answer(
+                'Не нашла его в списке, добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
+                "Didn't find it on the list, added it:)\nwrite it again."
+            )
         await message.delete()
     except sqlite3_Error as err:
         logger_guru.warning(f'{repr(err)} : Error in check_personal_code handler!')
@@ -70,9 +90,13 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 
 
 @dp.callback_query_handler(text='new_pass', state='successful_auth_for_pass')
-async def accept_personal_key(call: CallbackQuery):
-    await call.message.answer(f'Задай имя сохраняемого пароля ...\n'
-                              f'(можешь сразу и сам пароль)')
+async def accept_personal_key(call: CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        lang: str = data['lang']
+    await call.message.answer(
+        'Задай имя сохраняемого пароля ...\n (можешь сразу и сам пароль)' if lang == 'ru' else
+        'Set the name of the password to be saved ...\n (you can also use the password itself)'
+    )
     await call.message.delete_reply_markup()
 
 
@@ -82,6 +106,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
     user_id: int = message.from_user.id
 
     async with state.proxy() as data:
+        lang: str = data['lang']
         name_pass: str = data.get('name')
 
     match msg.replace(',', ' ').split():
@@ -89,31 +114,35 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
             await message.delete()
             enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, password)
             await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
-            await message.answer(f'Отлично! записала.')
+            await message.answer('Отлично! записала.' if lang == 'ru' else 'Fine! wrote down.')
             await state.finish()
         case _:
             if not name_pass:
                 async with state.proxy() as data:
                     data['name']: str = msg
                 await message.delete()
-                await message.answer('А теперь пароль :)')
+                await message.answer('А теперь пароль :)' if lang == 'ru' else 'And now the password :)')
             else:
                 enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, msg)
                 await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
                 await message.delete()
-                await message.answer(f'Пoлучила, записала!')
+                await message.answer('Пoлучила, записала!' if lang == 'ru' else 'Received and recorded!')
                 await state.finish()
 
 
 @dp.callback_query_handler(text='receive_pass', state='successful_auth_for_pass')
 async def get_existing_pass(call: CallbackQuery, state: FSMContext):
-    await call.message.answer('Какое имя пароля?')
+    async with state.proxy() as data:
+        lang: str = data['lang']
+    await call.message.answer('Какое "имя" пароля?' if lang == 'ru' else 'What is the "name" of the password?')
     await call.message.delete_reply_markup()
     await state.set_state('set_name_pass')
 
 
 @dp.message_handler(state='set_name_pass')
 async def get_name_of_the_requested_password(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        lang: str = data['lang']
     msg: str = message.text.replace(' ', '')
     user_id: int = message.from_user.id
     try:
@@ -121,16 +150,24 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message
-            removing_msg = await message.answer(
+            text_msg: str = (
                 f'НАШЛА! вот пароль с именем {msg} : {password}\n'
-                f'у тебя 20 секунд чтобы его скопировать !'
+                f'у тебя 10 секунд чтобы его скопировать !' if lang == 'ru' else
+                f'FOUND! here is the password with the name {msg} : {password}\n'
+                f'after 20 seconds it will be deleted !'
             )
-            await asyncio_sleep(20)
+            removing_msg = await message.answer(text_msg)
+
+            await asyncio_sleep(10)
             await removing_msg.delete()
             await message.delete()
 
-            await message.answer('Надеюсь, ты успел записать :)')
+            await message.answer(
+                'Надеюсь, ты успел записать :)' if lang == 'ru' else 'I hope you managed to write it down :)'
+            )
     except:
-        await message.answer('Не нашла пароля с таким именем :С')
+        await message.answer(
+            'Не нашла пароля с таким именем :С' if lang == 'ru' else "Couldn't find a password with that name :C"
+        )
     finally:
         await state.finish()

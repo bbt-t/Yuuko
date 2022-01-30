@@ -1,8 +1,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-choice_zodiac_keyboard = InlineKeyboardMarkup(row_width=2)
-choice_zodiac_keyboard.add(
+choice_zodiac_keyboard_ru = InlineKeyboardMarkup(row_width=2)
+choice_zodiac_keyboard_ru.add(
     InlineKeyboardButton(text='Овен 21 марта – 20 апреля', callback_data='aries'),
     InlineKeyboardButton(text='Телец 21 апреля – 20 мая', callback_data='taurus'),
     InlineKeyboardButton(text='Близнецы 21 мая – 21 июня', callback_data='gemini'),
@@ -17,8 +17,31 @@ choice_zodiac_keyboard.add(
     InlineKeyboardButton(text='Рыбы 21 февраля – 20 марта', callback_data='pisces')
 )
 
-choice_day_zodiac_keyboard = InlineKeyboardMarkup(row_width=2)
-choice_day_zodiac_keyboard.add(
+choice_zodiac_keyboard_en = InlineKeyboardMarkup(row_width=2)
+choice_zodiac_keyboard_en.add(
+    InlineKeyboardButton(text='Aries 21 March – 20 April', callback_data='aries'),
+    InlineKeyboardButton(text='Taurus 21 April – 20 May', callback_data='taurus'),
+    InlineKeyboardButton(text='Gemini 21 May – 21 June', callback_data='gemini'),
+    InlineKeyboardButton(text='Cancer 22 June – 22 July', callback_data='cancer'),
+    InlineKeyboardButton(text='Leo 23 July – 23 August', callback_data='leo'),
+    InlineKeyboardButton(text='Virgo 24 August – 23 September', callback_data='virgo'),
+    InlineKeyboardButton(text='Libra 24 September – 23 October', callback_data='libra'),
+    InlineKeyboardButton(text='Scorpio 24 October – 22 November', callback_data='scorpio'),
+    InlineKeyboardButton(text='Sagittarius 23 November – 21 December', callback_data='sagittarius'),
+    InlineKeyboardButton(text='Capricorn 22 December – 20 January', callback_data='capricorn'),
+    InlineKeyboardButton(text='Aquarius 21 January – 20 February', callback_data='aquarius'),
+    InlineKeyboardButton(text='Pisces 21 February – 20 March', callback_data='pisces')
+)
+
+
+choice_day_zodiac_keyboard_ru = InlineKeyboardMarkup(row_width=2)
+choice_day_zodiac_keyboard_ru.add(
     InlineKeyboardButton(text='на сегодня', callback_data='today'),
     InlineKeyboardButton(text='на завтра', callback_data='tomorrow')
+)
+
+choice_day_zodiac_keyboard_en = InlineKeyboardMarkup(row_width=2)
+choice_day_zodiac_keyboard_en.add(
+    InlineKeyboardButton(text='for today', callback_data='today'),
+    InlineKeyboardButton(text='for tomorrow', callback_data='tomorrow')
 )

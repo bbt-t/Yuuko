@@ -48,6 +48,7 @@ work_with_api: dict = {
     },
     'OTHER': {
         'HORO_XML': getenv('HORO_XML'),
+        'HORO_EN': getenv('HORO_EN'),
         'HAIRCUT_PARSE': getenv('HAIRCUT_PARSE'),
         'OCR_URL': getenv('OCR_URL'),
     }

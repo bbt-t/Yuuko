@@ -42,6 +42,7 @@ class _Weather(BaseModel):
 
 class _Other(BaseModel):
     HORO_XML: HttpUrl
+    HORO_EN: HttpUrl
     HAIRCUT_PARSE: AnyHttpUrl
     OCR_URL: AnyUrl | None
 

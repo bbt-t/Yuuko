@@ -9,6 +9,7 @@ from .storing_passwords import dp
 from .horoscope_handl import dp
 from .calendar_haircut_handl import dp
 from .stt_handl import dp
+from .admins_tools_handl import dp
 #from .receiving_images_handl import dp
 
 

@@ -92,7 +92,7 @@ async def check_personal_pass(id: int) -> str:
     return result[0]
 
 
-async def update_personal_pass(id: int, personal_pass: str):
+async def update_personal_pass(id: int, personal_pass: str | None):
     """
     Sets a new password for verification
     :param id: telegram id

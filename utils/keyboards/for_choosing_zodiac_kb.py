@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 choice_zodiac_keyboard_ru = InlineKeyboardMarkup(row_width=2)
+
 choice_zodiac_keyboard_ru.add(
     InlineKeyboardButton(text='Овен 21 марта – 20 апреля', callback_data='aries'),
     InlineKeyboardButton(text='Телец 21 апреля – 20 мая', callback_data='taurus'),

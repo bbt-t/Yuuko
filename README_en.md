@@ -68,5 +68,5 @@ For text recognition on a photo, you need to [look here](https://github.com/bbt-
 `incomplete translation from Russian lang (work in progress)`
 
 ```
-@simple_brain_bot
+@my_Yuuko_bot
 ```

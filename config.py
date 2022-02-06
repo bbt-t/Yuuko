@@ -9,9 +9,9 @@ BOT_TOKEN: str = getenv('BOT_TOKEN')
 
 DB_NAME: str = getenv('DB_NAME')
 
-admins_bot: dict = {
-    'creator': getenv('creator'),
-    'assistant': getenv('assistant'),
+bot_administrators: dict = {
+    'creator': getenv('CREATOR'),
+    'assistant': getenv('ASSISTANT'),
 }
 
 redis_for_bot: dict = {

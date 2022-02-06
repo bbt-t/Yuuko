@@ -1,35 +1,38 @@
+from datetime import timedelta
+
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_zone
-from utils.misc.enums_data import SendStickers
-from loader import dp, logger_guru, get_time_now
+from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
+from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
+from utils.misc.other_funcs import pin_todo_list, get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj
-
-
 
 
 @rate_limit(5)
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
-    lang: str = message.from_user.language_code
-    await message.answer_sticker(SendStickers.yipee_2_girls.value)
+    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+
+    await message.answer_sticker(skin.love_you.value)
     await message.answer(
         '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
         reply_markup=await SimpleCalendar().start_calendar())
+
     await state.set_state('todo')
     async with state.proxy() as data:
-        data['lang']: str = lang
+        data['lang'] = lang
     await message.delete()
 
 
 @dp.callback_query_handler(simple_cal_callback.filter(), state='todo')
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data['lang']
+        lang: str = data.get('lang')
     selected, date = await SimpleCalendar().process_selection(call, callback_data)
 
     if date and selected:
@@ -58,11 +61,9 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
 @dp.message_handler(state='reception_todo')
 async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
-        date: str = data['date']
-        lang: str = data['lang']
-
-    user_id = message.from_user.id
-    name = f'todo_{user_id}'
+        lang, date = data.values()
+    user_id: int = message.from_user.id
+    name, skin = f'todo_{user_id}', await select_skin(telegram_id=user_id)
 
     if len(message.text) <= 1000:
         message_task: list = message.text.split('\n')
@@ -79,14 +80,28 @@ async def set_calendar_date(message: Message, state: FSMContext):
         result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
 
         await dump_todo_obj(todo_obj)
-        await message.answer_sticker(SendStickers.great.value)
-        await message.answer(
-            f'сделано!\n\nвот список на этот день:\n\n{result}' if lang == 'ru' else
-            f'did!\n\nhere is the list for this day:\n\n{result}'
+        await message.answer_sticker(skin.great.value)
+
+        result_msg: Message = await message.answer(
+            f'Вот список на этот день:\n\n{result}' if lang == 'ru' else
+            f'Here is the list for this day:\n\n{result}'
         )
+        if date == get_time_now(time_zone).strftime('%Y-%m-%d'):
+            await dp.bot.unpin_all_chat_messages(chat_id=user_id)
+            await result_msg.pin()
+        else:
+            date: str = (get_time_now(time_zone) + timedelta(days=1)).strftime('%Y-%m-%d')
+            msg_id: int = result_msg.message_id
+
+            scheduler.add_job(
+                pin_todo_list, id=f'todo_pin_{date}{user_id}',
+                args=(msg_id, user_id), trigger='date',
+                replace_existing=True, run_date=date,
+                misfire_grace_time=5, timezone="Europe/Moscow"
+            )
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
-        await message.answer_sticker(SendStickers.you_were_bad.value)
+        await message.answer_sticker(skin.you_were_bad.value)
         await message.answer(
             'Слишком большое сообщение ! Попробуй написать короче' if lang == 'ru' else
             'Too big message! Try to write shorter'

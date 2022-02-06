@@ -3,9 +3,8 @@ from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
 from config import time_zone, redis_data_cache, work_with_api
-from loader import logger_guru, get_time_now
-
-
+from loader import logger_guru
+from utils.misc.other_funcs import get_time_now
 
 
 async def lunar_calendar_haircut() -> str:

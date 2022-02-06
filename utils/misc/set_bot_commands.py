@@ -1,13 +1,13 @@
 from aiogram.types import BotCommand, BotCommandScopeChat
 
-from config import admins_bot
+from config import bot_administrators
 
 
 async def set_default_commands(dp):
     """
     Adding to the command list
     """
-    admin: str = admins_bot.get('creator')
+    admin: str = bot_administrators.get('creator')
 
     await dp.bot.set_my_commands([
         BotCommand('todo', 'Записать "список дел"'),

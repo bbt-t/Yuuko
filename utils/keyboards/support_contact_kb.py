@@ -1,6 +1,6 @@
 from aiogram.utils.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from config import admins_bot
+from config import bot_administrators
 
 
 
@@ -19,7 +19,7 @@ async def sup_kb(telegram_id=None):
             contact = telegram_id
             text: str = 'Ответить пользователю'
         case _:
-            contact: int = admins_bot.get('creator')
+            contact: int = bot_administrators.get('creator')
             text: str = 'Написать админу'
 
     kb = InlineKeyboardMarkup()

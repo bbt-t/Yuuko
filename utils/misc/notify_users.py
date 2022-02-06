@@ -1,15 +1,17 @@
-from functools import wraps
+from functools import wraps, cache
 
-from aiogram.types import ParseMode, Message
+from aiogram.types import ParseMode, Message, CallbackQuery
+
+from aiogram.dispatcher import FSMContext
+
 
 from config import work_with_api, time_zone
-from loader import dp, logger_guru, get_time_now
-from ..database_manage.sql.sql_commands import select_user
+from loader import dp, logger_guru
+from .other_funcs import get_time_now
+from ..database_manage.sql.sql_commands import select_user, check_valid_user
 from ..todo import load_todo_obj
 from ..weather_compilation import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
-
-
 
 
 def auth(func):
@@ -23,56 +25,58 @@ def auth(func):
         if message.from_user.is_bot:
             logger_guru.critical(f'{message.from_user.id=} : Bot is trying to log-in!')
             return None
-        if await select_user(id=message.from_user.id):
+        if await select_user(telegram_id=message.from_user.id):
             await message.delete()
-            return await message.reply('Мы же уже знакомы :)', reply=False)
+            return await message.reply(
+                'Мы же уже знакомы :)' if message.from_user.language_code == 'ru' else
+                'We are already familiar', reply=False
+            )
         return await func(message)
     return wrapper
 
 
 @logger_guru.catch()
-async def send_weather(id: int):
+async def send_weather(telegram_id: int):
     """
     Sends a message with the weather
-    :param id: user id
+    :param telegram_id: user id
     :return: message
     """
     text_msg: str = await create_weather_forecast()
-    await dp.bot.send_message(id, text_msg, ParseMode.HTML)
+    await dp.bot.send_message(telegram_id, text_msg, ParseMode.HTML)
 
 
 @logger_guru.catch()
 async def send_synthesize_voice_by_ya(
-        id: int, text: str, lang: str,
+        telegram_id: int, text: str, lang: str,
         folder: str = work_with_api['YANDEX']['FOLDER_ID'],
         api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']):
     """
     Sends a message with the synthesize voice message
-    :param id: user id
+    :param telegram_id: user id
     :param text: text for synthesis
     :param: folder: your cloud name Yandex
     :param: api_ya_tts: api-key
     :return: voice message
     """
     text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text, lang)
-    await dp.bot.send_voice(id, text_msg)
+    await dp.bot.send_voice(telegram_id, text_msg)
 
 
-@logger_guru.catch()
 async def send_todo_msg(
-        user_id: int | str, is_voice: bool = False,
+        telegram_id: int | str, is_voice: bool = False,
         folder: str = work_with_api['YANDEX']['FOLDER_ID'],
         api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']
         ):
     """
     Sends a message with the synthesize voice message
-    :param user_id: telegram id of the person to whom the message will be sent
+    :param telegram_id: telegram id of the person to whom the message will be sent
     :param is_voice: send voice message or not
     :param: folder: your cloud name Yandex
     :param: api_ya_tts: api-key
     :return: voice message and text message
     """
-    name, date = f'todo_{user_id}', get_time_now(time_zone).strftime('%Y-%m-%d')
+    name, date = f'todo_{telegram_id}', get_time_now(time_zone).strftime('%Y-%m-%d')
 
     try:
         todo_obj: dict = await load_todo_obj()
@@ -81,12 +85,34 @@ async def send_todo_msg(
         if is_voice:
             voice_msg: bytes = await synthesize_voice_by_ya(
                 folder, api_ya_tts,
-                f"Привет! Напоминаю что на сегодня список дел таков: {text_msg}"
+                f"Привет! Напоминаю что на сегодня список дел таков: {text_msg}",
+                lang='ru'
             )
-            await dp.bot.send_voice(user_id, voice_msg)
+            await dp.bot.send_voice(telegram_id, voice_msg)
 
-        await dp.bot.send_message(user_id, f'Напоминаю что на сегодня список дел таков: \n\n{text_msg}')
+        await dp.bot.send_message(telegram_id, f'Напоминаю что на сегодня список дел таков: \n\n{text_msg}')
 
     except Exception as err:
-        logger_guru.warning(f"{repr(err)} : {user_id}")
-        await dp.bot.send_message(user_id, 'На сегодня ничего не было запланированно :С')
+        logger_guru.warning(f"{repr(err)} : {telegram_id}")
+        await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно :С')
+
+
+# def check_user(func):
+#     @wraps(func)
+#     async def wrapper(msg: Message | CallbackQuery, state: FSMContext = None):
+#         user_id: int = msg.from_user.id
+#         lang, skin = await check_valid_user(user_id)
+#         text_not_lang: str = 'Only Ru and En are supported, change the language or contact the administrator'
+#         text_not_skin: str = 'Выбери скин, иначе никак...' if lang == 'ru' else 'Choose a skin, otherwise nothing...'
+#
+#         if lang and skin:
+#             info: dict = {'user_id': user_id, 'lang': lang, 'skin': skin.value}
+#             return await func(msg, state, info) if state else await func(msg, info)
+#         else:
+#             if not lang:
+#                 return (await msg.answer(text_not_lang) if isinstance(msg, Message) else
+#                         await msg.message.answer(text_not_lang))
+#             if not skin:
+#                 return (await msg.answer(text_not_skin) if isinstance(msg, Message) else
+#                         await msg.message.answer(text_not_skin))
+#     return wrapper

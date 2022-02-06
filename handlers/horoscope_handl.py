@@ -5,6 +5,7 @@ from aiogram.utils.exceptions import MessageNotModified
 
 from loader import dp
 from middlewares.throttling import rate_limit
+from utils.database_manage.sql.sql_commands import select_bot_language
 from utils.getting_horoscope import get_user_horoscope_ru, get_user_horoscope_en
 from utils.keyboards.for_choosing_zodiac_kb import (choice_zodiac_keyboard_ru, choice_day_zodiac_keyboard_ru,
                                                     choice_zodiac_keyboard_en, choice_day_zodiac_keyboard_en)
@@ -13,7 +14,7 @@ from utils.keyboards.for_choosing_zodiac_kb import (choice_zodiac_keyboard_ru, c
 @rate_limit(5, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext):
-    match lang := message.from_user.language_code:
+    match lang := await select_bot_language(telegram_id=message.from_user.id):
         case 'ru':
             await message.answer(
                 'Заглянем в бууудууущее))...\n\n'
@@ -24,7 +25,8 @@ async def start_working_with_bot(message: Message, state: FSMContext):
             await message.answer(
                 "Let's look into the future))...\n\n"
                 "hmm, STOP! I need info about you,\n"
-                "tell me your zodiac sign!", reply_markup=choice_zodiac_keyboard_en)
+                "tell me your zodiac sign!", reply_markup=choice_zodiac_keyboard_en
+            )
 
     await message.delete()
     await state.set_state('waiting_for_zodiac_sign')

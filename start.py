@@ -14,15 +14,12 @@ import middlewares
 import handlers
 
 
-
-
 async def on_startup(dp: Dispatcher):
     """
     Registration of handlers, middlewares, notifying admins about the start of the bot,
     an attempt to create a table User if it does not exist.
     :param dp: Dispatcher
     """
-    await dp.bot.delete_webhook()
     await dp.bot.set_webhook(hook_info.get('WEBHOOK_URL'), drop_pending_updates=True)
 
     middlewares.setup(dp)
@@ -43,16 +40,16 @@ async def on_startup(dp: Dispatcher):
                       day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
                       misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
 
-    logger_guru.warning('START BOT')
+    logger_guru.warning('Bot is running')
 
 
-@logger_guru.catch()
 async def on_shutdown(dp: Dispatcher):
     """
     Notifying admins about the stop of the bot, save Todo objects.
     :param dp: Dispatcher
     """
     await on_shutdown_notify(dp)
+    await dp.bot.delete_webhook()
     await dp.storage.close()
     await dp.storage.wait_closed()
     raise SystemExit
@@ -66,4 +63,4 @@ if __name__ == '__main__':
             **hook_info.get('WEBHOOK')
         )
     except BaseException as err:
-        logger_guru.critical(f'{repr(err)} : STOP BOT')
+        logger_guru.critical(f'{repr(err)} : Bot stopped')

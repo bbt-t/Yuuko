@@ -1,26 +1,24 @@
 from asyncio import sleep as asyncio_sleep
 from re import match as re_match
-from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, ChatActions, ContentType
-from apscheduler.jobstores.base import JobLookupError
 
 from config import work_with_api
-from utils.misc.enums_data import SendStickers
 from loader import dp, scheduler, logger_guru
 from middlewares.throttling import rate_limit
+from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.misc.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
-
-
 
 
 @rate_limit(5)
 @dp.message_handler(Command('start_weather'))
 async def weather_notification_on(message: Message, state: FSMContext):
-    await message.answer_sticker(SendStickers.welcome.value)
+    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+
+    await message.answer_sticker(skin.welcome.value)
     await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
     await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
@@ -33,7 +31,7 @@ async def weather_notification_on(message: Message, state: FSMContext):
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
     user_id: int = message.from_user.id
-
+    skin = await select_skin(telegram_id=user_id)
     match message.content_type:
         case 'voice':
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
@@ -50,10 +48,10 @@ async def start_weather(message: Message, state: FSMContext):
 
             await message.answer('Отменено :)')
             await state.finish()
-        except (sqlite3_Error, JobLookupError) as err:
-            logger_guru.warning(f'{repr(err)} : Error in the block of notification cancellation!')
+        except:
+            logger_guru.exception('Error in the block of notification cancellation!')
 
-            await message.reply_sticker(SendStickers.hmm.value)
+            await message.reply_sticker(skin.hmm.value)
             await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
             await asyncio_sleep(1)
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
@@ -71,6 +69,6 @@ async def start_weather(message: Message, state: FSMContext):
         await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
         await state.finish()
     else:
-        await message.reply_sticker(SendStickers.i_do_not_understand.value)
+        await message.reply_sticker(skin.i_do_not_understand.value)
         await message.answer('КХМ ... попробуй ещё раз ...')
         await state.finish()

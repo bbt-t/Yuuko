@@ -1,20 +1,22 @@
-from asyncio import sleep as asyncio_sleep
+from datetime import timedelta
 from hashlib import scrypt as hashlib_scrypt
 from hmac import compare_digest as hmac_compare_digest
 from pickle import dumps as pickle_dumps
 from pickletools import optimize as pickletools_optimize
-from sqlite3 import Error as sqlite3_Error
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from pgpy import PGPMessage
 
-from loader import dp, logger_guru
+from config import time_zone
+from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import check_personal_pass, update_personal_pass, add_other_info, select_pass
+from utils.database_manage.sql.sql_commands import (check_personal_pass, update_personal_pass,add_other_info,
+                                                    select_pass, update_pass, select_skin, select_bot_language)
 from utils.keyboards.pass_settings_bk import pass_choice_kb
-from utils.misc.enums_data import SendStickers
+from utils.misc.other_funcs import delete_marked_message, get_time_now
 
 
 @logger_guru.catch()
@@ -27,7 +29,10 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
     :return: pickle object
     """
     very_useful_thing: str = hashlib_scrypt(
-        name_pass.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=16).hex()
+        name_pass.encode(),
+        salt=f'{user_id}'.encode(),
+        n=8, r=512, p=4, dklen=16
+    ).hex()
     encrypt_password = PGPMessage.new(password.encode()).encrypt(very_useful_thing)
     serialized_object: bytes = pickletools_optimize(pickle_dumps(encrypt_password))
 
@@ -37,7 +42,8 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
 @rate_limit(5)
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
-    match lang := message.from_user.language_code:
+    user_id: int = message.from_user.id
+    match lang := await select_bot_language(telegram_id=user_id):
         case 'ru':
             text_msg: str = 'Привет, я могу запонить твои пароли, для этого мне нужно знать твоё кодовое слово...'
         case _:
@@ -46,20 +52,23 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     await message.answer(text_msg)
     await state.set_state('check_personal_code')
     async with state.proxy() as data:
-        data['lang']: str = lang
+        data['user_id'] = user_id
+        data['lang'] = lang
+
 
 
 @dp.message_handler(state='check_personal_code')
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data['lang']
-    user_id: int = message.from_user.id
+        user_id, lang = data.values()
+
+    skin = await select_skin(telegram_id=user_id)
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
 
     try:
-        if check_pass := await check_personal_pass(id=user_id):
+        if check_pass := await check_personal_pass(telegram_id=user_id):
             if hmac_compare_digest(check_pass, msg):
-                await message.reply_sticker(SendStickers.order_accepted.value)
+                await message.answer_sticker(skin.order_accepted.value)
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
                 await state.set_state('successful_auth_for_pass')
                 async with state.proxy() as data:
@@ -78,14 +87,14 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                                              'подсказка: /support')
                 await state.finish()
         else:
-            await update_personal_pass(id=user_id, personal_pass=msg)
+            await update_personal_pass(telegram_id=user_id, personal_pass=msg)
             await message.answer(
                 'Не нашла его в списке, добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
                 "Didn't find it on the list, added it:)\nwrite it again."
             )
         await message.delete()
-    except sqlite3_Error as err:
-        logger_guru.warning(f'{repr(err)} : Error in check_personal_code handler!')
+    except:
+        logger_guru.exception('Error in check_personal_code handler!')
         await state.finish()
 
 
@@ -103,17 +112,19 @@ async def accept_personal_key(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(state='successful_auth_for_pass')
 async def set_name_and_write_pass(message: Message, state: FSMContext):
     msg: str = message.text
-    user_id: int = message.from_user.id
 
     async with state.proxy() as data:
-        lang: str = data['lang']
+        user_id, lang = data['user_id'], data['lang']
         name_pass: str = data.get('name')
 
     match msg.replace(',', ' ').split():
         case name_pass, password:
             await message.delete()
             enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, password)
-            await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
+            try:
+                await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
+            except IntegrityError:
+                await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
             await message.answer('Отлично! записала.' if lang == 'ru' else 'Fine! wrote down.')
             await state.finish()
         case _:
@@ -124,7 +135,10 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await message.answer('А теперь пароль :)' if lang == 'ru' else 'And now the password :)')
             else:
                 enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, msg)
-                await add_other_info(id=user_id, name=name_pass, info_for_save=enc_pass)
+                try:
+                    await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
+                except IntegrityError:
+                    await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
                 await message.delete()
                 await message.answer('Пoлучила, записала!' if lang == 'ru' else 'Received and recorded!')
                 await state.finish()
@@ -142,11 +156,11 @@ async def get_existing_pass(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(state='set_name_pass')
 async def get_name_of_the_requested_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data['lang']
+        user_id, lang = data.values()
     msg: str = message.text.replace(' ', '')
-    user_id: int = message.from_user.id
+
     try:
-        if decrypt_password := await select_pass(name=msg, id=user_id):
+        if decrypt_password := await select_pass(name=msg, telegram_id=user_id):
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message
@@ -154,18 +168,19 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
                 f'НАШЛА! вот пароль с именем {msg} : {password}\n'
                 f'у тебя 10 секунд чтобы его скопировать !' if lang == 'ru' else
                 f'FOUND! here is the password with the name {msg} : {password}\n'
-                f'after 20 seconds it will be deleted !'
+                f'after 10 seconds it will be deleted !'
             )
-            removing_msg = await message.answer(text_msg)
 
-            await asyncio_sleep(10)
-            await removing_msg.delete()
+            removing_msg: Message = await message.answer(text_msg)
+            delete_time: str = (get_time_now(time_zone) + timedelta(seconds=10)).strftime('%Y-%m-%d %H:%M:%S')
+            scheduler.add_job(
+                delete_marked_message, id=f'del_msg_{user_id}',
+                args=(removing_msg.message_id, message.chat.id), trigger='date',
+                replace_existing=True, run_date=delete_time, timezone="Europe/Moscow"
+            )
             await message.delete()
-
-            await message.answer(
-                'Надеюсь, ты успел записать :)' if lang == 'ru' else 'I hope you managed to write it down :)'
-            )
-    except:
+    except NoResultFound:
+        logger_guru.warning(f'{user_id=} entering an invalid password name.')
         await message.answer(
             'Не нашла пароля с таким именем :С' if lang == 'ru' else "Couldn't find a password with that name :C"
         )

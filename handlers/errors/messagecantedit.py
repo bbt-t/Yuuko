@@ -1,5 +1,5 @@
-from aiogram.utils.exceptions import MessageCantBeEdited
 from aiogram.types import Update
+from aiogram.utils.exceptions import MessageCantBeEdited
 
 from loader import dp, logger_guru
 

@@ -1,5 +1,5 @@
-from aiogram.utils.exceptions import MessageCantBeDeleted
 from aiogram.types import Update
+from aiogram.utils.exceptions import MessageCantBeDeleted
 
 from loader import dp, logger_guru
 

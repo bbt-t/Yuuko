@@ -1,5 +1,5 @@
-from aiogram.utils.exceptions import MessageNotModified
 from aiogram.types import Update
+from aiogram.utils.exceptions import MessageNotModified
 
 from loader import dp, logger_guru
 

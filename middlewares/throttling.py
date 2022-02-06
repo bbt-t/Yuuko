@@ -1,4 +1,5 @@
 from asyncio import sleep as asyncio_sleep
+from enum import Enum
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import DEFAULT_RATE_LIMIT
@@ -6,9 +7,7 @@ from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled
 
-from utils.misc.enums_data import SendStickers
-
-
+from utils.database_manage.sql.sql_commands import select_bot_language, select_skin
 
 
 def rate_limit(limit: int, key=None):
@@ -59,13 +58,17 @@ class ThrottlingMiddleware(BaseMiddleware):
             key = f"{self.prefix}_message"
 
         delta = throttled.rate - throttled.delta
+        lang: str = await select_bot_language(telegram_id=message.from_user.id)
+        skin: Enum = await select_skin(telegram_id=message.from_user.id)
 
         if throttled.exceeded_count <= 2:
-            await message.reply_sticker(SendStickers.you_were_bad.value)
-            await message.reply('Слишком часто пишешь!')
+            await message.reply_sticker(skin.you_were_bad.value)
+            await message.reply(
+                'Слишком часто пишешь! флуд это плохо!' if lang == 'ru' else 'You write too often! flood is BAD!'
+            )
 
         await asyncio_sleep(delta)
 
         thr = await dispatcher.check_key(key)
         if thr.exceeded_count == throttled.exceeded_count:
-            await message.answer('Всё, можно писать.')
+            await message.answer('Всё, можно писать.' if lang == 'ru' else 'Now you can write to me.')

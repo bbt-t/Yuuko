@@ -1,13 +1,11 @@
-from aiogram.types import Message, ContentType
-from aiogram.dispatcher.filters.builtin import Command
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.builtin import Command
+from aiogram.types import Message, ContentType
 from aiohttp import ClientSession
 from ujson import dumps as ujson_dumps
 
 from config import work_with_api
 from loader import dp
-
-
 
 
 @dp.message_handler(Command('show_text'))

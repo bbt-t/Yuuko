@@ -6,9 +6,8 @@ from ujson import dumps as ujson_dumps
 from aiofiles import open as aiofiles_open
 
 from config import time_zone
-from loader import logger_guru, get_time_now
-
-
+from loader import logger_guru
+from utils.misc.other_funcs import get_time_now
 
 
 async def dump_todo_obj(todo_obj: dict) -> None:

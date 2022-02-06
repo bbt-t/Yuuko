@@ -7,9 +7,8 @@ from aioredis import from_url as aioredis_from_url
 from bs4 import BeautifulSoup
 
 from config import redis_data_cache, work_with_api, time_zone
-from loader import logger_guru, get_time_now
-
-
+from loader import logger_guru
+from utils.misc.other_funcs import get_time_now
 
 
 async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow']) -> str:

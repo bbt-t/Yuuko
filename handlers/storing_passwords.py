@@ -89,7 +89,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
         else:
             await update_personal_pass(telegram_id=user_id, personal_pass=msg)
             await message.answer(
-                'Не нашла его в списке, добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
+                'Добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
                 "Didn't find it on the list, added it:)\nwrite it again."
             )
         await message.delete()
@@ -125,7 +125,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
             except IntegrityError:
                 await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
-            await message.answer('Отлично! записала.' if lang == 'ru' else 'Fine! wrote down.')
+            await message.answer('Отлично! записино.' if lang == 'ru' else 'Fine! wrote down.')
             await state.finish()
         case _:
             if not name_pass:
@@ -140,7 +140,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 except IntegrityError:
                     await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
                 await message.delete()
-                await message.answer('Пoлучила, записала!' if lang == 'ru' else 'Received and recorded!')
+                await message.answer('Пoлучено, записано!' if lang == 'ru' else 'Received and recorded!')
                 await state.finish()
 
 
@@ -182,7 +182,7 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
     except NoResultFound:
         logger_guru.warning(f'{user_id=} entering an invalid password name.')
         await message.answer(
-            'Не нашла пароля с таким именем :С' if lang == 'ru' else "Couldn't find a password with that name :C"
+            'Не найден пароля с таким именем :С' if lang == 'ru' else "Couldn't find a password with that name :C"
         )
     finally:
         await state.finish()

@@ -44,10 +44,19 @@ async def cpu_bound_run_func(func, *args) -> Any:
 
 
 async def delete_marked_message(msg_id: int | str, chat_id: int) -> None:
+    """
+    Deletes the message.
+    :param msg_id: id of the message to be deleted
+    :param chat_id: id of the chat from which the message should be deleted
+    """
     await dp.bot.delete_message(chat_id=chat_id, message_id=msg_id)
 
 
 async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
+    """
+    Pins a message.
+    :param msg_id: id of the message to pin
+    :param chat_id: id of the chat from which the message should be pined
+    """
     await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
     await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id)
-

@@ -58,7 +58,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
 
     if await select_bot_language(telegram_id=user_id) == 'ru':
         await call.message.answer(
-            'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника если всдруг я тебя не устрою </s>\n\n'
+            'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
             'а теперь настройки!', reply_markup=initial_setup_choice_kb_ru
         )
     else:
@@ -75,8 +75,8 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     skin = await select_skin(telegram_id=user_id)
 
     text_msg: str = (
-        'Укажи свой ДР (настоящее, его всё равно никто не увидит кроме меня:))' if lang == 'ru' else
-        'Specify your DR (real, no one will see it except me anyway :))'
+        'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня)' if lang == 'ru' else
+        'Specify your DR (real, no one will see it except me anyway)'
     )
     removing_msg: Message = await call.message.answer(text_msg)
 

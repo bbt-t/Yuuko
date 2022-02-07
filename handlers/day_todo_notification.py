@@ -17,7 +17,7 @@ from utils.misc.notify_users import send_todo_msg
 async def late_day_todo_notification(message: Message, state: FSMContext):
     lang: str = await select_bot_language(telegram_id=message.from_user.id)
 
-    await message.answer('когда напоминать о делах?')
+    await message.answer('Когда напоминать о делах?')
     await message.delete()
     await state.set_state('set_time_todo')
     async with state.proxy() as data:

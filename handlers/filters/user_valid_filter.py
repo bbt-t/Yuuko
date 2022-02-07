@@ -17,6 +17,10 @@ class IsValid(Filter):
 
 @dp.message_handler(Command(commands), IsValid())
 async def id_example(message: Message):
+    """
+    Сhecks if the user has selected a skin.
+    :param message: commands from the list (commands)
+    """
     lang: str = await select_bot_language(telegram_id=message.from_user.id)
     text_msg: str = 'Выбери скин, иначе никак...' if lang == 'ru' else 'Choose a skin, otherwise nothing...'
 

@@ -1,6 +1,7 @@
 from enum import Enum
 from pickle import loads as pickle_loads
 
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
@@ -217,4 +218,7 @@ async def check_valid_user(telegram_id: int) -> bool:
     async with engine.connect() as conn:
         result = await conn.execute(select(Users.selected_bot_skin).where(Users.telegram_id == telegram_id))
     await engine.dispose()
-    return not result.scalar_one()
+    try:
+        return not result.scalar_one()
+    except NoResultFound:
+        return True

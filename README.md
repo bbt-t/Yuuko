@@ -67,5 +67,5 @@ API_WEATHER = ...
 можно тут:
 
 ```
-@simple_brain_bot
+@my_Yuuko_bot
 ```

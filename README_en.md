@@ -25,8 +25,8 @@
 ### Start
 To start, you need to build a `docker` container and run:
 ```
-docker build -t bot-pet .
-docker run -p 8000:8000 --name bot bot-pet:latest 
+docker build -t Yuuko_bot .
+docker run -p 8000:8000 --name bot Yuuko_bot:latest 
 ```
 Or without docker:
 ```

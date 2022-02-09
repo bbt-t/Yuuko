@@ -41,7 +41,8 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
 
     async with state.proxy() as data:
-        lang, msg = data.values()
+        lang, _, msg = data.values()
+
     user_id: int = call.from_user.id
     skin = await select_skin(telegram_id=user_id)
     text, choice = ''.join(let for let in msg if let.isnumeric()), call.data

@@ -70,8 +70,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         todo_obj: dict = await load_todo_obj()
         try:
             todo_obj[name][date].extend(message_task)
-        except KeyError as err:
-            logger_guru.info(f'{repr(err)} : Key not found, create new.')
+        except KeyError:
             todo_obj[name][date] = message_task
         finally:
             await message.delete()

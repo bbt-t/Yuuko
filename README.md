@@ -25,8 +25,8 @@
 ### Запуск
 Собрать `docker-контейнер` и запустить:
 ```
-docker build -t bot-pet .
-docker run -p 8000:8000 --name bot bot-pet:latest 
+docker build -t Yuuko_bot .
+docker run -p 8000:8000 --name bot Yuuko_bot:latest 
 ```
 или без docker'a:
 ```

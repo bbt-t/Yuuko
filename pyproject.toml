@@ -7,7 +7,6 @@ authors = ["bbt-t github.com/bbt-t"]
 [tool.poetry.dependencies]
 python = "^3.10"
 aiogram = "^2.16"
-aiogram-calendar = "^0.1.1"
 APScheduler = "^3.8.1"
 python-dotenv = "^0.19.2"
 loguru = "^0.5.3"

@@ -45,9 +45,9 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     user_id: int = message.from_user.id
     match lang := await select_bot_language(telegram_id=user_id):
         case 'ru':
-            text_msg: str = 'Привет, я могу запонить твои пароли, для этого мне нужно знать твоё кодовое слово...'
+            text_msg: str = 'Привет, я могу запонить 🔐 твои пароли, для этого мне нужно знать твоё кодовое слово...'
         case _:
-            text_msg: str = 'Hello, I can remember your passwords, for this I need to know your codeword...'
+            text_msg: str = 'Hello, I can remember 🔐 your passwords, for this I need to know your codeword...'
     await message.delete()
     await message.answer(text_msg)
     await state.set_state('check_personal_code')
@@ -182,7 +182,7 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
     except NoResultFound:
         logger_guru.warning(f'{user_id=} entering an invalid password name.')
         await message.answer(
-            'Не найден пароля с таким именем :С' if lang == 'ru' else "Couldn't find a password with that name :C"
+            'Не найден пароль с таким именем 😕' if lang == 'ru' else "Couldn't find a password with that name :C"
         )
     finally:
         await state.finish()

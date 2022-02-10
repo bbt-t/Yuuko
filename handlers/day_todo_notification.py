@@ -41,10 +41,9 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
 
     async with state.proxy() as data:
-        lang, _, msg = data.values()
+        lang, msg = data.get('lang'), data.get('msg')
 
-    user_id: int = call.from_user.id
-    skin = await select_skin(telegram_id=user_id)
+    skin = await select_skin(user_id := call.from_user.id)
     text, choice = ''.join(let for let in msg if let.isnumeric()), call.data
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
@@ -58,7 +57,7 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
             logger_guru.info(f"{user_id=} changed the notification time")
             await call.message.answer_sticker(skin.great.value)
             await call.message.answer('Сделано !')
-        except:
+        except KeyError:
             logger_guru.exception(f'{user_id=} : ERROR ADD WEATHER JOB')
         finally:
             await state.finish()

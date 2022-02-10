@@ -26,4 +26,3 @@ initial_setup_choice_kb_en.add(
     InlineKeyboardButton(text="LET'S!", callback_data='set_birthday'),
     InlineKeyboardButton(text='no, maybe later...', callback_data='cancel')
 )
-

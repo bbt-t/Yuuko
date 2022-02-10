@@ -43,11 +43,11 @@ async def create_weather_forecast() -> str:
                     weather_main: str = 'rain'
 
             if 4 <= temp <= 10:
-                rep_temp: str = 'Относительно холодно'
+                rep_temp: str = 'Относительно холодно ❄'
             elif temp <= 3:
-                rep_temp: str = 'Холодно! одевайся потеплее!'
+                rep_temp: str = 'Холодно! ❄ одевайся потеплее!'
             else:
-                rep_temp: str = 'Тепло, хорошо ! прекрасный тёплый день :)'
+                rep_temp: str = 'Тепло, хорошо ! прекрасный тёплый день 🌞'
 
             if wind <= 5:
                 rep_wind: str = 'не страшно :)'
@@ -59,7 +59,7 @@ async def create_weather_forecast() -> str:
             generated_msg: str = (
                 f"Сегодня будет <CODE>{weather.upper()} {temp}&#176;</CODE>\n<b>{rep_temp}</b>\n"
                 f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
-                f"{'<b>НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ !</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
+                f"{'<b>⛈ НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ ☔</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
             )
             await connect_redis.setex(f'weather_cache', 3600, generated_msg)
 

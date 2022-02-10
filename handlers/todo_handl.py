@@ -3,12 +3,12 @@ from datetime import timedelta
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
-from aiogram_calendar import simple_cal_callback, SimpleCalendar
 
 from config import time_zone
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
+from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
 from utils.misc.other_funcs import pin_todo_list, get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj
 
@@ -19,9 +19,14 @@ async def bot_todo(message: Message, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
 
     await message.answer_sticker(skin.love_you.value)
-    await message.answer(
-        '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
-        reply_markup=await SimpleCalendar().start_calendar())
+    if lang == 'ru':
+        await message.answer(
+            '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
+            reply_markup=await calendar_bot_ru.enable())
+    else:
+        await message.answer(
+            '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
+            reply_markup=await calendar_bot_en.enable())
 
     await state.set_state('todo')
     async with state.proxy() as data:
@@ -29,31 +34,34 @@ async def bot_todo(message: Message, state: FSMContext):
     await message.delete()
 
 
-@dp.callback_query_handler(simple_cal_callback.filter(), state='todo')
+@dp.callback_query_handler(calendar_cb.filter(), state='todo')
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
-    selected, date = await SimpleCalendar().process_selection(call, callback_data)
+    selected, date = (await calendar_bot_ru.process_selection(call, callback_data) if lang == 'ru' else
+                      await calendar_bot_en.process_selection(call, callback_data))
 
     if date and selected:
-        time_todo = date.date()
-        if time_todo < get_time_now(time_zone).date():
-            await dp.bot.answer_callback_query(
-                call.id,
-                'Выбрать можно только на сегодня и позже !' if lang == 'ru' else
-                'You can only choose for today and later!', show_alert=True
-            )
-            await call.message.answer(
-                'Выбирай с умом :)' if lang == 'ru' else 'Choose wisely :)',
-                reply_markup=await SimpleCalendar().start_calendar()
-            )
+        if date < get_time_now(time_zone).date():
+
+            if lang == 'ru':
+                await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
+                await call.message.answer(
+                    'Ты не можешь выбрать эту дату!', reply_markup=await calendar_bot_ru.enable()
+                )
+            else:
+                await call.answer('You can only choose today and later!', show_alert=True)
+                await call.message.answer(
+                    "You can't choose this date!", reply_markup=await calendar_bot_ru.enable()
+                )
+
         else:
             async with state.proxy() as data:
-                data['date']: str = str(time_todo)
+                data['date']: str = str(date)
 
             await call.message.edit_text(
-                f'Что планируешь на <code>{time_todo}</code> число?' if lang == 'ru' else
-                f'What are you planning for the <code>{time_todo}</code>?'
+                f'Что планируешь на <code>{date}</code> число?' if lang == 'ru' else
+                f'What are you planning for the <code>{date}</code>?'
             )
             await state.set_state('reception_todo')
 
@@ -87,7 +95,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         )
         if date == get_time_now(time_zone).strftime('%Y-%m-%d'):
             await dp.bot.unpin_all_chat_messages(chat_id=user_id)
-            await result_msg.pin()
+            await result_msg.pin(disable_notification=True)
         else:
             date: str = (get_time_now(time_zone) + timedelta(days=1)).strftime('%Y-%m-%d')
             msg_id: int = result_msg.message_id

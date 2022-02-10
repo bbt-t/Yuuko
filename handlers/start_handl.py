@@ -3,14 +3,16 @@ from asyncio import sleep as asyncio_sleep
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
-from aiogram_calendar import simple_cal_callback, SimpleCalendar
+
 from sqlalchemy.exc import IntegrityError
 
 from config import time_zone
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import (add_user, update_birthday,
-                                                    select_skin, update_bot_skin, select_bot_language)
+                                                    select_skin, update_bot_skin, select_bot_language,
+                                                    select_lang_and_skin)
+from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, calendar_cb
 from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru,
                                                    choice_of_assistant_kb_ru, choice_of_assistant_kb_en,
                                                    initial_setup_choice_kb_en)
@@ -70,9 +72,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
 
 @dp.callback_query_handler(text='set_birthday')
 async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
-    user_id: int = call.from_user.id
-    lang: str = await select_bot_language(telegram_id=call.from_user.id)
-    skin = await select_skin(telegram_id=user_id)
+    lang, skin = await select_lang_and_skin(call.from_user.id)
 
     text_msg: str = (
         'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня)' if lang == 'ru' else
@@ -81,47 +81,49 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     removing_msg: Message = await call.message.answer(text_msg)
 
     await call.message.answer_sticker(skin.seeking.value)
-    await call.message.edit_reply_markup(await SimpleCalendar().start_calendar())
+    if lang == 'ru':
+        await call.message.edit_reply_markup(await calendar_bot_ru.enable())
+    else:
+        await call.message.edit_reply_markup(await calendar_bot_en.enable())
+
     await state.set_state('set_birthday_and_todo')
     async with state.proxy() as data:
         data['lang'] = lang
         data['removing_msg_id'] = removing_msg.message_id
 
 
-@dp.callback_query_handler(simple_cal_callback.filter(), state='set_birthday_and_todo')
+@dp.callback_query_handler(calendar_cb.filter(), state='set_birthday_and_todo')
 async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang, removing_msg_id = data.values()
 
-    selected, date = await SimpleCalendar().process_selection(call, callback_data)
-    if date and selected:
-        time_todo = date.date()
-        if time_todo > get_time_now(time_zone).date():
-            text_msg_send_error: str = (
-                'Выбрать можно только на сегодня и позже !' if lang == 'ru' else
-                'You can only choose today and later!'
-            )
-            await dp.bot.answer_callback_query(call.id, text_msg_send_error, show_alert=True)
+    selected, date = (await calendar_bot_ru.process_selection(call, callback_data) if lang == 'ru' else
+                      await calendar_bot_en.process_selection(call, callback_data))
 
-            text_msg_error: str = (
-                'Ты не можешь выбрать эту дату!' if lang == 'ru' else
-                "You can't choose this date!"
-            )
-            await call.message.answer(text_msg_error, reply_markup=await SimpleCalendar().start_calendar())
+    if date and selected:
+        if date > get_time_now(time_zone).date():
+            if lang == 'ru':
+                await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
+                await call.message.answer(
+                    'Ты не можешь выбрать эту дату!', reply_markup=await calendar_bot_ru.enable()
+                )
+            else:
+                await call.answer('You can only choose today and later!', show_alert=True)
+                await call.message.answer(
+                    "You can't choose this date!", reply_markup=await calendar_bot_ru.enable()
+                )
         else:
-            await update_birthday(telegram_id=call.from_user.id, birthday=date.date())
+            await update_birthday(telegram_id=call.from_user.id, birthday=date)
             await dp.bot.delete_message(message_id=removing_msg_id, chat_id=call.message.chat.id)
             await call.message.answer(
-                'В какое время спрашивать тебя о запланированных делах ?' if lang == 'ru' else
+                'В какое время спрашивать тебя о "делах"?' if lang == 'ru' else
                 'What time should I ask you about planned activities?')
             await state.set_state('set_time_todo')
 
 
 @dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
-    user_id: int = call.from_user.id
-    lang: str = await select_bot_language(telegram_id=user_id)
-    skin = await select_skin(telegram_id=user_id)
+    lang, skin = await select_lang_and_skin(user_id := call.from_user.id)
 
     await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
     await call.message.answer_sticker(skin.sad_ok.value)

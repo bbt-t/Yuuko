@@ -30,8 +30,8 @@ async def weather_notification_on(message: Message, state: FSMContext):
 
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
-    user_id: int = message.from_user.id
-    skin = await select_skin(telegram_id=user_id)
+    skin = await select_skin(user_id := message.from_user.id)
+
     match message.content_type:
         case 'voice':
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)

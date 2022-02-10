@@ -59,4 +59,4 @@ async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
     :param chat_id: id of the chat from which the message should be pined
     """
     await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
-    await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id)
+    await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=True)

@@ -1,8 +1,14 @@
 import pytest
 from zoneinfo import available_timezones
+from sys import version_info
 
 import config
 from tests.schemas.pydantic_schemas import RedisConfBot, RedisConfDataCache, WebHook, WorkApiAll
+
+
+def test_python_version():
+    assert version_info.major == 3
+    assert version_info.minor >= 10
 
 
 @pytest.mark.parametrize('token', [config.BOT_TOKEN])

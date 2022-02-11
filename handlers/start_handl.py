@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery, ChatActions
 from sqlalchemy.exc import IntegrityError
 
 from config import time_zone
-from loader import dp, logger_guru
+from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import (add_user, update_birthday, select_skin,
                                                     update_bot_skin, select_bot_language, select_lang_and_skin)
@@ -55,16 +55,19 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
     await call.message.delete_reply_markup()
     await call.message.answer_sticker(skin.great.value)
 
-    if await select_bot_language(telegram_id=user_id) == 'ru':
-        await call.message.answer(
-            'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
-            'а теперь настройки!', reply_markup=initial_setup_choice_kb_ru
-        )
+    if not any(str(sch.id).endswith(f'{user_id}') for sch in scheduler.get_jobs()):
+        if await select_bot_language(telegram_id=user_id) == 'ru':
+            await call.message.answer(
+                'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
+                'а теперь настройки!', reply_markup=initial_setup_choice_kb_ru
+            )
+        else:
+            await call.message.answer(
+                'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you 😰\n\n'
+                'and now settings!', reply_markup=initial_setup_choice_kb_en
+            )
     else:
-        await call.message.answer(
-            'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you 😰\n\n'
-            'and now settings!', reply_markup=initial_setup_choice_kb_en
-        )
+        await call.message.answer('YAHOO! ^^')
 
 
 @dp.callback_query_handler(text='set_birthday')

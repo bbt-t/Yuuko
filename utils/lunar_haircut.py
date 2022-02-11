@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from aiohttp import ClientSession
+from aiohttp import ClientSession, http_exceptions
 from aioredis import from_url as aioredis_from_url
 
 from config import time_zone, redis_data_cache, work_with_api
@@ -21,19 +21,15 @@ async def lunar_calendar_haircut() -> str:
         else:
             async with ClientSession() as session:
                 async with session.get('{}{}/{}'.format(work_with_api['OTHER']['HAIRCUT_PARSE'], year, month)) as resp:
-
                     if resp.status != 200:
                         logger_guru.warning(f"{resp.status=} : Bad request!")
-                        return 'Что-то пошло не так...попробуй позже.'
-
+                        raise http_exceptions.HttpBadRequest
                     soup = BeautifulSoup(await resp.text(), 'lxml')
 
             items = soup.find_all(class_='next_phase month_row green2')
-
             text: str = ','.join(
-                sorted(
-                    {data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')}, key=int
-                )
+                sorted({data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')},
+                       key=int)
             )
             await connect_redis.set('haircut', text)
     return text

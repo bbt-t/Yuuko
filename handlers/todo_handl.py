@@ -43,7 +43,6 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
 
     if date and selected:
         if date < get_time_now(time_zone).date():
-
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(

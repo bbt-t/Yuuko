@@ -39,7 +39,6 @@ async def on_startup(dp: Dispatcher):
     scheduler.add_job(clear_redis, 'cron', id='redis_delete_keys',
                       day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
                       misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
-
     logger_guru.warning('Bot is running')
 
 

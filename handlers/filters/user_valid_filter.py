@@ -6,7 +6,7 @@ from utils.database_manage.sql.sql_commands import check_valid_user, select_bot_
 from sqlalchemy.exc import NoResultFound
 
 
-commands: set = {'todo', 'start_weather', 'horoscope', 'hair', 'pass', 'set_time_todo '}
+commands: set = {'todo', 'start_weather', 'horoscope', 'hair', 'pass', 'set_time_todo', 'change_skin'}
 
 
 class IsValid(Filter):

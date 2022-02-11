@@ -3,19 +3,16 @@ from asyncio import sleep as asyncio_sleep
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
-
 from sqlalchemy.exc import IntegrityError
 
 from config import time_zone
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import (add_user, update_birthday,
-                                                    select_skin, update_bot_skin, select_bot_language,
-                                                    select_lang_and_skin)
+from utils.database_manage.sql.sql_commands import (add_user, update_birthday, select_skin,
+                                                    update_bot_skin, select_bot_language, select_lang_and_skin)
 from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, calendar_cb
-from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru,
-                                                   choice_of_assistant_kb_ru, choice_of_assistant_kb_en,
-                                                   initial_setup_choice_kb_en)
+from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru, choice_of_assistant_kb_ru,
+                                                   choice_of_assistant_kb_en, initial_setup_choice_kb_en)
 from utils.misc.enums_data import BotSkins
 from utils.misc.notify_users import auth
 from utils.misc.other_funcs import get_time_now
@@ -65,7 +62,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
         )
     else:
         await call.message.answer(
-            'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you :(\n\n'
+            'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you 😰\n\n'
             'and now settings!', reply_markup=initial_setup_choice_kb_en
         )
 
@@ -75,8 +72,8 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(call.from_user.id)
 
     text_msg: str = (
-        'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня)' if lang == 'ru' else
-        'Specify your DR (real, no one will see it except me anyway)'
+        'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня 😏' if lang == 'ru' else
+        'Specify your DR (real, no one will see it except me anyway 😏'
     )
     removing_msg: Message = await call.message.answer(text_msg)
 

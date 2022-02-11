@@ -11,7 +11,7 @@ from loader import dp
 @dp.message_handler(Command('show_text'))
 async def start_weather(message: Message, state: FSMContext):
     text_msg: str = ('Привет! я могу попробовать прочитать что написано, '
-               'отправь мне фото, чем "лучше" (качествнней) оно будет, тем точнее я дам ответ...')
+                     'отправь мне фото, чем "лучше" (качественней) оно будет, тем точнее я дам ответ...')
 
     await message.answer(text_msg)
     await message.answer('<s>ТСС! это пока что находится в стадии тестирования!</s>')
@@ -30,6 +30,6 @@ async def take_image_for_ocr(message: Message, state: FSMContext):
     if result:
         await message.answer(f'Вот что получилось:\n{result}')
     else:
-        await message.answer('Что-то не так :( не могу прочитать ...')
+        await message.answer('Что-то не так 🤬 не могу прочитать ...')
 
     await state.finish()

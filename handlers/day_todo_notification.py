@@ -17,7 +17,7 @@ from utils.misc.notify_users import send_todo_msg
 async def late_day_todo_notification(message: Message, state: FSMContext):
     lang: str = await select_bot_language(telegram_id=message.from_user.id)
 
-    await message.answer('Когда напоминать о делах?')
+    await message.answer('Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?')
     await message.delete()
     await state.set_state('set_time_todo')
     async with state.proxy() as data:
@@ -75,5 +75,5 @@ async def weather_accept(call: CallbackQuery, state: FSMContext):
     lang: str = await select_bot_language(telegram_id=call.from_user.id)
 
     await call.message.delete_reply_markup()
-    await call.message.edit_text('время?')
+    await call.message.edit_text('время?' if lang == 'ru' else 'time?')
     await state.set_state('weather_on')

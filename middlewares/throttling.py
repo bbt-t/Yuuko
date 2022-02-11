@@ -64,7 +64,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         if throttled.exceeded_count <= 2:
             await message.reply_sticker(skin.you_were_bad.value)
             await message.reply(
-                'Слишком часто пишешь! флуд это плохо!' if lang == 'ru' else 'You write too often! flood is BAD!'
+                'Слишком часто пишешь! флуд это плохо! 💢' if lang == 'ru' else 'You write too often! flood is BAD! 💢'
             )
 
         await asyncio_sleep(delta)

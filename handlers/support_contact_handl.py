@@ -11,7 +11,6 @@ from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 @rate_limit(5)
 @dp.message_handler(Command('support'), state='*')
 async def contact_support_by_message(message: Message, state: FSMContext):
-    #user_id: int = message.from_user.id
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
 
     text_msg: str = (

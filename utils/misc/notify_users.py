@@ -94,25 +94,4 @@ async def send_todo_msg(
 
     except Exception as err:
         logger_guru.warning(f"{repr(err)} : {telegram_id}")
-        await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно :С')
-
-
-# def check_user(func):
-#     @wraps(func)
-#     async def wrapper(msg: Message | CallbackQuery, state: FSMContext = None):
-#         user_id: int = msg.from_user.id
-#         lang, skin = await check_valid_user(user_id)
-#         text_not_lang: str = 'Only Ru and En are supported, change the language or contact the administrator'
-#         text_not_skin: str = 'Выбери скин, иначе никак...' if lang == 'ru' else 'Choose a skin, otherwise nothing...'
-#
-#         if lang and skin:
-#             info: dict = {'user_id': user_id, 'lang': lang, 'skin': skin.value}
-#             return await func(msg, state, info) if state else await func(msg, info)
-#         else:
-#             if not lang:
-#                 return (await msg.answer(text_not_lang) if isinstance(msg, Message) else
-#                         await msg.message.answer(text_not_lang))
-#             if not skin:
-#                 return (await msg.answer(text_not_skin) if isinstance(msg, Message) else
-#                         await msg.message.answer(text_not_skin))
-#     return wrapper
+        await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно 🥱')

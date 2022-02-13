@@ -12,7 +12,9 @@ from utils.keyboards.admins_tools_kb import tools_choice_kb
 async def reset_user_passcode(message: Message, state: FSMContext):
     lang: str = await select_bot_language(telegram_id=message.from_user.id)
 
-    await message.answer('Чего изволите?', reply_markup=tools_choice_kb)
+    await message.answer(
+        'Чего изволите?' if lang == 'ru' else 'What would you like?', reply_markup=tools_choice_kb
+    )
 
     await state.set_state('admin_in_action')
     async with state.proxy() as data:

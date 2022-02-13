@@ -33,7 +33,10 @@ async def question_set_time_todo(message: Message, state: FSMContext):
     skin = await select_skin(telegram_id=message.from_user.id)
 
     await message.answer_sticker(skin.love_you.value)
-    await message.answer('а можно я тебе буду голосовые сообщения слать?', reply_markup=choice_voice_todo_keyboard)
+    await message.answer(
+        'а можно я тебе буду голосовые сообщения слать?' if lang == 'ru' else 'Can I send you voice messages?',
+        reply_markup=choice_voice_todo_keyboard
+    )
 
 
 @dp.callback_query_handler(state='set_time_todo')

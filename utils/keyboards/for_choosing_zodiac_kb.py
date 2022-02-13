@@ -43,6 +43,6 @@ choice_day_zodiac_keyboard_ru.add(
 
 choice_day_zodiac_keyboard_en = InlineKeyboardMarkup(row_width=2)
 choice_day_zodiac_keyboard_en.add(
-    InlineKeyboardButton(text='for today', callback_data='today'),
-    InlineKeyboardButton(text='for tomorrow', callback_data='tomorrow')
+    InlineKeyboardButton(text='today', callback_data='today'),
+    InlineKeyboardButton(text='tomorrow', callback_data='tomorrow')
 )

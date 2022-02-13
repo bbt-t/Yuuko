@@ -18,7 +18,10 @@ async def show_days_for_haircuts(message: Message):
     except:
         logger_guru.exception('Haircuts Error')
         await message.reply_sticker(skin.something_is_wrong.value)
-        await message.answer('Что-то пошло не так...попробуй позже.')
+        await message.answer(
+            'Что-то пошло не так...попробуй позже.' if lang == 'ru' else
+            'Something went wrong... please try again later.'
+        )
     else:
         if get_time_now(time_zone).day <= max(map(int, received_days.split(','))):
             if lang == 'ru':

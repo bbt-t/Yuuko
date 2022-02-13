@@ -14,19 +14,18 @@ from utils.keyboards.for_choosing_zodiac_kb import (choice_zodiac_keyboard_ru, c
 @rate_limit(5, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext):
-    match lang := await select_bot_language(telegram_id=message.from_user.id):
-        case 'ru':
-            await message.answer(
-                'Заглянем в бууудууущее 🙈\n\n'
-                'так, СТОП! мне же нужна инфа о тебе,\n'
-                'говори свой знак зодиака!', reply_markup=choice_zodiac_keyboard_ru
-            )
-        case _:
-            await message.answer(
-                "Let's look into the future 🙈\n\n"
-                "hmm, STOP! I need info about you,\n"
-                "tell me your zodiac sign!", reply_markup=choice_zodiac_keyboard_en
-            )
+    if (lang := await select_bot_language(telegram_id=message.from_user.id)) == 'ru':
+        await message.answer(
+            'Заглянем в бууудууущее 🙈\n\n'
+            'так, СТОП! мне же нужна инфа о тебе,\n'
+            'говори свой знак зодиака!', reply_markup=choice_zodiac_keyboard_ru
+        )
+    else:
+        await message.answer(
+            "Let's look into the future 🙈\n\n"
+            "hmm, STOP! I need info about you,\n"
+            "tell me your zodiac sign!", reply_markup=choice_zodiac_keyboard_en
+        )
 
     await message.delete()
     await state.set_state('waiting_for_zodiac_sign')

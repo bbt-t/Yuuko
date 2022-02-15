@@ -1,11 +1,12 @@
+from asyncio import wait_for, TimeoutError
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, ContentType
-from aiohttp import ClientSession
 from ujson import dumps as ujson_dumps
 
 from config import work_with_api
-from loader import dp
+from loader import dp, logger_guru
+from utils.misc.other_funcs import get_image_text
 
 
 @dp.message_handler(Command('show_text'))
@@ -22,14 +23,14 @@ async def start_weather(message: Message, state: FSMContext):
 async def take_image_for_ocr(message: Message, state: FSMContext):
     data = ujson_dumps({'imageurl': f'{await message.photo[-1].get_url()}'})
     headers: dict = {'Content-Type': 'application/json', 'accept': 'application/json'}
-
-    async with ClientSession() as session:
-        async with session.post(url=work_with_api['OTHER']['OCR_URL'], headers=headers, data=data) as resp:
-            result: str = '\n'.join(await resp.text())
-
-    if result:
+    try:
+        result: str = await wait_for(get_image_text(
+            url=work_with_api['OTHER']['OCR_URL'], headers=headers, data=data),
+            timeout=10
+        )
         await message.answer(f'Вот что получилось:\n{result}')
-    else:
+    except TimeoutError as err:
+        logger_guru.warning(f'{repr(err)} : request ocr timeout.')
         await message.answer('Что-то не так 🤬 не могу прочитать ...')
-
-    await state.finish()
+    finally:
+        await state.finish()

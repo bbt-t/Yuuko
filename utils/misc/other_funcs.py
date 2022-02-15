@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from aiohttp import ClientSession
+
 from loader import dp
 
 
@@ -60,3 +62,9 @@ async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
     """
     await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
     await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=True)
+
+
+async def get_image_text(url: str, headers: dict, data) -> str:
+    async with ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=data) as resp:
+            return '\n'.join(await resp.text())

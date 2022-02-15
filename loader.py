@@ -29,8 +29,9 @@ engine = create_async_engine(f'sqlite+aiosqlite:///data/db/{DB_NAME}', future=Tr
 
 logger_guru.add(
     'data/logs/logging-bot.log',
-    format='{time} {level} {message}',
+    format='<red>{time}</red> {level} <level>{message}</level>',
     level='WARNING',
     rotation='00:00',
     compression='gz',
+    colorize=True,
     )

@@ -39,7 +39,7 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
     return serialized_object
 
 
-@rate_limit(5)
+@rate_limit(5, key='pass')
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     user_id: int = message.from_user.id

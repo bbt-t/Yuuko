@@ -6,9 +6,11 @@ from ujson import dumps as ujson_dumps
 
 from config import work_with_api
 from loader import dp, logger_guru
+from middlewares.throttling import rate_limit
 from utils.misc.other_funcs import get_image_text
 
 
+@rate_limit(5, key='show_text')
 @dp.message_handler(Command('show_text'))
 async def start_weather(message: Message, state: FSMContext):
     text_msg: str = ('Привет! я могу попробовать прочитать что написано, '

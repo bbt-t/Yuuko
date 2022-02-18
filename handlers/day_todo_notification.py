@@ -1,27 +1,23 @@
 from re import match as re_match
 
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from loader import dp, logger_guru, scheduler
-from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_bot_language, select_skin
 from utils.keyboards.choice_voice_todo import choice_voice_todo_keyboard
 from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.misc.notify_users import send_todo_msg
 
 
-@rate_limit(5)
-@dp.message_handler(Command('set_time_todo'))
-async def late_day_todo_notification(message: Message, state: FSMContext):
-    lang: str = await select_bot_language(telegram_id=message.from_user.id)
-
-    await message.answer('Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?')
-    await message.delete()
-    await state.set_state('set_time_todo')
+@dp.callback_query_handler(text='set_time_todo', state='settings')
+async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        data['lang'] = lang
+        lang: str = data.get('lang')
+
+    await call.message.answer('Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?')
+    await call.message.delete()
+    await state.set_state('set_time_todo')
 
 
 @dp.message_handler(state='set_time_todo')

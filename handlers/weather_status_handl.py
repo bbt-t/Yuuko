@@ -2,30 +2,29 @@ from asyncio import sleep as asyncio_sleep
 from re import match as re_match
 
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import Command
-from aiogram.types import Message, ChatActions, ContentType
+from aiogram.types import Message, ChatActions, ContentType, CallbackQuery
 
 from config import work_with_api
 from loader import dp, scheduler, logger_guru
-from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.misc.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
-@rate_limit(5)
-@dp.message_handler(Command('start_weather'))
-async def weather_notification_on(message: Message, state: FSMContext):
-    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+@dp.callback_query_handler(text='set_weather', state='settings')
+async def weather_notification_on(call: CallbackQuery, state: FSMContext):
+    lang, skin = await select_lang_and_skin(telegram_id=call.from_user.id)
 
-    await message.answer_sticker(skin.welcome.value)
-    await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
+    await call.message.answer_sticker(skin.welcome.value)
+    await dp.bot.send_chat_action(call.message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
-    await message.answer('Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
-                         'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
-                         'или может хочешь отменить уже заданное время?')
+    await call.message.answer(
+        'Привет, давай я тебе помогу настроить оповещение о погоде...\n\n'
+        'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
+        'или может хочешь отменить уже заданное время?'
+    )
     await state.set_state('weather_on')
-    await message.delete()
+    await call.message.delete()
 
 
 @dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])

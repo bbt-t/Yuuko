@@ -13,7 +13,7 @@ from utils.misc.other_funcs import pin_todo_list, get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj
 
 
-@rate_limit(5)
+@rate_limit(5, key='todo')
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)

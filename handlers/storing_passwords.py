@@ -52,8 +52,8 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     await message.answer(text_msg)
     await state.set_state('check_personal_code')
     async with state.proxy() as data:
-        data['user_id'] = user_id
-        data['lang'] = lang
+        data['user_id']: str = user_id
+        data['lang']: str = lang
 
 
 
@@ -72,7 +72,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
                 await state.set_state('successful_auth_for_pass')
                 async with state.proxy() as data:
-                    data['lang'] = lang
+                    data['lang']: str = lang
                 tex_msg: str = 'Что ты конкретно хочешь?' if lang == 'ru' else 'What do you specifically want?'
                 await message.answer(tex_msg, reply_markup=pass_choice_kb)
             else:
@@ -101,7 +101,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 @dp.callback_query_handler(text='new_pass', state='successful_auth_for_pass')
 async def accept_personal_key(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data['lang']
+        lang: str = data.get('lang')
     await call.message.answer(
         'Задай имя сохраняемого пароля ...\n (можешь сразу и сам пароль)' if lang == 'ru' else
         'Set the name of the password to be saved ...\n (you can also use the password itself)'
@@ -114,8 +114,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
     msg: str = message.text
 
     async with state.proxy() as data:
-        user_id, lang = data['user_id'], data['lang']
-        name_pass: str = data.get('name')
+        user_id, lang, name_pass = data.get('user_id'), data.get('lang'), data.get('name')
 
     match msg.replace(',', ' ').split():
         case name_pass, password:

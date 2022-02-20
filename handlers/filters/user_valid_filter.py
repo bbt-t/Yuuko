@@ -6,11 +6,11 @@ from utils.database_manage.sql.sql_commands import check_valid_user, select_bot_
 from sqlalchemy.exc import NoResultFound
 
 
-commands: set = {'todo', 'start_weather', 'horoscope', 'hair', 'pass', 'set_time_todo', 'change_skin'}
+commands: set = {'todo', 'horoscope', 'hair', 'pass', 'set_settings'}
 
 
 class IsValid(Filter):
-    key = "is_valid"
+    key: str = "is_valid"
 
     async def check(self, message: Message):
         return await check_valid_user(telegram_id=message.from_user.id)
@@ -26,7 +26,6 @@ async def check_for_validity(message: Message):
         lang: str = await select_bot_language(telegram_id=message.from_user.id)
     except NoResultFound:
         return await message.answer('start the bot again or /start')
-
-    text_msg: str = 'Выбери скин, иначе никак...' if lang == 'ru' else 'Choose a skin, otherwise nothing...'
-
-    await message.answer(text_msg)
+    await message.answer(
+        'Выбери скин, иначе никак...' if lang == 'ru' else 'Choose a skin, otherwise nothing...'
+    )

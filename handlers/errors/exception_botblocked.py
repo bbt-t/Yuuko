@@ -8,6 +8,7 @@ from loader import dp, logger_guru
 async def bot_blocked_error(update: Update, exception: BotBlocked):
     """
     If the user has blocked bot.
+    :param exception: exception name
     """
     logger_guru.exception(f'Bot blocked by user {update.message.from_user.id}')
     return True

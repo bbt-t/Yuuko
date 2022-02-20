@@ -23,8 +23,7 @@ async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(state='set_time_todo')
 async def question_set_time_todo(message: Message, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data.get('lang')
-        data['msg'] = message.text
+        lang, data['msg'] = data.get('lang'), message.text
 
     skin = await select_skin(telegram_id=message.from_user.id)
 

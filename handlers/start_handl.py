@@ -88,7 +88,7 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
 
     await state.set_state('set_birthday_and_todo')
     async with state.proxy() as data:
-        data['lang'] = lang
+        data['lang']: str = lang
         data['removing_msg_id'] = removing_msg.message_id
 
 

@@ -30,13 +30,13 @@ async def start_working_with_bot(message: Message, state: FSMContext):
     await message.delete()
     await state.set_state('waiting_for_zodiac_sign')
     async with state.proxy() as data:
-        data['lang'] = lang
+        data['lang']: str = lang
 
 
 @dp.callback_query_handler(state='waiting_for_zodiac_sign')
 async def get_horoscope(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        lang: str = data['lang']
+        lang: str = data.get('lang')
 
     try:
         if lang == 'ru':
@@ -44,7 +44,7 @@ async def get_horoscope(call: CallbackQuery, state: FSMContext):
         else:
             await call.message.edit_reply_markup(choice_day_zodiac_keyboard_en)
         async with state.proxy() as data:
-            data['zodiac'] = call.data
+            data['zodiac']: str = call.data
     except MessageNotModified:
         async with state.proxy() as data:
             zodiac: str = data['zodiac']

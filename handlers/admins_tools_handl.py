@@ -18,7 +18,7 @@ async def reset_user_passcode(message: Message, state: FSMContext):
 
     await state.set_state('admin_in_action')
     async with state.proxy() as data:
-        data['lang'] = lang
+        data['lang']: str = lang
 
 
 @dp.callback_query_handler(text='reset_user_codeword', state='admin_in_action')

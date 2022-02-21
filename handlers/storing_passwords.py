@@ -56,7 +56,6 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
         data['lang']: str = lang
 
 
-
 @dp.message_handler(state='check_personal_code')
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
@@ -124,7 +123,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
             except IntegrityError:
                 await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
-            await message.answer('Отлично! записино.' if lang == 'ru' else 'Fine! wrote down.')
+            await message.answer('Отлично! Записано.' if lang == 'ru' else 'Fine!')
             await state.finish()
         case _:
             if not name_pass:

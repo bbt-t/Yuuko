@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from aiohttp import ClientSession
 
 from loader import dp
+from utils.database_manage.sql.sql_commands import select_all_user
 
 
 def get_time_now(tz: str):
@@ -62,6 +63,14 @@ async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
     """
     await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
     await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=True)
+
+
+async def clear_all_pin_msg() -> None:
+    """
+    Unpin all messages.
+    """
+    for telegram_id in await select_all_user():
+        await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
 
 
 async def get_image_text(url: str, headers: dict, data) -> str:

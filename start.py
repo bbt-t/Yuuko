@@ -7,6 +7,7 @@ from loader import dp, scheduler, logger_guru
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
 from utils.misc.notify_admins import on_startup_notify, on_shutdown_notify
+from utils.misc.other_funcs import clear_all_pin_msg
 from utils.misc.set_bot_commands import set_default_commands
 from utils.todo import delete_all_todo
 
@@ -33,12 +34,10 @@ async def on_startup(dp: Dispatcher):
         logger_guru.info('DB error on start bot')
 
     scheduler.start()
-    scheduler.add_job(delete_all_todo, 'cron', id='todo_delete',
-                      day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
-                      misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
-    scheduler.add_job(clear_redis, 'cron', id='redis_delete_keys',
-                      day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
-                      misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
+    for func in {delete_all_todo, clear_redis, clear_all_pin_msg}:
+        scheduler.add_job(delete_all_todo, 'cron', id=f'{func}_job',
+                          day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
+                          misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
     logger_guru.warning('Bot is running')
 
 

@@ -159,6 +159,17 @@ async def select_user(telegram_id: int | str) -> tuple:
     return result.fetchone()
 
 
+async def select_all_user() -> list:
+    """
+    Selects all users telegram id.
+    :return: all telegram id in list
+    """
+    async with engine.connect() as conn:
+        result = await conn.execute(select(Users.telegram_id))
+    await engine.dispose()
+    return result.scalars().all()
+
+
 async def select_user_birthday(telegram_id: int | str) -> str:
     """
     Selects a user's birthday by their telegram id.

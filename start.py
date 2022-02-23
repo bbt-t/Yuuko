@@ -35,7 +35,7 @@ async def on_startup(dp: Dispatcher):
 
     scheduler.start()
     for func in {delete_all_todo, clear_redis, clear_all_pin_msg}:
-        scheduler.add_job(delete_all_todo, 'cron', id=f'{func}_job',
+        scheduler.add_job(func, 'cron', id=f'{func}_job',
                           day_of_week='mon-sun', hour='00', minute='01', end_date='2023-05-30',
                           misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
     logger_guru.warning('Bot is running')

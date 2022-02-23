@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from aiohttp import ClientSession
 
-from loader import dp
+from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import select_all_user
 
 
@@ -64,6 +64,8 @@ async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
     await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
     await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=True)
 
+    logger_guru.info(f'{msg_id=} message pin')
+
 
 async def clear_all_pin_msg() -> None:
     """
@@ -71,6 +73,8 @@ async def clear_all_pin_msg() -> None:
     """
     for telegram_id in await select_all_user():
         await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
+    else:
+        logger_guru.warning('Delete all message (pin).')
 
 
 async def get_image_text(url: str, headers: dict, data) -> str:

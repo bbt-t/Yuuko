@@ -159,7 +159,7 @@ async def select_user(telegram_id: int | str) -> tuple:
     return result.fetchone()
 
 
-async def select_all_user() -> list:
+async def select_all_users() -> list:
     """
     Selects all users telegram id.
     :return: all telegram id in list

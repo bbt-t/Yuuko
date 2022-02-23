@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from aiohttp import ClientSession
 
 from loader import dp, logger_guru
-from utils.database_manage.sql.sql_commands import select_all_user
+from utils.database_manage.sql.sql_commands import select_all_users
 
 
 def get_time_now(tz: str):
@@ -71,7 +71,7 @@ async def clear_all_pin_msg() -> None:
     """
     Unpin all messages.
     """
-    for telegram_id in await select_all_user():
+    for telegram_id in await select_all_users():
         await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
     else:
         logger_guru.warning('Delete all message (pin).')

@@ -6,13 +6,16 @@ from utils.database_manage.sql.sql_commands import check_valid_user, select_bot_
 from sqlalchemy.exc import NoResultFound
 
 
-commands: frozenset = frozenset({'todo', 'horoscope', 'hair', 'pass', 'set_settings'})
+commands: frozenset = frozenset({'todo', 'horoscope', 'hair', 'pass', 'support', 'set_settings'})
 
 
 class IsValid(Filter):
+    """
+    Filters out users without an entry in the DB.
+    """
     key: str = "is_valid"
 
-    async def check(self, message: Message):
+    async def check(self, message: Message) -> bool:
         return await check_valid_user(telegram_id=message.from_user.id)
 
 

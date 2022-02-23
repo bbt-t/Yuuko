@@ -182,7 +182,7 @@ async def select_user_birthday(telegram_id: int | str) -> str:
     return result.scalar_one()
 
 
-async def select_skin(telegram_id: int | str) -> Enum:
+async def select_skin(telegram_id: int | str):
     """
     Selects the selected bot-skin by user telegram id.
     :param telegram_id: telegram user id

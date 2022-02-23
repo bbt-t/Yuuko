@@ -17,32 +17,41 @@ async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
 
     await call.message.answer('Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?')
     await call.message.delete()
-    await state.set_state('set_time_todo')
+    await state.set_state('time_todo')
 
 
-@dp.message_handler(state='set_time_todo')
+@dp.message_handler(state='time_todo')
 async def question_set_time_todo(message: Message, state: FSMContext):
-    async with state.proxy() as data:
-        lang, data['msg'] = data.get('lang'), message.text
-
     skin = await select_skin(telegram_id=message.from_user.id)
+    msg: str = ''.join(let for let in message.text if let.isnumeric())
+
+    async with state.proxy() as data:
+        lang: str = data.get('lang')
+        if not (msg and 2 <= len(msg) <= 4):
+            await state.finish()
+            return await message.reply(
+                'Напиши мне <code>время</code> ... попробуй ещё раз.' if lang == 'ru' else
+                'Text me <code>time</code> ... try again.'
+            )
+        else:
+            data['msg'] = msg
 
     await message.answer_sticker(skin.love_you.value)
     await message.answer(
-        'а можно я тебе буду голосовые сообщения слать?' if lang == 'ru' else 'Can I send you voice messages?',
+        'а можно я тебе буду голосовые сообщения слать?' if lang == 'ru' else
+        'Can I send you voice messages?',
         reply_markup=choice_voice_todo_keyboard
     )
 
 
-@dp.callback_query_handler(state='set_time_todo')
+@dp.callback_query_handler(state='time_todo')
 async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
 
     async with state.proxy() as data:
-        lang, msg = data.get('lang'), data.get('msg')
+        lang, text = data.get('lang'), data.get('msg')
 
-    skin = await select_skin(user_id := call.from_user.id)
-    text, choice = ''.join(let for let in msg if let.isnumeric()), call.data
+    skin, choice = await select_skin(user_id := call.from_user.id), call.data
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:

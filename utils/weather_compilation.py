@@ -8,8 +8,6 @@ from loader import logger_guru
 from .misc.enums_data import ApiInfo
 
 
-
-
 async def create_weather_forecast() -> str:
     """
     Weather api request func

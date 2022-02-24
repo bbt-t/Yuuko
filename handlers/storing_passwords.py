@@ -7,13 +7,14 @@ from pickletools import optimize as pickletools_optimize
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, CallbackQuery
+from aiogram.utils.markdown import hspoiler
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from pgpy import PGPMessage
 
 from config import time_zone
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import (check_personal_pass, update_personal_pass,add_other_info,
+from utils.database_manage.sql.sql_commands import (check_personal_pass, update_personal_pass, add_other_info,
                                                     select_pass, update_pass, select_skin, select_bot_language)
 from utils.keyboards.pass_settings_bk import pass_choice_kb
 from utils.misc.other_funcs import delete_marked_message, get_time_now
@@ -162,10 +163,10 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message
-            text_msg: str = (
-                f'НАШЛА! вот пароль с именем {msg} : {password}\n'
+            text_msg: str = hspoiler(
+                f'НАШЛА! вот пароль с именем {msg} :\n{password}\n\n'
                 f'у тебя 10 секунд чтобы его скопировать !' if lang == 'ru' else
-                f'FOUND! here is the password with the name {msg} : {password}\n'
+                f'FOUND! here is the password with the name {msg} :\n{password}\n\n'
                 f'after 10 seconds it will be deleted !'
             )
 

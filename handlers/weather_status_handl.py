@@ -15,7 +15,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 async def weather_notification_on(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=call.from_user.id)
 
-    await call.message.answer_sticker(skin.welcome.value)
+    await call.message.answer_sticker(skin.welcome.value, disable_notification=True)
     await dp.bot.send_chat_action(call.message.chat.id, ChatActions.TYPING)
     await asyncio_sleep(2)
     await call.message.answer(
@@ -50,7 +50,7 @@ async def start_weather(message: Message, state: FSMContext):
         except:
             logger_guru.exception('Error in the block of notification cancellation!')
 
-            await message.reply_sticker(skin.hmm.value)
+            await message.reply_sticker(skin.hmm.value, disable_notification=True)
             await dp.bot.send_chat_action(message.chat.id, ChatActions.TYPING)
             await asyncio_sleep(1)
             await message.answer('ХММ ... не нашла записи, по-моиму ты пытаешься выключить уже выключенное.')
@@ -68,6 +68,6 @@ async def start_weather(message: Message, state: FSMContext):
         await message.answer('ОТЛИЧНО! включили тебе поповещение о погоде :)')
         await state.finish()
     else:
-        await message.reply_sticker(skin.i_do_not_understand.value)
+        await message.reply_sticker(skin.i_do_not_understand.value, disable_notification=True)
         await message.answer('КХМ ... попробуй ещё раз ...')
         await state.finish()

@@ -33,7 +33,7 @@ async def start_working_with_bot(message: Message):
     except IntegrityError:
         logger_guru.opt(exception=True).critical(f'{user_id=} : Integrity Error in start handler!')
 
-    await message.answer_sticker(BotSkins.cloud.value.welcome.value)
+    await message.answer_sticker(BotSkins.cloud.value.welcome.value, disable_notification=True)
     await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
     await asyncio_sleep(2)
 
@@ -53,7 +53,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
     skin = await select_skin(telegram_id=user_id)
 
     await call.message.delete_reply_markup()
-    await call.message.answer_sticker(skin.great.value)
+    await call.message.answer_sticker(skin.great.value, disable_notification=True)
 
     if not any(str(sch.id).endswith(f'{user_id}') for sch in scheduler.get_jobs()):
         if await select_bot_language(telegram_id=user_id) == 'ru':
@@ -80,7 +80,7 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     )
     removing_msg: Message = await call.message.answer(text_msg)
 
-    await call.message.answer_sticker(skin.seeking.value)
+    await call.message.answer_sticker(skin.seeking.value, disable_notification=True)
     if lang == 'ru':
         await call.message.edit_reply_markup(await calendar_bot_ru.enable())
     else:
@@ -126,7 +126,7 @@ async def exit_handling(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(user_id := call.from_user.id)
 
     await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
-    await call.message.answer_sticker(skin.sad_ok.value)
+    await call.message.answer_sticker(skin.sad_ok.value, disable_notification=True)
     await asyncio_sleep(1)
     text_msg: str = (
         'ЖАЛЬ :С если что мои команды можно подглядеть через слеш (/)' if lang == 'ru' else

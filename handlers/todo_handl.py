@@ -18,7 +18,7 @@ from utils.todo import load_todo_obj, dump_todo_obj
 async def bot_todo(message: Message, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
 
-    await message.answer_sticker(skin.love_you.value)
+    await message.answer_sticker(skin.love_you.value, disable_notification=True)
     if lang == 'ru':
         await message.answer(
             '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
@@ -86,7 +86,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
 
         await dump_todo_obj(todo_obj)
-        await message.answer_sticker(skin.great.value)
+        await message.answer_sticker(skin.great.value, disable_notification=True)
 
         result_msg: Message = await message.answer(
             f'Вот список на этот день:\n\n{result}' if lang == 'ru' else
@@ -107,7 +107,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
             )
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
-        await message.answer_sticker(skin.you_were_bad.value)
+        await message.answer_sticker(skin.you_were_bad.value, disable_notification=True)
         await message.answer(
             'Слишком большое сообщение ! Попробуй написать короче' if lang == 'ru' else
             'Too big message! Try to write shorter'

@@ -17,7 +17,7 @@ async def contact_support_by_message(message: Message, state: FSMContext):
         'Хочешь написать создателю?' if lang == 'ru' else 'Do you want to write to the creator?'
     )
     kb = await sup_kb()
-    await message.answer_sticker(skin.fear.value)
+    await message.answer_sticker(skin.fear.value, disable_notification=True)
     await message.answer(text_msg, reply_markup=kb)
     await state.finish()
     await message.delete()

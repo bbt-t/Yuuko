@@ -36,7 +36,7 @@ async def question_set_time_todo(message: Message, state: FSMContext):
         else:
             data['msg'] = msg
 
-    await message.answer_sticker(skin.love_you.value)
+    await message.answer_sticker(skin.love_you.value, disable_notification=True)
     await message.answer(
         'а можно я тебе буду голосовые сообщения слать?' if lang == 'ru' else
         'Can I send you voice messages?',
@@ -62,14 +62,14 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
                               misfire_grace_time=30, replace_existing=True, timezone="Europe/Moscow")
 
             logger_guru.info(f"{user_id=} changed the notification time")
-            await call.message.answer_sticker(skin.great.value)
+            await call.message.answer_sticker(skin.great.value, disable_notification=True)
             await call.message.answer('Сделано !')
         except KeyError:
             logger_guru.exception(f'{user_id=} : ERROR ADD WEATHER JOB')
         finally:
             await state.finish()
     else:
-        await call.message.answer_sticker(skin.i_do_not_understand.value)
+        await call.message.answer_sticker(skin.i_do_not_understand.value, disable_notification=True)
         await call.message.answer('Не понятно что написано, попробуй ещё раз ...')
         await state.finish()
 

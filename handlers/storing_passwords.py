@@ -53,8 +53,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     await message.answer(text_msg)
     await state.set_state('check_personal_code')
     async with state.proxy() as data:
-        data['user_id']: str = user_id
-        data['lang']: str = lang
+        data['user_id'], data['lang'] = user_id, lang
 
 
 @dp.message_handler(state='check_personal_code')
@@ -68,7 +67,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     try:
         if check_pass := await check_personal_pass(telegram_id=user_id):
             if hmac_compare_digest(check_pass, msg):
-                await message.answer_sticker(skin.order_accepted.value)
+                await message.answer_sticker(skin.order_accepted.value, disable_notification=True)
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
                 await state.set_state('successful_auth_for_pass')
                 async with state.proxy() as data:
@@ -157,7 +156,6 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
     async with state.proxy() as data:
         user_id, lang = data.values()
     msg: str = message.text.replace(' ', '')
-
     try:
         if decrypt_password := await select_pass(name=msg, telegram_id=user_id):
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),

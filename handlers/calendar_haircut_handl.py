@@ -17,7 +17,7 @@ async def show_days_for_haircuts(message: Message):
         received_days: str = await lunar_calendar_haircut()
     except:
         logger_guru.exception('Haircuts Error')
-        await message.reply_sticker(skin.something_is_wrong.value)
+        await message.reply_sticker(skin.something_is_wrong.value, disable_notification=True)
         await message.answer(
             'Что-то пошло не так...попробуй позже.' if lang == 'ru' else
             'Something went wrong... please try again later.'

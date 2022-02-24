@@ -6,7 +6,7 @@ from pickletools import optimize as pickletools_optimize
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ChatActions
 from aiogram.utils.markdown import hspoiler
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from pgpy import PGPMessage
@@ -161,10 +161,12 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message
-            text_msg: str = hspoiler(
-                f'НАШЛА! вот пароль с именем {msg} :\n{password}\n\n'
+            text_msg: str = (
+                f'НАШЛА! вот пароль с именем <b><code>{msg}</code></b> :\n\n'
+                f'{hspoiler(password)}\n\n'
                 f'у тебя 10 секунд чтобы его скопировать !' if lang == 'ru' else
-                f'FOUND! here is the password with the name {msg} :\n{password}\n\n'
+                f'FOUND! here is the password with the name <b><code>{msg}</code></b> :\n\n'
+                f'{hspoiler(password)}\n\n'
                 f'after 10 seconds it will be deleted !'
             )
 
@@ -177,9 +179,12 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
             )
             await message.delete()
     except NoResultFound:
-        logger_guru.warning(f'{user_id=} entering an invalid password name.')
+        logger_guru.warning(f'{user_id=} entering an invalid password name!')
+        await message.delete()
+        await message.answer_chat_action(ChatActions.TYPING)
         await message.answer(
-            'Не найден пароль с таким именем 😕' if lang == 'ru' else "Couldn't find a password with that name :C"
+            f'Не найден пароль с именем {hspoiler(message.text)} 😕' if lang == 'ru' else
+            f"Couldn't find a password with {hspoiler(message.text)} 😕"
         )
     finally:
         await state.finish()

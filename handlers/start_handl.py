@@ -34,7 +34,7 @@ async def start_working_with_bot(message: Message):
         logger_guru.opt(exception=True).critical(f'{user_id=} : Integrity Error in start handler!')
 
     await message.answer_sticker(BotSkins.cloud.value.welcome.value, disable_notification=True)
-    await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
+    await message.answer_chat_action(ChatActions.TYPING)
     await asyncio_sleep(2)
 
     match await select_bot_language(telegram_id=user_id):
@@ -54,6 +54,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
 
     await call.message.delete_reply_markup()
     await call.message.answer_sticker(skin.great.value, disable_notification=True)
+    await call.message.answer_chat_action(ChatActions.TYPING)
 
     if not any(str(sch.id).endswith(f'{user_id}') for sch in scheduler.get_jobs()):
         if await select_bot_language(telegram_id=user_id) == 'ru':
@@ -78,6 +79,7 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
         'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня 😏' if lang == 'ru' else
         'Specify your DR (real, no one will see it except me anyway 😏'
     )
+    await call.message.answer_chat_action(ChatActions.TYPING)
     removing_msg: Message = await call.message.answer(text_msg)
 
     await call.message.answer_sticker(skin.seeking.value, disable_notification=True)
@@ -125,7 +127,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
 async def exit_handling(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(user_id := call.from_user.id)
 
-    await dp.bot.send_chat_action(user_id, ChatActions.TYPING)
+    await call.message.answer_chat_action(ChatActions.TYPING)
     await call.message.answer_sticker(skin.sad_ok.value, disable_notification=True)
     await asyncio_sleep(1)
     text_msg: str = (

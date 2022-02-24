@@ -20,7 +20,7 @@ class Users(Base):
 
 class OtherInfo(Base):
     __tablename__ = 'other'
-    telegram_id = Column(BigInteger, ForeignKey("users.telegram_id"))
+    telegram_id = Column(BigInteger, ForeignKey("users.telegram_id", ondelete='CASCADE'))
     name_pass = Column(VARCHAR(256), primary_key=True, index=True)
     pass_items = Column(PickleType, nullable=False)
     created_time = Column(DateTime(timezone=True), server_default=func.now())

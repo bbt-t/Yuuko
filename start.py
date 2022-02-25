@@ -1,8 +1,8 @@
 from aiogram import Dispatcher
-from aiogram.utils.executor import start_webhook
+from aiogram.utils.executor import start_webhook, start_polling
 from sqlalchemy import exc
 
-from config import hook_info
+from config import hook_info, BOT_CONNECTION_METHOD
 from loader import dp, scheduler, logger_guru
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
@@ -21,10 +21,12 @@ async def on_startup(dp: Dispatcher):
     an attempt to create a table User if it does not exist.
     :param dp: Dispatcher
     """
-    await dp.bot.set_webhook(hook_info.get('WEBHOOK_URL'), drop_pending_updates=True)
-
+    if BOT_CONNECTION_METHOD == 'WEBHOOK':
+        await dp.bot.set_webhook(
+            hook_info.get('WEBHOOK_URL'),
+            drop_pending_updates=True
+        )
     middlewares.setup(dp)
-        
     await set_default_commands(dp)
     await on_startup_notify(dp)
 
@@ -55,10 +57,20 @@ async def on_shutdown(dp: Dispatcher):
 
 if __name__ == '__main__':
     try:
-        start_webhook(
-            dispatcher=dp, skip_updates=True,
-            on_startup=on_startup, on_shutdown=on_shutdown,
-            **hook_info.get('WEBHOOK')
-        )
+        if BOT_CONNECTION_METHOD == 'WEBHOOK':
+            start_webhook(
+                dispatcher=dp,
+                skip_updates=True,
+                on_startup=on_startup,
+                on_shutdown=on_shutdown,
+                **hook_info.get('WEBHOOK')
+            )
+        else:
+            start_polling(
+                dispatcher=dp,
+                on_startup=on_startup,
+                on_shutdown=on_shutdown,
+                skip_updates=True
+            )
     except BaseException as err:
         logger_guru.critical(f'{repr(err)} : Bot stopped')

@@ -5,7 +5,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import Update
+from sqlalchemy.sql.expression import Update, Delete
 
 from loader import Base, engine
 from .sql_table import OtherInfo, Users
@@ -233,3 +233,16 @@ async def check_valid_user(telegram_id: int) -> bool:
         return not result.scalar_one()
     except NoResultFound:
         return True
+
+
+async def delete_user(telegram_id: int | str) -> None:
+    """
+    Delete a user by his ID.
+    :param telegram_id: telegram user id
+    :return: user info
+    """
+    sql = Delete(Users).where(Users.telegram_id == telegram_id)
+    async with AsyncSession(engine) as session:
+        await session.execute(sql)
+        await session.commit()
+    await engine.dispose()

@@ -5,8 +5,8 @@ load_dotenv()
 
 time_zone: str = getenv('TIMEZONE')
 
+BOT_CONNECTION_METHOD: str = 'WEBHOOK'
 BOT_TOKEN: str = getenv('BOT_TOKEN')
-
 DB_NAME: str = getenv('DB_NAME')
 
 bot_administrators: dict = {

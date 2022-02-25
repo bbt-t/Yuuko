@@ -38,8 +38,7 @@ python start.py
 ### ATTENTION!
 `redis` is required!
 
-If you intend to run on a local machine, then you need to change `start_webhook` to `start_poling` loock this > [example](https://github.com/bbt-t/call-support/blob/master/start.py)
-
+If it is supposed to run on a local machine, then you need to change the value of `BOT_CONNECTION_METHOD` in `config.py` to an empty string or any other character.
 
 
 > It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py):

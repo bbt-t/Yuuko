@@ -46,7 +46,7 @@ async def start_working_with_bot(message: Message):
             await message.answer(text_msg, reply_markup=choice_of_assistant_kb_en)
 
 
-@dp.callback_query_handler(text=['neko', 'chan', 'cloud'])
+@dp.callback_query_handler(text={'neko', 'chan', 'cloud'})
 async def choose_skin_for_the_bot(call: CallbackQuery):
     user_id: int = call.from_user.id
     await update_bot_skin(telegram_id=user_id, skin=getattr(BotSkins, call.data))

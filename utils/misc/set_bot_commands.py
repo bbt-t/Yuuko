@@ -16,7 +16,7 @@ async def set_default_commands(dp):
         BotCommand('pass', 'Записать/вспомнить пароль'),
         BotCommand('set_settings', 'Настройки'),
         BotCommand('support', 'Help/Связаться с администрацией'),
-        BotCommand('reset_personal_pass', 'Сбросить кодовое слово'),
+        BotCommand('admin_tools', 'администратору'),
     ], scope=BotCommandScopeChat(chat_id=admin, user_id=admin))
 
     await dp.bot.set_my_commands([

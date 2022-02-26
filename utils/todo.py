@@ -6,7 +6,7 @@ from ujson import dumps as ujson_dumps
 from aiofiles import open as aiofiles_open
 
 from config import time_zone
-from loader import logger_guru
+from loader import dp, logger_guru
 from utils.misc.other_funcs import get_time_now
 
 
@@ -48,3 +48,15 @@ async def delete_all_todo() -> None:
     logger_guru.warning('TODO deleted successfully')
     await dump_todo_obj(todo_obj)
 
+
+async def pin_todo_message(chat_id: int | str, msg_id: int | str, disable_notification: bool = True) -> None:
+    """
+    Pins a message.
+    :param msg_id: id of the message to pin
+    :param chat_id: id of the chat from which the message should be pined
+    :param disable_notification: disable alert
+    """
+    await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
+    await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=disable_notification)
+
+    logger_guru.info(f'{msg_id=} message pin')

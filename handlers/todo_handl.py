@@ -9,7 +9,7 @@ from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
-from utils.misc.other_funcs import pin_todo_list, get_time_now
+from utils.misc.other_funcs import get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj
 
 
@@ -86,25 +86,15 @@ async def set_calendar_date(message: Message, state: FSMContext):
         result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
 
         await dump_todo_obj(todo_obj)
-        await message.answer_sticker(skin.great.value, disable_notification=True)
 
-        result_msg: Message = await message.answer(
+        await message.answer_sticker(skin.great.value, disable_notification=True)
+        send_msg: Message = await message.answer(
             f'Вот список на этот день:\n\n{result}' if lang == 'ru' else
             f'Here is the list for this day:\n\n{result}'
         )
         if date == get_time_now(time_zone).strftime('%Y-%m-%d'):
             await dp.bot.unpin_all_chat_messages(chat_id=user_id)
-            await result_msg.pin(disable_notification=True)
-        else:
-            date: str = (get_time_now(time_zone) + timedelta(days=1)).strftime('%Y-%m-%d')
-            msg_id: int = result_msg.message_id
-
-            scheduler.add_job(
-                pin_todo_list, id=f'todo_pin_{date}{user_id}',
-                args=(msg_id, user_id), trigger='date',
-                replace_existing=True, run_date=date,
-                misfire_grace_time=5, timezone="Europe/Moscow"
-            )
+            await send_msg.pin(disable_notification=True)
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
         await message.answer_sticker(skin.you_were_bad.value, disable_notification=True)

@@ -9,12 +9,12 @@ from config import work_with_api, time_zone
 from loader import dp, logger_guru
 from .other_funcs import get_time_now
 from ..database_manage.sql.sql_commands import select_user, check_valid_user
-from ..todo import load_todo_obj
+from ..todo import load_todo_obj, pin_todo_message
 from ..weather_compilation import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
 
-def auth(func):
+def auth(func) -> Message | None:
     """
     Wrap for check user
     :param func: handler
@@ -27,7 +27,7 @@ def auth(func):
             return None
         if await select_user(telegram_id=message.from_user.id):
             await message.delete()
-            return await message.reply(
+            return await message.answer(
                 'Мы же уже знакомы :)' if message.from_user.language_code == 'ru' else
                 'We are already familiar', reply=False
             )
@@ -36,7 +36,7 @@ def auth(func):
 
 
 @logger_guru.catch()
-async def send_weather(telegram_id: int):
+async def send_weather(telegram_id: int) -> None:
     """
     Sends a message with the weather
     :param telegram_id: user id
@@ -48,9 +48,9 @@ async def send_weather(telegram_id: int):
 
 @logger_guru.catch()
 async def send_synthesize_voice_by_ya(
-        telegram_id: int, text: str, lang: str,
+        telegram_id: int | str, text: str, lang: str,
         folder: str = work_with_api['YANDEX']['FOLDER_ID'],
-        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']):
+        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']) -> None:
     """
     Sends a message with the synthesize voice message
     :param telegram_id: user id
@@ -67,7 +67,7 @@ async def send_todo_msg(
         telegram_id: int | str, is_voice: bool = False,
         folder: str = work_with_api['YANDEX']['FOLDER_ID'],
         api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']
-        ):
+        ) -> None:
     """
     Sends a message with the synthesize voice message
     :param telegram_id: telegram id of the person to whom the message will be sent
@@ -90,8 +90,10 @@ async def send_todo_msg(
             )
             await dp.bot.send_voice(telegram_id, voice_msg)
 
-        await dp.bot.send_message(telegram_id, f'Напоминаю что на сегодня список дел таков: \n\n{text_msg}')
+        send_msg: Message = await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
+        await pin_todo_message(chat_id=telegram_id, msg_id=send_msg.message_id)
 
     except Exception as err:
-        logger_guru.warning(f"{repr(err)} : {telegram_id}")
+        logger_guru.warning(f"{repr(err)} : {telegram_id=}")
         await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно 🥱')
+        await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)

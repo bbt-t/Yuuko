@@ -1,6 +1,7 @@
-from asyncio import get_running_loop, sleep
+from asyncio import get_running_loop
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from datetime import datetime
+from time import sleep
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -11,14 +12,14 @@ from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import select_all_users
 
 
-def get_time_now(tz: str):
+def get_time_now(tz: str) -> datetime:
     """
     Take time and date in the time-zone.
     :param tz: time-zone
     :return: datatime object
     """
-    zone = ZoneInfo(tz)
-    return datetime.now(tz=zone)
+    result = datetime.now(tz=ZoneInfo(tz))
+    return result
 
 
 async def blocking_io_run_func(func, *args) -> Any:
@@ -56,18 +57,6 @@ async def delete_marked_message(msg_id: int | str, chat_id: int) -> None:
     await dp.bot.delete_message(chat_id=chat_id, message_id=msg_id)
 
 
-async def pin_todo_list(msg_id: int | str, chat_id: int) -> None:
-    """
-    Pins a message.
-    :param msg_id: id of the message to pin
-    :param chat_id: id of the chat from which the message should be pined
-    """
-    await dp.bot.unpin_all_chat_messages(chat_id=chat_id)
-    await dp.bot.pin_chat_message(chat_id=chat_id, message_id=msg_id, disable_notification=True)
-
-    logger_guru.info(f'{msg_id=} message pin')
-
-
 async def clear_all_pin_msg() -> None:
     """
     Unpin all messages.
@@ -94,11 +83,11 @@ async def send_a_message_to_all_users(msg: str) -> None | str:
     counter = 0
     for telegram_id in await select_all_users():
         try:
-            if counter < 30:
+            if counter < 10:
                 await dp.bot.send_message(chat_id=telegram_id, text=msg)
                 counter += 1
             else:
-                await sleep(1)
+                sleep(1)
                 counter = 0
         except BotBlocked:
             logger_guru.warning(f'{telegram_id} : error when trying to send')

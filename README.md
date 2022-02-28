@@ -2,6 +2,11 @@
   <img alt="" src="https://i.ibb.co/FX1jp6H/preview-logo.webp" width="500px">
 </p>
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/bbt-t/Yuuko/blob/master/LICENSE)
+[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.3.5)
+[![docker](https://badges.aleen42.com/src/docker.svg)](https://www.docker.com/get-started)
+[![python](https://badges.aleen42.com/src/python.svg)](https://www.python.org/downloads/release/python-3102/)
+
 [:us: English version](README_en.md)
 ### О боте
 

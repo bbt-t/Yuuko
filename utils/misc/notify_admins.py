@@ -2,8 +2,6 @@ from loader import logger_guru
 from config import bot_administrators
 
 
-
-
 async def on_startup_notify(dp):
     """
     Newsletter to admins when the bot is started

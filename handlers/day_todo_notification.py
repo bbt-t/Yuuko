@@ -15,7 +15,9 @@ async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
 
-    await call.message.answer('Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?')
+    await call.message.answer(
+        'Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?'
+    )
     await call.message.delete()
     await state.set_state('time_todo')
 

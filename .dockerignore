@@ -8,5 +8,4 @@ LICENSE
 .idea
 .git
 .pytest_cache
-tests
 Dockerfile

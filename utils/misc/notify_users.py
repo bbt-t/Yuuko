@@ -1,14 +1,13 @@
 from functools import wraps, cache
+from time import sleep
 
-from aiogram.types import ParseMode, Message, CallbackQuery
-
-from aiogram.dispatcher import FSMContext
-
+from aiogram.types import ParseMode, Message
+from aiogram.utils.exceptions import BotBlocked
 
 from config import work_with_api, time_zone
 from loader import dp, logger_guru
 from .other_funcs import get_time_now
-from ..database_manage.sql.sql_commands import select_user, check_valid_user
+from ..database_manage.sql.sql_commands import select_user, select_all_users
 from ..todo import load_todo_obj, pin_todo_message
 from ..weather_compilation import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
@@ -97,3 +96,25 @@ async def send_todo_msg(
         logger_guru.warning(f"{repr(err)} : {telegram_id=}")
         await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно 🥱')
         await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
+
+
+async def send_a_message_to_all_users(msg: str) -> None | str:
+    """
+    When sending notifications to multiple users,
+    the API will not allow sending more than 30 messages per second.
+    :param msg: text to send
+    :return: None if everything went well, else user id that caused the error
+    """
+    counter: int = 0
+    for telegram_id in await select_all_users():
+        try:
+            if counter < 20:
+                await dp.bot.send_message(chat_id=telegram_id, text=msg)
+                counter += 1
+            else:
+                sleep(1)
+                counter = 0
+        except BotBlocked:
+            logger_guru.warning(f'{telegram_id} : error when trying to send')
+            return f'mistakes: {telegram_id}'
+

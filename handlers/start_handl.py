@@ -75,18 +75,19 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
 async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(call.from_user.id)
 
-    text_msg: str = (
-        'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня 😏' if lang == 'ru' else
-        'Specify your DR (real, no one will see it except me anyway 😏'
-    )
+    await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)
-    removing_msg: Message = await call.message.answer(text_msg)
-
     await call.message.answer_sticker(skin.seeking.value, disable_notification=True)
     if lang == 'ru':
-        await call.message.edit_reply_markup(await calendar_bot_ru.enable())
+        removing_msg: Message = await call.message.answer(
+            'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня 😏',
+            reply_markup=await calendar_bot_ru.enable()
+        )
     else:
-        await call.message.edit_reply_markup(await calendar_bot_en.enable())
+        removing_msg: Message = await call.message.answer(
+            'Specify your DR (real, no one will see it except me anyway 😏',
+            reply_markup=await calendar_bot_en.enable()
+        )
 
     await state.set_state('set_birthday_and_todo')
     async with state.proxy() as data:
@@ -118,22 +119,23 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             await update_birthday(telegram_id=call.from_user.id, birthday=date)
             await dp.bot.delete_message(message_id=removing_msg_id, chat_id=call.message.chat.id)
             await call.message.answer(
-                'В какое время спрашивать тебя о "делах"?' if lang == 'ru' else
-                'What time should I ask you about planned activities?')
-            await state.set_state('set_time_todo')
+                'Время для напоминалок о "делах"?' if lang == 'ru' else
+                'At what time to remind about business?')
+            await state.set_state('time_todo')
 
 
 @dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
     lang, skin = await select_lang_and_skin(user_id := call.from_user.id)
 
+    await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)
     await call.message.answer_sticker(skin.sad_ok.value, disable_notification=True)
     await asyncio_sleep(1)
     text_msg: str = (
-        'ЖАЛЬ :С если что мои команды можно подглядеть через слеш (/)' if lang == 'ru' else
+        'ЖАЛЬ :С если что, мои команды можно подглядеть через слеш (/)' if lang == 'ru' else
         'SORRY :C if you change your mind, you can see my commands through a forward slash (/)'
     )
-    await dp.bot.answer_callback_query(call.id, text_msg, show_alert=True)
-    await call.message.delete_reply_markup()
+    await call.message.answer(text_msg)
+
     await state.finish()

@@ -38,15 +38,19 @@ async def delete_all_todo() -> None:
     """
     Deletes keys at a given time.
     """
+    todo_obj = defaultdict(dict)
     date, read_data = (get_time_now(time_zone) - timedelta(days=1)).strftime('%Y-%m-%d'), await load_todo_obj()
 
-    todo_obj: dict = {
+    clear_todo_obj: dict = {
         userid: {
             date_key: todo_val for date_key, todo_val in values.items() if date_key != date
         } for userid, values in read_data.items()
     }
-    logger_guru.warning('TODO deleted successfully')
+
+    todo_obj |= clear_todo_obj
     await dump_todo_obj(todo_obj)
+
+    logger_guru.warning('TODO deleted successfully')
 
 
 async def pin_todo_message(chat_id: int | str, msg_id: int | str, disable_notification: bool = True) -> None:

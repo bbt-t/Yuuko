@@ -16,7 +16,7 @@ set_event_loop_policy(uvloop_Loop())
 
 
 storage = RedisStorage2(**redis_for_bot)
-bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML, connections_limit=1000)
+bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML, connections_limit=100)
 dp = Dispatcher(bot, storage=storage)
 
 scheduler = AsyncIOScheduler()

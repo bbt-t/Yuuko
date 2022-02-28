@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import update_personal_pass, check_personal_pass, select_bot_language
 from utils.keyboards.admins_tools_kb import tools_choice_kb
-from utils.misc.other_funcs import send_a_message_to_all_users
+from utils.misc.notify_users import send_a_message_to_all_users
 
 
 @dp.message_handler(Command('admin_tools'))

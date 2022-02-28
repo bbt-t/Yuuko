@@ -1,12 +1,10 @@
 from asyncio import get_running_loop
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from datetime import datetime
-from time import sleep
 from typing import Any
 from zoneinfo import ZoneInfo
 
 from aiohttp import ClientSession
-from aiogram.utils.exceptions import BotBlocked
 
 from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import select_all_users
@@ -73,22 +71,3 @@ async def get_image_text(url: str, headers: dict, data) -> str:
             return '\n'.join(await resp.text())
 
 
-async def send_a_message_to_all_users(msg: str) -> None | str:
-    """
-    When sending notifications to multiple users,
-    the API will not allow sending more than 30 messages per second.
-    :param msg: text to send
-    :return: None if everything went well, else user id that caused the error
-    """
-    counter = 0
-    for telegram_id in await select_all_users():
-        try:
-            if counter < 10:
-                await dp.bot.send_message(chat_id=telegram_id, text=msg)
-                counter += 1
-            else:
-                sleep(1)
-                counter = 0
-        except BotBlocked:
-            logger_guru.warning(f'{telegram_id} : error when trying to send')
-            return f'mistakes: {telegram_id}'

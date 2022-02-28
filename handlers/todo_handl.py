@@ -1,11 +1,9 @@
-from datetime import timedelta
-
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from config import time_zone
-from loader import dp, logger_guru, scheduler
+from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
@@ -53,7 +51,6 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
                 await call.message.answer(
                     "You can't choose this date!", reply_markup=await calendar_bot_ru.enable()
                 )
-
         else:
             async with state.proxy() as data:
                 data['date']: str = str(date)
@@ -75,6 +72,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
     if len(message.text) <= 1000:
         message_task: list = message.text.split('\n')
         todo_obj: dict = await load_todo_obj()
+
         try:
             todo_obj[name][date].extend(message_task)
         except KeyError:

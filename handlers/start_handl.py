@@ -126,7 +126,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
 
 @dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
-    lang, skin = await select_lang_and_skin(user_id := call.from_user.id)
+    lang, skin = await select_lang_and_skin(call.from_user.id)
 
     await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)

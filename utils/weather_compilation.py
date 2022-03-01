@@ -14,7 +14,7 @@ async def create_weather_forecast() -> str:
     :return: weather for the current hour
     """
     async with aioredis_from_url(**redis_data_cache) as connect_redis:
-        if data := await connect_redis.get(f'weather_cache'):
+        if data := await connect_redis.get('weather_cache'):
             generated_msg: str = data.decode()
         else:
             try:
@@ -59,7 +59,7 @@ async def create_weather_forecast() -> str:
                 f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
                 f"{'<b>⛈ НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ ☔</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
             )
-            await connect_redis.setex(f'weather_cache', 3600, generated_msg)
+            await connect_redis.setex('weather_cache', 3600, generated_msg)
 
     return generated_msg
 

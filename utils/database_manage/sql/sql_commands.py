@@ -46,7 +46,7 @@ async def add_other_info(telegram_id: int, name: str, info_for_save: bytes) -> N
     async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
     async with async_session() as session:
         async with session.begin():
-            session.add(OtherInfo(telegram_id=telegram_id, name_pass=name, pass_items=info_for_save))
+            session.add(OtherInfo(telegram_id=telegram_id, name_pass=name, pass_item=info_for_save))
         await session.commit()
     await engine.dispose()
 
@@ -59,7 +59,7 @@ async def update_pass(telegram_id: int, name_pass: str, info_for_save: bytes) ->
     :param info_for_save: password
     """
     sql = Update(OtherInfo).where(OtherInfo.telegram_id == telegram_id, OtherInfo.name_pass == name_pass).values(
-        pass_items=info_for_save
+        pass_item=info_for_save
     )
     async with AsyncSession(engine) as session:
         await session.execute(sql)
@@ -139,7 +139,7 @@ async def select_pass(telegram_id: int | str, name: str) -> str:
     :return: password
     """
     async with engine.connect() as conn:
-        result = await conn.execute(select(OtherInfo.pass_items).where(
+        result = await conn.execute(select(OtherInfo.pass_item).where(
             OtherInfo.telegram_id == telegram_id,
             OtherInfo.name_pass == name
         ))
@@ -227,12 +227,9 @@ async def check_valid_user(telegram_id: int) -> bool:
     :return: True or False
     """
     async with engine.connect() as conn:
-        result = await conn.execute(select(Users.selected_bot_skin).where(Users.telegram_id == telegram_id))
+        result = await conn.execute(select(Users.created_time).where(Users.telegram_id == telegram_id))
     await engine.dispose()
-    try:
-        return not result.scalar_one()
-    except NoResultFound:
-        return True
+    return not result.one_or_none()
 
 
 async def delete_user(telegram_id: int | str) -> None:

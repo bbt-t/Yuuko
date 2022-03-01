@@ -18,5 +18,5 @@ RUN pip install -U pip poetry && poetry install --no-dev
 
 COPY . .
 
-CMD ["python", "start.py", "--method", "webhook"]
+ENTRYPOINT ["python", "start.py", "--method", "webhook"]
 

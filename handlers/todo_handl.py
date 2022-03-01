@@ -3,12 +3,12 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from config import time_zone
-from loader import dp, logger_guru
+from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
 from utils.misc.other_funcs import get_time_now
-from utils.todo import load_todo_obj, dump_todo_obj
+from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
 
 
 @rate_limit(5, key='todo')
@@ -93,11 +93,22 @@ async def set_calendar_date(message: Message, state: FSMContext):
         if date == get_time_now(time_zone).strftime('%Y-%m-%d'):
             await dp.bot.unpin_all_chat_messages(chat_id=user_id)
             await send_msg.pin(disable_notification=True)
+        else:
+            scheduler.add_job(
+                func=pin_todo_message,
+                args=(message.chat.id, user_id),
+                trigger='date',
+                id=f'{user_id}_pin_msg_job',
+                run_date=f'{date} 00:05:05',
+                misfire_grace_time=5,
+                replace_existing=True,
+                timezone="Europe/Moscow"
+            )
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
         await message.answer_sticker(skin.you_were_bad.value, disable_notification=True)
         await message.answer(
-            'Слишком большое сообщение ! Попробуй написать короче' if lang == 'ru' else
+            'Слишком большое сообщение ! Попробуй написать короче...' if lang == 'ru' else
             'Too big message! Try to write shorter'
         )
 
@@ -107,7 +118,7 @@ async def cancel_todo(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data['lang']
     await message.answer(
-        'Тебе нужно выбрать дату :) попробуй ещё раз' if lang == 'ru' else
-        'You need to choose a date :) try again'
+        'Тебе нужно выбрать дату :) попробуй ещё раз!' if lang == 'ru' else
+        'You need to choose a date :) try again!'
     )
     await state.finish()

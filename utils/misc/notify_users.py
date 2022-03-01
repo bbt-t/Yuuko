@@ -1,4 +1,4 @@
-from functools import wraps, cache
+from functools import wraps
 from time import sleep
 
 from aiogram.types import ParseMode, Message
@@ -79,7 +79,7 @@ async def send_todo_msg(
 
     try:
         todo_obj: dict = await load_todo_obj()
-        text_msg: str = '\n\n'.join(f"{i}. {val}" for i, val in enumerate(todo_obj[name][str(date)], 1))
+        text_msg: str = '\n\n'.join(f"{i}. {val}" for i, val in enumerate(todo_obj[name][date], 1))
 
         if is_voice:
             voice_msg: bytes = await synthesize_voice_by_ya(
@@ -88,10 +88,7 @@ async def send_todo_msg(
                 lang='ru'
             )
             await dp.bot.send_voice(telegram_id, voice_msg)
-
-        send_msg: Message = await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
-        await pin_todo_message(chat_id=telegram_id, msg_id=send_msg.message_id)
-
+        await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
     except Exception as err:
         logger_guru.warning(f"{repr(err)} : {telegram_id=}")
         await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно 🥱')

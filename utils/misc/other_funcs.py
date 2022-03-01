@@ -66,8 +66,13 @@ async def clear_all_pin_msg() -> None:
 
 
 async def get_image_text(url: str, headers: dict, data) -> str:
+    """
+    Request to a remote server for the text recognition function.
+    :param url: request url
+    :param headers: settings
+    :param data: data for OCR
+    :return: result
+    """
     async with ClientSession() as session:
         async with session.post(url=url, headers=headers, data=data) as resp:
             return '\n'.join(await resp.text())
-
-

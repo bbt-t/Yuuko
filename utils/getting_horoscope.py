@@ -19,8 +19,7 @@ async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow'])
     :return: horoscope-string
     """
     async with aioredis_from_url(**redis_data_cache) as connect_redis:
-
-        if data := await connect_redis.get(f'horoscope_ru_{zodiac}_{when}'):
+        if data := await connect_redis.hget(name='horoscope', key=f'ru_{zodiac}_{when}'):
             generated_msg: str = data.decode()
         else:
             async with ClientSession() as session:
@@ -35,7 +34,7 @@ async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow'])
             generated_msg: str = ''.join(
                 msg.text for msg in (chunk.findall(when)[0] for chunk in tree.findall(zodiac))
             )
-            await connect_redis.set(f'horoscope_ru_{zodiac}_{when}', generated_msg)
+            await connect_redis.hset(name='horoscope', key=f'ru_{zodiac}_{when}', value=generated_msg)
 
     return generated_msg
 
@@ -54,12 +53,13 @@ async def get_user_horoscope_en(zodiac: str, when: Literal['today', 'tomorrow'])
             date: str = (get_time_now(time_zone) + timedelta(days=1)).strftime('%Y%m%d')
 
     async with aioredis_from_url(**redis_data_cache) as connect_redis:
-
-        if data := await connect_redis.get(f'horoscope_en_{zodiac}_{when}'):
+        if data := await connect_redis.hget(name='horoscope', key=f'en_{zodiac}_{when}'):
             generated_msg: str = data.decode()
         else:
             async with ClientSession() as session:
-                async with session.get(f"{work_with_api['OTHER']['HORO_EN']}{zodiac}/daily-{date}.html") as resp:
+                async with session.get(
+                        f"{work_with_api['OTHER']['HORO_EN']}{zodiac}/daily-{date}.html"
+                ) as resp:
 
                     if resp.status != 200:
                         logger_guru.warning(f"{resp.status=} : Bad request!")
@@ -70,7 +70,7 @@ async def get_user_horoscope_en(zodiac: str, when: Literal['today', 'tomorrow'])
             generated_msg: str = soup.find(class_="Fz(13px) Lh(1.9) Whs(n) C($c-fuji-batcave)").get_text().replace(
                 "Discover why 2022 is the year you've been waiting for with your 2022 Premium Horoscope.", ''
             )
-            await connect_redis.set(f'horoscope_en_{zodiac}_{when}', generated_msg)
+            await connect_redis.hset(name='horoscope', key=f'en_{zodiac}_{when}', value=generated_msg)
 
     return generated_msg
 

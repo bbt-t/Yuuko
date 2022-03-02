@@ -20,7 +20,7 @@ from utils.misc.notify_users import auth
 from utils.misc.other_funcs import get_time_now, blocking_io_run_func
 
 
-@rate_limit(5, key='start')
+@rate_limit(2, key='start')
 @dp.message_handler(CommandStart())
 @auth
 async def start_working_with_bot(message: Message):

@@ -9,7 +9,7 @@ from utils.lunar_haircut import lunar_calendar_haircut
 from utils.misc.other_funcs import get_time_now
 
 
-@rate_limit(5, key='hair')
+@rate_limit(2, key='hair')
 @dp.message_handler(Command('hair'))
 async def show_days_for_haircuts(message: Message):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)

@@ -3,7 +3,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(verbose=True)
 
 time_zone: str = getenv('TIMEZONE')
 

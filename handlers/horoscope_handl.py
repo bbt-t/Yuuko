@@ -11,7 +11,7 @@ from utils.keyboards.for_choosing_zodiac_kb import (choice_zodiac_keyboard_ru, c
                                                     choice_zodiac_keyboard_en, choice_day_zodiac_keyboard_en)
 
 
-@rate_limit(5, key='horoscope')
+@rate_limit(2, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext):
     if (lang := await select_bot_language(telegram_id=message.from_user.id)) == 'ru':

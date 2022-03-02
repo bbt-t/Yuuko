@@ -8,7 +8,7 @@ from utils.database_manage.sql.sql_commands import select_bot_language
 from utils.keyboards.base_settings_kb import settings_keyboard_ru, settings_keyboard_en
 
 
-@rate_limit(5, key='set_settings')
+@rate_limit(2, key='set_settings')
 @dp.message_handler(Command('set_settings'))
 async def set_user_settings(message: Message, state: FSMContext):
     if (lang := await select_bot_language(telegram_id=message.from_user.id)) == 'ru':

@@ -8,7 +8,7 @@ from utils.database_manage.sql.sql_commands import select_bot_language, select_l
 from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 
 
-@rate_limit(5)
+@rate_limit(2)
 @dp.message_handler(Command('support'), state='*')
 async def contact_support_by_message(message: Message, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)

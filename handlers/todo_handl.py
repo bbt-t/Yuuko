@@ -11,7 +11,7 @@ from utils.misc.other_funcs import get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
 
 
-@rate_limit(5, key='todo')
+@rate_limit(2, key='todo')
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
     lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
@@ -72,7 +72,6 @@ async def set_calendar_date(message: Message, state: FSMContext):
     if len(message.text) <= 1000:
         message_task: list = message.text.split('\n')
         todo_obj: dict = await load_todo_obj()
-
         try:
             todo_obj[name][date].extend(message_task)
         except KeyError:

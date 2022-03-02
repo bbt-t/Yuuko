@@ -27,6 +27,7 @@ pydantic = "^1.9.0"
 gTTS = "^2.2.3"
 loguru = "^0.6.0"
 click = "^8.0.4"
+translators = "^5.0.1"
 
 [tool.poetry.dev-dependencies]
 

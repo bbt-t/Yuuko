@@ -22,7 +22,7 @@ class Users(Base):
         doc="If not selected when first launching the bot, "
             "it is automatically selected (by default) 'Chan' sticker pack."
     )
-    selected_bot_lang = Column(VARCHAR(2), nullable=False, index=True)
+    selected_bot_lang = Column(VARCHAR(2), index=True, default='en')
     created_time = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_time = Column(DateTime(timezone=True), onupdate=func.now())
 

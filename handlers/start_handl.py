@@ -1,9 +1,11 @@
 from asyncio import sleep as asyncio_sleep
+from typing import Final
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
 from sqlalchemy.exc import IntegrityError
+from translators import google
 
 from config import time_zone
 from loader import dp, logger_guru, scheduler
@@ -15,7 +17,7 @@ from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru, c
                                                    choice_of_assistant_kb_en, initial_setup_choice_kb_en)
 from utils.misc.enums_data import BotSkins
 from utils.misc.notify_users import auth
-from utils.misc.other_funcs import get_time_now
+from utils.misc.other_funcs import get_time_now, blocking_io_run_func
 
 
 @rate_limit(5, key='start')
@@ -25,25 +27,53 @@ async def start_working_with_bot(message: Message):
     """
     Such a response will be sent at the start of communication (/start)
     """
+    TRANSLATE_SUPPORT: Final[set] = {
+        'bs', 'kk', 'iw', 'mg', 'ca', 'mk', 'ky', 'ps', 'fi', 'tl',
+        'ru', 'ht', 'ro', 'en', 'el', 'or', 'ms', 'az', 'lv', 'fy',
+        'mt', 'da', 'eu', 'mi', 'uk', 'mr', 'de', 'zu', 'ig', 'km',
+        'no', 'th', 'cs', 'hr', 'si', 'ml', 'eo', 'gu', 'vi', 'jw',
+        'sm', 'so', 'kn', 'yo', 'hi', 'pt', 'bg', 'ku', 'is', 'cy',
+        'lt', 'am', 'te', 'tt', 'ja', 'fa', 'ga', 'af', 'bn', 'pa',
+        'ny', 'tr', 'ar', 'gl', 'ne', 'ka', 'yi', 'ug', 'hu', 'sv',
+        'la', 'gd', 'uz', 'tg', 'sl', 'su', 'it', 'ha', 'lo', 'id',
+        'ko', 'nl', 'xh', 'rw', 'es', 'lb', 'my', 'be', 'pl', 'tk',
+        'sk', 'st', 'sr', 'ur', 'sd', 'fr', 'sq', 'sn', 'et', 'co',
+        'hy', 'mn', 'sw', 'ta',
+    }
+
     user_id, name = message.from_user.id, message.from_user.full_name
     lang: str = message.from_user.language_code
 
     try:
-        await add_user(telegram_id=user_id, lang=lang)
+        if lang in ('ru', 'en'):
+            await add_user(telegram_id=user_id, lang=lang)
+        else:
+            if lang in TRANSLATE_SUPPORT:
+                _msg: str = await blocking_io_run_func(
+                    google,
+                    "Language is not supported, we will communicate in English :)",
+                    lang,
+                    'en',
+                )
+                await message.answer(_msg)
+            else:
+                await message.answer("I can't determine the language, I will speak to you in English ...")
+
     except IntegrityError:
         logger_guru.opt(exception=True).critical(f'{user_id=} : Integrity Error in start handler!')
+        return await message.answer('Sorry, try again later...')
 
     await message.answer_sticker(BotSkins.cloud.value.welcome.value, disable_notification=True)
     await message.answer_chat_action(ChatActions.TYPING)
     await asyncio_sleep(2)
 
-    match await select_bot_language(telegram_id=user_id):
-        case 'ru':
-            text_msg: str = f"Привет, {name}!\n\nвыбери в какой 'форме' мне быть"
-            await message.answer(text_msg, reply_markup=choice_of_assistant_kb_ru)
-        case _:
-            text_msg: str = f"Hi, {name}!\n\nchoose in what 'shape' I be"
-            await message.answer(text_msg, reply_markup=choice_of_assistant_kb_en)
+    if lang == 'ru':
+        text_msg: str = f"Привет, {name}!\n\nвыбери в какой 'форме' мне быть"
+        await message.answer(text_msg, reply_markup=choice_of_assistant_kb_ru)
+    else:
+        await add_user(telegram_id=user_id, lang='en')
+        text_msg: str = f"Hi, {name}!\n\nchoose in what 'shape' I be"
+        await message.answer(text_msg, reply_markup=choice_of_assistant_kb_en)
 
 
 @dp.callback_query_handler(text={'neko', 'chan', 'cloud'})

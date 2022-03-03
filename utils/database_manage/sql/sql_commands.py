@@ -220,7 +220,7 @@ async def select_lang_and_skin(telegram_id: int | str) -> tuple[str, Enum]:
     return lang, skin.value
 
 
-async def check_valid_user(telegram_id: int) -> bool:
+async def check_invalid_user(telegram_id: int) -> bool:
     """
     Сhecks the user by his telegram id.
     :param telegram_id: telegram user id

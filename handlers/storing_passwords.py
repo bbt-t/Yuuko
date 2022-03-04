@@ -86,15 +86,11 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                                              'подсказка: /support')
                 await state.finish()
         else:
-            if not msg.startswith('/'):
-                await update_personal_pass(telegram_id=user_id, personal_pass=msg)
-                await message.answer(
-                    'Добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
-                    "Didn't find it on the list, added it:)\nwrite it again."
-                )
-            else:
-                await message.answer('Кхм...' if lang == 'ru' else 'Hmm...')
-                await state.finish()
+            await update_personal_pass(telegram_id=user_id, personal_pass=msg)
+            await message.answer(
+                'Добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
+                "Didn't find it on the list, added it:)\nwrite it again."
+            )
         await message.delete()
     except:
         logger_guru.exception('Error in check_personal_code handler!')

@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from config import time_zone
 from loader import dp, logger_guru, scheduler
+from .states_in_handlers import TodoHandlerState
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
@@ -26,13 +27,13 @@ async def bot_todo(message: Message, state: FSMContext):
             '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
             reply_markup=await calendar_bot_en.enable())
 
-    await state.set_state('todo')
+    await TodoHandlerState.first()
     async with state.proxy() as data:
         data['lang'] = lang
     await message.delete()
 
 
-@dp.callback_query_handler(calendar_cb.filter(), state='todo')
+@dp.callback_query_handler(calendar_cb.filter(), state=TodoHandlerState.todo)
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
@@ -59,10 +60,10 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
                 f'Что планируешь на <code>{date}</code> число?' if lang == 'ru' else
                 f'What are you planning for the <code>{date}</code>?'
             )
-            await state.set_state('reception_todo')
+            await TodoHandlerState.next()
 
 
-@dp.message_handler(state='reception_todo')
+@dp.message_handler(state=TodoHandlerState.reception_todo)
 async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang, date = data.values()
@@ -112,7 +113,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
         )
 
 
-@dp.message_handler(state='todo')
+@dp.message_handler(state=TodoHandlerState.todo)
 async def cancel_todo(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data['lang']

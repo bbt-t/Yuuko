@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from pgpy import PGPMessage
 
 from config import time_zone
+from handlers.states_in_handlers import PasswordHandlerState
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import (check_personal_pass, update_personal_pass, add_other_info,
@@ -43,20 +44,20 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
 @rate_limit(2, key='pass')
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
-    user_id: int = message.from_user.id
-    match lang := await select_bot_language(telegram_id=user_id):
+    match lang := await select_bot_language(telegram_id=(user_id := message.from_user.id)):
         case 'ru':
             text_msg: str = 'Привет, я могу запонить 🔐 твои пароли, для этого мне нужно знать твоё кодовое слово...'
         case _:
             text_msg: str = 'Hello, I can remember 🔐 your passwords, for this I need to know your codeword...'
     await message.delete()
     await message.answer(text_msg)
-    await state.set_state('check_personal_code')
+
+    await PasswordHandlerState.first()
     async with state.proxy() as data:
         data['user_id'], data['lang'] = user_id, lang
 
 
-@dp.message_handler(state='check_personal_code')
+@dp.message_handler(state=PasswordHandlerState.check_personal_code)
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id, lang = data.values()
@@ -69,9 +70,11 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
             if hmac_compare_digest(check_pass, msg):
                 await message.answer_sticker(skin.order_accepted.value, disable_notification=True)
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
-                await state.set_state('successful_auth_for_pass')
+
+                await PasswordHandlerState.next()
                 async with state.proxy() as data:
                     data['lang']: str = lang
+
                 tex_msg: str = 'Что ты конкретно хочешь?' if lang == 'ru' else 'What do you specifically want?'
                 await message.answer(tex_msg, reply_markup=pass_choice_kb)
             else:
@@ -97,10 +100,11 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
         await state.finish()
 
 
-@dp.callback_query_handler(text='new_pass', state='successful_auth_for_pass')
+@dp.callback_query_handler(text='new_pass', state=PasswordHandlerState.successful_auth_for_pass)
 async def accept_personal_key(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
+
     await call.message.answer(
         'Задай имя сохраняемого пароля ...\n (можешь сразу и сам пароль)' if lang == 'ru' else
         'Set the name of the password to be saved ...\n (you can also use the password itself)'
@@ -108,12 +112,12 @@ async def accept_personal_key(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
 
 
-@dp.message_handler(state='successful_auth_for_pass')
+@dp.message_handler(state=PasswordHandlerState.successful_auth_for_pass)
 async def set_name_and_write_pass(message: Message, state: FSMContext):
-    msg: str = message.text
-
     async with state.proxy() as data:
         user_id, lang, name_pass = data.get('user_id'), data.get('lang'), data.get('name')
+
+    msg: str = message.text
 
     match msg.replace(',', ' ').split():
         case name_pass, password:
@@ -142,19 +146,21 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await state.finish()
 
 
-@dp.callback_query_handler(text='receive_pass', state='successful_auth_for_pass')
+@dp.callback_query_handler(text='receive_pass', state=PasswordHandlerState.successful_auth_for_pass)
 async def get_existing_pass(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data['lang']
+
     await call.message.answer('Какое "имя" пароля?' if lang == 'ru' else 'What is the "name" of the password?')
     await call.message.delete_reply_markup()
-    await state.set_state('set_name_pass')
+    await PasswordHandlerState.last()
 
 
-@dp.message_handler(state='set_name_pass')
+@dp.message_handler(state=PasswordHandlerState.set_name_pass)
 async def get_name_of_the_requested_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id, lang = data.values()
+
     msg: str = message.text.replace(' ', '')
     try:
         if decrypt_password := await select_pass(name=msg, telegram_id=user_id):

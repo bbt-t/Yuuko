@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from translators import google
 
 from config import time_zone
+from handlers.states_in_handlers import UserSettingHandlerState
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import (add_user, update_birthday, select_skin,
@@ -151,7 +152,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             await call.message.answer(
                 'Время для напоминалок о "делах"?' if lang == 'ru' else
                 'At what time to remind about business?')
-            await state.set_state('time_todo')
+            await state.set_state(UserSettingHandlerState.time_todo)
 
 
 @dp.callback_query_handler(text='cancel', state='*')

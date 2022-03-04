@@ -5,6 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ChatActions, ContentType, CallbackQuery
 
 from config import work_with_api
+from handlers.states_in_handlers import UserSettingHandlerState
 from loader import dp, scheduler, logger_guru
 from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
 from utils.misc.notify_users import send_weather
@@ -23,12 +24,17 @@ async def weather_notification_on(call: CallbackQuery, state: FSMContext):
         'Напиши (или отправь голосовое сообщение) время когда тебя оповещать\n'
         'или может хочешь отменить уже заданное время?'
     )
-    await state.set_state('weather_on')
     await call.message.delete()
 
+    await UserSettingHandlerState.weather_on.set()
+    async with state.proxy() as data:
+        data['lang'] = lang
 
-@dp.message_handler(state='weather_on', content_types=[ContentType.VOICE, ContentType.TEXT])
+
+@dp.message_handler(state=UserSettingHandlerState.weather_on, content_types=[ContentType.VOICE, ContentType.TEXT])
 async def start_weather(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        lang: str = data.get('lang')
     skin = await select_skin(user_id := message.from_user.id)
 
     match message.content_type:

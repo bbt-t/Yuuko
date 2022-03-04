@@ -5,7 +5,7 @@ from .support_contact_handl import dp
 from .start_handl import dp
 from .todo_handl import dp
 from .user_settings import dp
-from .storing_passwords import dp
+from .storing_passwords_handl import dp
 from .horoscope_handl import dp
 from .calendar_haircut_handl import dp
 from .stt_handl import dp

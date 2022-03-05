@@ -4,8 +4,8 @@ from typing import Final
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ChatActions
+from deep_translator import GoogleTranslator
 from sqlalchemy.exc import IntegrityError
-from translators import google
 
 from config import time_zone
 from handlers.states_in_handlers import UserSettingHandlerState
@@ -50,15 +50,14 @@ async def start_working_with_bot(message: Message):
             await add_user(telegram_id=user_id, lang=lang)
         else:
             if lang in TRANSLATE_SUPPORT:
-                _msg: str = await blocking_io_run_func(
-                    google,
-                    "Language is not supported, we will communicate in English :)",
-                    lang,
-                    'en',
+                _msg: str = "Language is not supported, we will communicate in English :)"
+                await message.answer(
+                    (await blocking_io_run_func(GoogleTranslator, 'en', lang)).translate(_msg)
                 )
-                await message.answer(_msg)
             else:
-                await message.answer("I can't determine the language, I will speak to you in English ...")
+                await message.answer(
+                    "I can't determine the language, I will speak to you in English ..."
+                )
 
     except IntegrityError:
         logger_guru.opt(exception=True).critical(f'{user_id=} : Integrity Error in start handler!')

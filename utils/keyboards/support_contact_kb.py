@@ -3,8 +3,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import bot_administrators
 
 
-
-
 sup_cb = CallbackData('sup_ask', 'telegram_id')
 
 
@@ -16,10 +14,10 @@ async def sup_kb(telegram_id=None):
     """
     match telegram_id:
         case int(telegram_id):
-            contact = telegram_id
+            contact: str = telegram_id
             text: str = 'Ответить пользователю'
         case _:
-            contact: int = bot_administrators.get('creator')
+            contact: str = bot_administrators.get('creator')
             text: str = 'Написать админу'
 
     kb = InlineKeyboardMarkup()

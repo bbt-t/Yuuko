@@ -1,4 +1,4 @@
-from sqlalchemy import Column, VARCHAR, PickleType, BigInteger, Date, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, VARCHAR, PickleType, BigInteger, Date, ForeignKey, DateTime, Enum, TEXT
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import func
 
@@ -67,3 +67,12 @@ class OtherInfo(Base):
     @pass_item.setter
     def pass_item(self, item):
         self.__pass_item = item
+
+
+class UsersRecipes(Base):
+    __tablename__ = 'usersrecipes'
+
+    telegram_id = Column(BigInteger, ForeignKey("users.telegram_id", ondelete='CASCADE'))
+    name = Column(VARCHAR(32), primary_key=True, index=True)
+    ingredients = Column(TEXT, nullable=False)
+    recipe = Column(TEXT, nullable=False)

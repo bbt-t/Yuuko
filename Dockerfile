@@ -20,5 +20,8 @@ RUN pip install -U pip poetry && poetry install --no-dev
 
 COPY . .
 
+RUN adduser -D user
+USER user
+
 ENTRYPOINT ["python", "start.py", "--method", "webhook"]
 

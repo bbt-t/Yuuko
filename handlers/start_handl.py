@@ -134,7 +134,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
                       await calendar_bot_en.process_selection(call, callback_data))
 
     if date and selected:
-        if date > get_time_now(time_zone).date():
+        if 80 <= get_time_now(time_zone).date() - date <= 7:
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(
@@ -143,7 +143,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             else:
                 await call.answer('You can only choose today and later!', show_alert=True)
                 await call.message.answer(
-                    "You can't choose this date!", reply_markup=await calendar_bot_ru.enable()
+                    "You can't choose this date!", reply_markup=await calendar_bot_en.enable()
                 )
         else:
             await update_birthday(telegram_id=call.from_user.id, birthday=date)

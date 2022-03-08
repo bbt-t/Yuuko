@@ -1,14 +1,13 @@
 from enum import Enum
 from pickle import loads as pickle_loads
 
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import Update, Delete
 
 from loader import Base, engine
-from .sql_table import OtherInfo, Users
+from .sql_table import OtherInfo, Users, UsersRecipes
 
 
 async def start_db() -> None:
@@ -115,6 +114,29 @@ async def update_bot_skin(telegram_id: int | str, skin: str) -> None:
     sql = Update(Users).where(Users.telegram_id == telegram_id).values(selected_bot_skin=skin)
     async with AsyncSession(engine) as session:
         await session.execute(sql)
+        await session.commit()
+    await engine.dispose()
+
+
+async def add_recipe(telegram_id: int | str, name: str, ingredients: str | list, recipe: str) -> None:
+    """
+    Add recipe.
+    :param telegram_id: telegram user id
+    :param name: selected recipe-name
+    :param ingredients: recipe ingredients
+    :param recipe: recipe
+    """
+    async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+    async with async_session() as session:
+        async with session.begin():
+            session.add(
+                UsersRecipes(
+                    telegram_id=telegram_id,
+                    name=name,
+                    ingredients=ingredients,
+                    recipe=recipe
+                )
+            )
         await session.commit()
     await engine.dispose()
 

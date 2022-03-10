@@ -228,6 +228,20 @@ async def select_bot_language(telegram_id: int | str) -> str:
     return result.scalar_one()
 
 
+async def select_recipe(telegram_id: int | str, name: str) -> tuple | None:
+    """
+    Selects recipe by user telegram id.
+    :param telegram_id: telegram user id
+    :return: recipe
+    """
+    async with engine.connect() as conn:
+        result = await conn.execute(select(UsersRecipes.ingredients, UsersRecipes.recipe).where(
+            UsersRecipes.telegram_id == telegram_id, UsersRecipes.name == name)
+        )
+    await engine.dispose()
+    return result.one_or_none()
+
+
 async def select_lang_and_skin(telegram_id: int | str) -> tuple[str, Enum]:
     """
     Select language and skin

@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from loader import dp
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import select_lang_and_skin, add_recipe
+from utils.database_manage.sql.sql_commands import select_lang_and_skin, add_recipe, select_recipe
 from utils.keyboards.recipe_kb import pagination_recipe_keyboard
 
 
@@ -21,18 +21,21 @@ async def write_or_memorize_recipes(message: Message, state: FSMContext):
 		data['lang'] = lang
 
 
-@dp.callback_query_handler(text='receipt_of_prescription_info', state='recipe_name_entry')
+@dp.callback_query_handler(text={'receipt_of_prescription_info', 'recipe_name'}, state='recipe_name_entry')
 async def write_recipe(call: CallbackQuery, state: FSMContext):
 	async with state.proxy() as data:
 		lang: str = data['lang']
 
 	await call.message.delete()
 	msg_with_name: Message = await call.message.answer(
-		'как назовёшь?',
+		'имя?',
 		reply_markup=await pagination_recipe_keyboard(action='with_cancel')
 	)
-	async with state.proxy() as data:
-		data['msg_with_name'] = msg_with_name.message_id
+	if call.data == 'receipt_of_prescription_info':
+		async with state.proxy() as data:
+			data['msg_with_name'] = msg_with_name.message_id
+	elif call.data == 'recipe_name':
+		await state.set_state('get_the_recipe')
 
 
 @dp.message_handler(state='recipe_name_entry')
@@ -96,14 +99,19 @@ async def write_and_now_recipe(message: Message, state: FSMContext):
 		await state.finish()
 
 
-# todo: получение по имени (и/или поиск по ингридиетам) рецепта с последующей обработкой инфы
+@dp.message_handler(state='get_the_recipe')
+async def memorize_recipes(message: Message, state: FSMContext):
+	async with state.proxy() as data:
+		lang = data['lang']
 
-# @dp.callback_query_handler(text='recipe_name', state=)
-# async def memorize_recipes(call: CallbackQuery, state: FSMContext):
-# 	async with state.proxy() as data:
-# 		lang = data['lang']
-
-
-
-
-
+	try:
+		ingredients, recipe = await select_recipe(telegram_id=message.from_user.id, name=message.text)
+	except TypeError:
+		await message.reply('Нет такого :(')
+	else:
+		await message.answer(
+			f'Сделано!\n\n'
+			f'<b>Ингридиенты:</b>\n{ingredients}\n\n'
+			f'<b>Рецепт:</b>\n{recipe}')
+	finally:
+		await state.finish()

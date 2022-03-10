@@ -12,13 +12,14 @@ class ValidateMessage(BaseMiddleware):
         Presence of a user in the database
         Command write prevention
     """
+    commands: set = {'/todo', '/horoscope', '/hair', '/pass', '/support', '/set_settings', '/recipe'}
+
     async def on_pre_process_message(self, message: Message, data: dict) -> None:
         """
         Denying access to the bot to users who do not have an entry in the database.
         Prohibition of the use of commands in the "to-do-handeler"... etc.
         """
-        commands: set = {'/todo', '/horoscope', '/hair', '/pass', '/support', '/set_settings'}
-        if message.get_command() in commands:
+        if message.get_command() in self.commands:
             if await check_invalid_user(telegram_id=message.from_user.id):
                 await message.answer('start the bot again 💬 /start')
                 raise CancelHandler()

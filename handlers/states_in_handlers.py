@@ -32,4 +32,12 @@ class UserSettingHandlerState(StatesGroup):
 	weather_on = State()
 
 
+class RecipeState(StatesGroup):
+	"""
+	# ToDo: доку к классу, заменить простые "set_state" на вызов класса.
+	"""
+	recipe_name_entry = State()
+	get_the_recipe = State()
+	recipe_ingredients = State()
+	and_now_the_recipe = State()
 

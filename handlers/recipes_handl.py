@@ -14,7 +14,8 @@ async def write_or_memorize_recipes(message: Message, state: FSMContext):
 	lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
 
 	await message.delete()
-	#await message.answer_sticker(СТИКЕР)
+	# ToDo: выбрать стикер.
+	#await message.answer_sticker(...)
 	await message.answer('Чего изволите?', reply_markup=await pagination_recipe_keyboard())
 	await state.set_state('recipe_name_entry')
 	async with state.proxy() as data:
@@ -26,8 +27,7 @@ async def write_recipe(call: CallbackQuery, state: FSMContext):
 	async with state.proxy() as data:
 		lang: str = data['lang']
 
-	await call.message.delete()
-	msg_with_name: Message = await call.message.answer(
+	msg_with_name: Message = await call.message.edit_text(
 		'имя?',
 		reply_markup=await pagination_recipe_keyboard(action='with_cancel')
 	)
@@ -79,11 +79,7 @@ async def write_recipe_ingredients(message: Message, state: FSMContext):
 @dp.message_handler(state='and_now_the_recipe')
 async def write_and_now_recipe(message: Message, state: FSMContext):
 	async with state.proxy() as data:
-		lang: str = data.get('lang')
-		name_recipe: str = data.get('name_recipe')
-		ingredients: str = data.get('ingredients')
-
-	await message.delete()
+		lang, name_recipe, ingredients = data.values()
 	try:
 		await add_recipe(
 			telegram_id=message.from_user.id,
@@ -105,9 +101,14 @@ async def memorize_recipes(message: Message, state: FSMContext):
 		lang = data['lang']
 
 	try:
-		ingredients, recipe = await select_recipe(telegram_id=message.from_user.id, name=message.text)
+		ingredients, recipe = await select_recipe(
+			telegram_id=message.from_user.id,
+			name=message.text
+		)
 	except TypeError:
-		await message.reply('Нет такого :(')
+		await message.reply(
+			'Нет такого :(' if lang == 'ru' else 'There is no such :('
+		)
 	else:
 		await message.answer(
 			f'Сделано!\n\n'

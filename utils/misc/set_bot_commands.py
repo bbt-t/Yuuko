@@ -14,6 +14,7 @@ async def set_default_commands(dp):
         BotCommand('horoscope', 'Показать гороскоп'),
         BotCommand('hair', 'Показать дни для стрижки'),
         BotCommand('pass', 'Записать/вспомнить пароль'),
+        BotCommand('recipe', 'Записать/вспомнить рецепт'),
         BotCommand('set_settings', 'Настройки'),
         BotCommand('support', 'Help/Связаться с администрацией'),
         BotCommand('admin_tools', 'администратору'),
@@ -24,6 +25,7 @@ async def set_default_commands(dp):
         BotCommand('horoscope', 'Показать гороскоп'),
         BotCommand('hair', 'Показать дни для стрижки'),
         BotCommand('pass', 'Записать/вспомнить пароль'),
+        BotCommand('recipe', 'Записать/вспомнить рецепт'),
         BotCommand('set_settings', 'Настройки'),
         BotCommand('support', 'Help/Связаться с администрацией'),
     ], language_code='ru')
@@ -33,6 +35,7 @@ async def set_default_commands(dp):
         BotCommand('horoscope', 'Show horoscope'),
         BotCommand('hair', 'Show haircut days'),
         BotCommand('pass', 'Save/remember password'),
+        BotCommand('recipe', 'Save/remember recipe'),
         BotCommand('set_settings', 'Settings'),
         BotCommand('support', 'Help/Contact administration'),
     ], language_code='en')

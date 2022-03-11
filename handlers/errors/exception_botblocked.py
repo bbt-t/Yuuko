@@ -3,7 +3,7 @@ from aiogram.utils.exceptions import BotBlocked
 
 from config import bot_administrators
 from loader import dp, logger_guru
-from utils.database_manage.sql.sql_commands import delete_user
+from utils.database_manage.sql.sql_commands import DB_USERS
 
 
 @dp.errors_handler(exception=BotBlocked)
@@ -15,7 +15,7 @@ async def bot_blocked_error(update: Update, exception: BotBlocked) -> bool:
     user_id: int = update.message.from_user.id
     logger_guru.exception(f'Bot blocked by user {user_id=}')
     try:
-        await delete_user(user_id)
+        await DB_USERS.delete_user(user_id)
     except:
         logger_guru.warning(f"{user_id=} : Can't delete user.")
         await dp.bot.send_message(

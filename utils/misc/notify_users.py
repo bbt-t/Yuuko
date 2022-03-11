@@ -7,8 +7,8 @@ from aiogram.utils.exceptions import BotBlocked
 from config import work_with_api, time_zone
 from loader import dp, logger_guru
 from .other_funcs import get_time_now
-from ..database_manage.sql.sql_commands import select_user, select_all_users
-from ..todo import load_todo_obj, pin_todo_message
+from ..database_manage.sql.sql_commands import DB_USERS
+from ..todo import load_todo_obj
 from ..weather_compilation import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
@@ -24,7 +24,7 @@ def auth(func) -> Message | None:
         if message.from_user.is_bot:
             logger_guru.critical(f'{message.from_user.id=} : Bot is trying to log-in!')
             return None
-        if await select_user(telegram_id=message.from_user.id):
+        if await DB_USERS.select_user(telegram_id=message.from_user.id):
             await message.delete()
             return await message.answer(
                 'Мы же уже знакомы :)' if message.from_user.language_code == 'ru' else
@@ -103,7 +103,7 @@ async def send_a_message_to_all_users(msg: str) -> None | str:
     :return: None if everything went well, else user id that caused the error
     """
     counter: int = 0
-    for telegram_id in await select_all_users():
+    for telegram_id in await DB_USERS.select_all_users():
         try:
             if counter < 20:
                 await dp.bot.send_message(chat_id=telegram_id, text=msg)

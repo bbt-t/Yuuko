@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 
 from handlers.states_in_handlers import UserSettingHandlerState
 from loader import dp, logger_guru, scheduler
-from utils.database_manage.sql.sql_commands import select_bot_language, select_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.choice_voice_todo import choice_voice_todo_keyboard
 from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.misc.notify_users import send_todo_msg
@@ -26,7 +26,7 @@ async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=UserSettingHandlerState.time_todo)
 async def question_set_time_todo(message: Message, state: FSMContext):
-    skin = await select_skin(telegram_id=message.from_user.id)
+    skin = await DB_USERS.select_skin(telegram_id=message.from_user.id)
     msg: str = ''.join(let for let in message.text if let.isnumeric())
 
     async with state.proxy() as data:
@@ -53,7 +53,7 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
         lang, text = data.get('lang'), data.get('msg')
 
     await call.message.delete_reply_markup()
-    skin, choice = await select_skin(user_id := call.from_user.id), call.data
+    skin, choice = await DB_USERS.select_skin(user_id := call.from_user.id), call.data
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
@@ -81,7 +81,7 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text='weather_add')
 async def weather_accept(call: CallbackQuery, state: FSMContext):
-    lang: str = await select_bot_language(telegram_id=call.from_user.id)
+    lang: str = await DB_USERS.select_bot_language(telegram_id=call.from_user.id)
 
     await call.message.delete_reply_markup()
     await call.message.edit_text('время?' if lang == 'ru' else 'time?')

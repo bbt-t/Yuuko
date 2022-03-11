@@ -7,14 +7,14 @@ from aiogram.types import Message, ChatActions, ContentType, CallbackQuery
 from config import work_with_api
 from handlers.states_in_handlers import UserSettingHandlerState
 from loader import dp, scheduler, logger_guru
-from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.misc.notify_users import send_weather
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 @dp.callback_query_handler(text='set_weather', state='settings')
 async def weather_notification_on(call: CallbackQuery, state: FSMContext):
-    lang, skin = await select_lang_and_skin(telegram_id=call.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=call.from_user.id)
 
     await call.message.answer_sticker(skin.welcome.value, disable_notification=True)
     await dp.bot.send_chat_action(call.message.chat.id, ChatActions.TYPING)
@@ -35,7 +35,7 @@ async def weather_notification_on(call: CallbackQuery, state: FSMContext):
 async def start_weather(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
-    skin = await select_skin(user_id := message.from_user.id)
+    skin = await DB_USERS.select_skin(user_id := message.from_user.id)
 
     match message.content_type:
         case 'voice':

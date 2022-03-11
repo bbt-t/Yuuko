@@ -7,7 +7,7 @@ from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled
 
-from utils.database_manage.sql.sql_commands import select_bot_language, select_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 
 
 def rate_limit(limit: int, key=None):
@@ -58,8 +58,8 @@ class ThrottlingMiddleware(BaseMiddleware):
             key = f"{self.prefix}_message"
 
         delta = throttled.rate - throttled.delta
-        lang: str = await select_bot_language(telegram_id=message.from_user.id)
-        skin: Enum = await select_skin(telegram_id=message.from_user.id)
+        lang: str = await DB_USERS.select_bot_language(telegram_id=message.from_user.id)
+        skin: Enum = await DB_USERS.select_skin(telegram_id=message.from_user.id)
 
         if throttled.exceeded_count <= 2:
             await message.reply_sticker(skin.you_were_bad.value)

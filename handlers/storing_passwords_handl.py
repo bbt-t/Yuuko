@@ -15,8 +15,7 @@ from config import time_zone
 from handlers.states_in_handlers import PasswordHandlerState
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import (check_personal_pass, update_personal_pass, add_other_info,
-                                                    select_pass, update_pass, select_skin, select_bot_language)
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.pass_settings_bk import pass_choice_kb
 from utils.misc.other_funcs import delete_marked_message, get_time_now
 
@@ -44,7 +43,7 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
 @rate_limit(2, key='pass')
 @dp.message_handler(Command('pass'))
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
-    match lang := await select_bot_language(telegram_id=(user_id := message.from_user.id)):
+    match lang := await DB_USERS.select_bot_language(telegram_id=(user_id := message.from_user.id)):
         case 'ru':
             text_msg: str = 'Привет, я могу запонить 🔐 твои пароли, для этого мне нужно знать твоё кодовое слово...'
         case _:
@@ -62,11 +61,11 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     async with state.proxy() as data:
         user_id, lang = data.values()
 
-    skin = await select_skin(telegram_id=user_id)
+    skin = await DB_USERS.elect_skin(telegram_id=user_id)
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
 
     try:
-        if check_pass := await check_personal_pass(telegram_id=user_id):
+        if check_pass := await DB_USERS.check_personal_pass(telegram_id=user_id):
             if hmac_compare_digest(check_pass, msg):
                 await message.answer_sticker(skin.order_accepted.value, disable_notification=True)
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
@@ -89,7 +88,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                                              'подсказка: /support')
                 await state.finish()
         else:
-            await update_personal_pass(telegram_id=user_id, personal_pass=msg)
+            await DB_USERS.update_personal_pass(telegram_id=user_id, personal_pass=msg)
             await message.answer(
                 'Добавила :)\nнапиши его ещё раз.' if lang == 'ru' else
                 "Didn't find it on the list, added it:)\nwrite it again."
@@ -124,9 +123,9 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
             await message.delete()
             enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, password)
             try:
-                await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
+                await DB_USERS.add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
             except IntegrityError:
-                await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
+                await DB_USERS.update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
             await message.answer('Отлично! Записано.' if lang == 'ru' else 'Fine!')
             await state.finish()
         case _:
@@ -138,9 +137,9 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
             else:
                 enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, msg)
                 try:
-                    await add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
+                    await DB_USERS.add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
                 except IntegrityError:
-                    await update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
+                    await DB_USERS.update_pass(telegram_id=user_id, name_pass=name_pass, info_for_save=enc_pass)
                 await message.delete()
                 await message.answer('Пoлучено, записано!' if lang == 'ru' else 'Received and recorded!')
                 await state.finish()
@@ -163,7 +162,7 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
 
     msg: str = message.text.replace(' ', '')
     try:
-        if decrypt_password := await select_pass(name=msg, telegram_id=user_id):
+        if decrypt_password := await DB_USERS.select_pass(name=msg, telegram_id=user_id):
             very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message

@@ -4,14 +4,14 @@ from aiogram.types import Message, CallbackQuery
 
 from loader import dp
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import select_bot_language, select_lang_and_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 
 
 @rate_limit(2)
 @dp.message_handler(Command('support'), state='*')
 async def contact_support_by_message(message: Message, state: FSMContext):
-    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
 
     text_msg: str = (
         'Хочешь написать создателю?' if lang == 'ru' else 'Do you want to write to the creator?'
@@ -29,7 +29,7 @@ async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dic
     await state.update_data(second_id=callback_data.get('telegram_id'))
     await call.message.delete_reply_markup()
     await call.message.answer(
-        'пиши ...' if await select_bot_language(telegram_id=call.from_user.id) == 'ru' else 'write ...'
+        'пиши ...' if await DB_USERS.select_bot_language(telegram_id=call.from_user.id) == 'ru' else 'write ...'
     )
 
 
@@ -37,7 +37,7 @@ async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dic
 async def get_message(message: Message, state: FSMContext):
     async with state.proxy() as data:
         second_id: str = data.get('second_id')
-    lang: str = await select_bot_language(telegram_id=message.from_user.id)
+    lang: str = await DB_USERS.select_bot_language(telegram_id=message.from_user.id)
     await message.bot.send_message(
         second_id,
         'Тебе пришло сообщение ->' if lang == 'ru' else

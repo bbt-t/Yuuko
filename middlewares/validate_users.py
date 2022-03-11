@@ -3,7 +3,7 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.types import Message
 
 from loader import dp
-from utils.database_manage.sql.sql_commands import check_invalid_user
+from utils.database_manage.sql.sql_commands import DB_USERS
 
 
 class ValidateMessage(BaseMiddleware):
@@ -20,7 +20,7 @@ class ValidateMessage(BaseMiddleware):
         Prohibition of the use of commands in the "to-do-handeler"... etc.
         """
         if message.get_command() in self.commands:
-            if await check_invalid_user(telegram_id=message.from_user.id):
+            if await DB_USERS.check_invalid_user(telegram_id=message.from_user.id):
                 await message.answer('start the bot again 💬 /start')
                 raise CancelHandler()
             elif await (state := dp.current_state(chat=message.chat.id, user=message.from_user.id)).get_state():

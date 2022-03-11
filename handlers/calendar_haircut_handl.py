@@ -4,7 +4,7 @@ from aiogram.types import Message
 from config import time_zone
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import select_lang_and_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.lunar_haircut import lunar_calendar_haircut
 from utils.misc.other_funcs import get_time_now
 
@@ -12,7 +12,7 @@ from utils.misc.other_funcs import get_time_now
 @rate_limit(2, key='hair')
 @dp.message_handler(Command('hair'))
 async def show_days_for_haircuts(message: Message):
-    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
     try:
         received_days: str = await lunar_calendar_haircut()
     except:

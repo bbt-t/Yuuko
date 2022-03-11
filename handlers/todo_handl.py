@@ -6,7 +6,7 @@ from config import time_zone
 from loader import dp, logger_guru, scheduler
 from .states_in_handlers import TodoHandlerState
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import select_skin, select_lang_and_skin
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
 from utils.misc.other_funcs import get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
@@ -15,7 +15,7 @@ from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
 @rate_limit(2, key='todo')
 @dp.message_handler(Command('todo'))
 async def bot_todo(message: Message, state: FSMContext):
-    lang, skin = await select_lang_and_skin(telegram_id=message.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
 
     await message.answer_sticker(skin.love_you.value, disable_notification=True)
     if lang == 'ru':
@@ -68,7 +68,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang, date = data.values()
     user_id: int = message.from_user.id
-    name, skin = f'todo_{user_id}', await select_skin(telegram_id=user_id)
+    name, skin = f'todo_{user_id}', await DB_USERS.select_skin(telegram_id=user_id)
 
     if len(message.text) <= 1000:
         message_task: list = message.text.split('\n')

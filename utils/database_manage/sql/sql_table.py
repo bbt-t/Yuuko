@@ -76,5 +76,6 @@ class UsersRecipes(Base):
     name = Column(VARCHAR(32), primary_key=True, index=True)
     ingredients = Column(TEXT, nullable=False)
     recipe = Column(TEXT, nullable=False)
+    recipe_photo_url = Column(VARCHAR(256), nullable=True)
     created_time = Column(DateTime(timezone=True), server_default=func.now())
     updated_time = Column(DateTime(timezone=True), onupdate=func.now())

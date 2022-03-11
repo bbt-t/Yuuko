@@ -4,14 +4,14 @@ from aiogram.types import Message, CallbackQuery
 from sqlalchemy.exc import NoResultFound
 
 from loader import dp, logger_guru
-from utils.database_manage.sql.sql_commands import update_personal_pass, check_personal_pass, select_bot_language
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.admins_tools_kb import tools_choice_kb
 from utils.misc.notify_users import send_a_message_to_all_users
 
 
 @dp.message_handler(Command('admin_tools'))
 async def go_to_admin_panel(message: Message, state: FSMContext):
-    lang: str = await select_bot_language(telegram_id=message.from_user.id)
+    lang: str = await DB_USERS.select_bot_language(telegram_id=message.from_user.id)
 
     await message.answer(
         'Чего изволите?' if lang == 'ru' else 'What would you like?', reply_markup=tools_choice_kb
@@ -41,8 +41,8 @@ async def take_user_id(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
     try:
-        if await check_personal_pass(telegram_id=message.text):
-            await update_personal_pass(telegram_id=message.text, personal_pass=None)
+        if await DB_USERS.check_personal_pass(telegram_id=message.text):
+            await DB_USERS.update_personal_pass(telegram_id=message.text, personal_pass=None)
             await message.answer('СДЕЛАНО!' if lang == 'ru' else 'MADE!')
     except NoResultFound:
         logger_guru.exception('Failed attempt to reset the code word!')

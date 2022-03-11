@@ -11,8 +11,7 @@ from config import time_zone
 from handlers.states_in_handlers import UserSettingHandlerState
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
-from utils.database_manage.sql.sql_commands import (add_user, update_birthday, select_skin,
-                                                    update_bot_skin, select_bot_language, select_lang_and_skin)
+from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, calendar_cb
 from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru, choice_of_assistant_kb_ru,
                                                    choice_of_assistant_kb_en, initial_setup_choice_kb_en)
@@ -47,7 +46,7 @@ async def start_working_with_bot(message: Message):
 
     try:
         if lang in ('ru', 'en'):
-            await add_user(telegram_id=user_id, lang=lang)
+            await DB_USERS.add_user(telegram_id=user_id, lang=lang)
         else:
             if lang in TRANSLATE_SUPPORT:
                 _msg: str = "Language is not supported, we will communicate in English :)"
@@ -71,7 +70,7 @@ async def start_working_with_bot(message: Message):
         text_msg: str = f"Привет, {name}!\n\nвыбери в какой 'форме' мне быть"
         await message.answer(text_msg, reply_markup=choice_of_assistant_kb_ru)
     else:
-        await add_user(telegram_id=user_id, lang='en')
+        await DB_USERS.add_user(telegram_id=user_id, lang='en')
         text_msg: str = f"Hi, {name}!\n\nchoose in what 'shape' I be"
         await message.answer(text_msg, reply_markup=choice_of_assistant_kb_en)
 
@@ -79,15 +78,15 @@ async def start_working_with_bot(message: Message):
 @dp.callback_query_handler(text={'neko', 'chan', 'cloud'})
 async def choose_skin_for_the_bot(call: CallbackQuery):
     user_id: int = call.from_user.id
-    await update_bot_skin(telegram_id=user_id, skin=getattr(BotSkins, call.data))
-    skin = await select_skin(telegram_id=user_id)
+    await DB_USERS.update_bot_skin(telegram_id=user_id, skin=getattr(BotSkins, call.data))
+    skin = await DB_USERS.select_skin(telegram_id=user_id)
 
     await call.message.delete_reply_markup()
     await call.message.answer_sticker(skin.great.value, disable_notification=True)
     await call.message.answer_chat_action(ChatActions.TYPING)
 
     if not any(str(sch.id).endswith(f'{user_id}') for sch in scheduler.get_jobs()):
-        if await select_bot_language(telegram_id=user_id) == 'ru':
+        if await DB_USERS.select_bot_language(telegram_id=user_id) == 'ru':
             await call.message.answer(
                 'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
                 'а теперь настройки!', reply_markup=initial_setup_choice_kb_ru
@@ -103,7 +102,7 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
 
 @dp.callback_query_handler(text='set_birthday')
 async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
-    lang, skin = await select_lang_and_skin(call.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(call.from_user.id)
 
     await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)
@@ -146,7 +145,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
                     "You can't choose this date!", reply_markup=await calendar_bot_en.enable()
                 )
         else:
-            await update_birthday(telegram_id=call.from_user.id, birthday=date)
+            await DB_USERS.update_birthday(telegram_id=call.from_user.id, birthday=date)
             await dp.bot.delete_message(message_id=removing_msg_id, chat_id=call.message.chat.id)
             await call.message.answer(
                 'Время для напоминалок о "делах"?' if lang == 'ru' else
@@ -156,7 +155,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
 
 @dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
-    lang, skin = await select_lang_and_skin(call.from_user.id)
+    lang, skin = await DB_USERS.select_lang_and_skin(call.from_user.id)
 
     await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)

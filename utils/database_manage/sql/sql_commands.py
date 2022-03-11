@@ -21,7 +21,9 @@ async def start_db() -> None:
 
 @final
 class DataBaseUsersInfo:
-
+    """
+    DB commands.
+    """
     user_general_info = Users
     user_other_info = OtherInfo
     user_recipes = UsersRecipes
@@ -52,7 +54,9 @@ class DataBaseUsersInfo:
         """
         if lang is None:
             lang = 'ru'
-        user = self.user_general_info(telegram_id=telegram_id, selected_bot_lang=lang)
+        user = self.user_general_info(
+            telegram_id=telegram_id, selected_bot_lang=lang
+        )
         await self._database_query(is_add=True, sql=user)
 
     async def add_other_info(self, telegram_id: int, name: str, info_for_save: bytes) -> None:
@@ -62,7 +66,9 @@ class DataBaseUsersInfo:
         :param name: password name
         :param info_for_save: password
         """
-        sql = self.user_other_info(telegram_id=telegram_id, name_pass=name, pass_item=info_for_save)
+        sql = self.user_other_info(
+            telegram_id=telegram_id, name_pass=name, pass_item=info_for_save
+        )
         await self._database_query(is_add=True, sql=sql)
 
     async def add_recipe(self, telegram_id: int | str, name: str, ingredients: str | list, recipe: str) -> None:
@@ -73,7 +79,9 @@ class DataBaseUsersInfo:
         :param ingredients: recipe ingredients
         :param recipe: recipe
         """
-        sql = self.user_recipes(telegram_id=telegram_id, name=name, ingredients=ingredients, recipe=recipe)
+        sql = self.user_recipes(
+            telegram_id=telegram_id, name=name, ingredients=ingredients, recipe=recipe
+        )
         await self._database_query(is_add=True, sql=sql)
 
     async def update_pass(self, telegram_id: int, name_pass: str, info_for_save: bytes) -> None:
@@ -83,8 +91,11 @@ class DataBaseUsersInfo:
         :param name_pass: password name to change
         :param info_for_save: password
         """
-        sql = Update(self.user_other_info).where(
-            self.user_other_info.telegram_id == telegram_id, self.user_other_info.name_pass == name_pass
+        sql = Update(
+            self.user_other_info
+        ).where(
+            self.user_other_info.telegram_id == telegram_id,
+            self.user_other_info.name_pass == name_pass
         ).values(pass_item=info_for_save)
         await self._database_query(sql=sql)
 
@@ -118,8 +129,11 @@ class DataBaseUsersInfo:
         :param photo_url: url in telegram
         """
         sql = Update(
-            self.user_recipes).where(
-            self.user_recipes.telegram_id == telegram_id, self.user_recipes.name == name).values(recipe_photo_url=photo_url)
+            self.user_recipes
+        ).where(
+            self.user_recipes.telegram_id == telegram_id,
+            self.user_recipes.name == name
+        ).values(recipe_photo_url=photo_url)
         await self._database_query(sql=sql)
 
     async def update_bot_language(self, telegram_id: int | str, lang: str) -> None:
@@ -159,7 +173,11 @@ class DataBaseUsersInfo:
         :param telegram_id: telegram user id
         :return: password for verification
         """
-        sql = select(self.user_general_info.personal_pass).where(self.user_general_info.telegram_id == telegram_id)
+        sql = select(
+            self.user_general_info.personal_pass
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
@@ -171,8 +189,11 @@ class DataBaseUsersInfo:
         :return: password
         """
         sql = select(
-            self.user_other_info.pass_item).where(
-            self.user_other_info.telegram_id == telegram_id, self.user_other_info.name_pass == name)
+            self.user_other_info.pass_item
+        ).where(
+            self.user_other_info.telegram_id == telegram_id,
+            self.user_other_info.name_pass == name
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return pickle_loads(result.scalar_one())
 
@@ -182,7 +203,11 @@ class DataBaseUsersInfo:
         :param telegram_id: telegram user id
         :return: user info
         """
-        sql = select(self.user_general_info).where(self.user_general_info.telegram_id == telegram_id)
+        sql = select(
+            self.user_general_info
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return result.fetchone()
 
@@ -201,7 +226,11 @@ class DataBaseUsersInfo:
         :param telegram_id: telegram user id
         :return: user info
         """
-        sql = select(self.user_general_info.birthday).where(self.user_general_info.telegram_id == telegram_id)
+        sql = select(
+            self.user_general_info.birthday
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
@@ -211,7 +240,11 @@ class DataBaseUsersInfo:
         :param telegram_id: telegram user id
         :return: user info in enum
         """
-        sql = select(self.user_general_info.selected_bot_skin).where(self.user_general_info.telegram_id == telegram_id)
+        sql = select(
+            self.user_general_info.selected_bot_skin
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one().value
 
@@ -221,7 +254,11 @@ class DataBaseUsersInfo:
         :param telegram_id: telegram user id
         :return: user info in enum
         """
-        sql = select(self.user_general_info.selected_bot_lang).where(self.user_general_info.telegram_id == telegram_id)
+        sql = select(
+            self.user_general_info.selected_bot_lang
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
@@ -230,8 +267,11 @@ class DataBaseUsersInfo:
         Select language and skin
         """
         sql = select(
-            self.user_general_info.selected_bot_lang, self.user_general_info.selected_bot_skin).where(
-            self.user_general_info.telegram_id == telegram_id)
+            self.user_general_info.selected_bot_lang,
+            self.user_general_info.selected_bot_skin
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        )
         result = await self._database_query(is_select=True, sql=sql)
         lang, skin = result.one()
         return lang, skin.value
@@ -253,10 +293,15 @@ class DataBaseUsersInfo:
         :param name: recipe name
         :return: recipe
         """
-        sql = select(self.user_recipes.ingredients, self.user_recipes.recipe).where(
-            self.user_recipes.telegram_id == telegram_id, self.user_recipes.name == name)
+        sql = select(
+            self.user_recipes.ingredients,
+            self.user_recipes.recipe,
+            self.user_recipes.recipe_photo_url
+        ).where(
+            self.user_recipes.telegram_id == telegram_id,
+            self.user_recipes.name == name
+        )
         result = await self._database_query(is_select=True, sql=sql)
-
         return result.one_or_none()
 
 

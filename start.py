@@ -49,7 +49,7 @@ class StartBotCompose:
 
     async def on_shutdown(dp: Dispatcher):
         """
-        Notifying admins about the stop of the bot, save Todo objects.
+        Notifying admins about the stop of the bot, save Todos objects.
         :param dp: Dispatcher
         """
         await on_shutdown_notify(dp)

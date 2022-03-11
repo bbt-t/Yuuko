@@ -14,7 +14,7 @@ async def write_or_memorize_recipes(message: Message, state: FSMContext):
 	lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
 
 	await message.delete()
-	msg_sticker = await message.answer_sticker(skin.welcome.value)
+	msg_sticker = await message.answer_sticker(skin.welcome.value, disable_notification=True)
 	await message.answer(
 		'Чего изволите?' if lang == 'ru' else 'What do we do?',
 		reply_markup=await pagination_recipe_keyboard(is_action=True))
@@ -60,7 +60,7 @@ async def write_recipe_name(message: Message, state: FSMContext):
 			data['name_recipe'] = name
 			data['msg_with_ingredients_id'] = msg_with_ingredients.message_id
 	else:
-		await message.reply('Слишком большое название... попробуй ещё раз')
+		await message.reply('Слишком большое 🧐 название... попробуй ещё раз')
 		await state.finish()
 
 
@@ -92,9 +92,9 @@ async def write_and_now_recipe(message: Message, state: FSMContext):
 			recipe=message.text
 		)
 	except:
-		await message.answer('Что-то пошло не так :(')
+		await message.answer('Что-то пошло не так 😔')
 	else:
-		await message.answer('ГОТОВО!')
+		await message.answer('ГОТОВО! 🥳')
 	finally:
 		await state.finish()
 
@@ -104,22 +104,22 @@ async def memorize_recipes(message: Message, state: FSMContext):
 	async with state.proxy() as data:
 		lang = data['lang']
 
+	await message.answer_chat_action(ChatActions.TYPING)
 	try:
-		ingredients, recipe = await DB_USERS.select_recipe(
-			telegram_id=message.from_user.id,
-			name=message.text
-		)
+		match await DB_USERS.select_recipe(telegram_id=message.from_user.id, name=message.text):
+			case ingredients, recipe, photo_url:
+				await message.answer_photo(photo_url)
+			case ingredients, recipe:
+				await message.answer('ВОТ:\n')
+				await message.answer('Если захочешь добавить фото, вызови меня ещё раз :)')
 	except TypeError:
 		await message.reply(
 			'Нет такого :(' if lang == 'ru' else 'There is no such :('
 		)
 	else:
-		await message.answer_chat_action(ChatActions.TYPING)
 		await message.answer(
-			f'Сделано!\n\n'
 			f'<b>Ингридиенты:</b>\n{ingredients}\n\n'
 			f'<b>Рецепт:</b>\n{recipe}')
-		await message.answer('Если захочешь добавить фото, вызови меня ещё раз :)')
 	finally:
 		await state.finish()
 
@@ -146,7 +146,7 @@ async def recipe_photo_reception_name(message: Message, state: FSMContext):
 			await DB_USERS.update_recipe_photo(
 				telegram_id=message.from_user.id, name=name, photo_url=photo_url
 			)
-			await message.answer('Фото добавлено! :)')
+			await message.answer('Фото добавлено! 🥳')
 			await state.finish()
 		except KeyError:
 			data['name'] = name
@@ -155,13 +155,28 @@ async def recipe_photo_reception_name(message: Message, state: FSMContext):
 
 @dp.message_handler(state='recipe_photo_reception', content_types=ContentType.PHOTO)
 async def recipe_photo_reception(message: Message, state: FSMContext):
-	photo_url: str = await message.photo[-1].get_url()
-	if name := message.caption:
+	photo_url: str = message.photo[-1].file_id
+	async with state.proxy() as data:
+		try:
+			name: str = data['name']
+		except KeyError:
+			name: str = message.caption
+
+	if name:
 		await DB_USERS.update_recipe_photo(telegram_id=message.from_user.id, name=name, photo_url=photo_url)
-		await message.answer('Фото добавлено! :)')
+		await message.answer('Фото добавлено! 🥳')
 		await state.finish()
 	else:
 		async with state.proxy() as data:
 			data['photo_url'] = photo_url
-			return await message.answer('Имя рецепта?\n(ну, куда добавляем фотку...)')
+
+		return await message.answer('Имя рецепта?\n(ну, куда добавляем фотку...)')
 	await state.finish()
+
+# ToDo: Добавить проверку на существование имени рецепта в базе при добавлении фото.
+# ToDo: Реализовать соответствующий ответ/ы.
+# ToDo: Проверить на правильность логики/ошибки при обращении к несуществующему имени.
+
+# ToDo: Реализовать доп.кнопку при записи рецепта для добавления фото.
+# ToDo: Реализовать показ всех сохранённых имён рецептов (если есть фото, то показывать).
+

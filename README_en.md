@@ -3,7 +3,7 @@
 </p>
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/bbt-t/Yuuko/blob/master/LICENSE)
-[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.3.5)
+[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.6.3)
 [![docker](https://badges.aleen42.com/src/docker.svg)](https://www.docker.com/get-started)
 [![python](https://badges.aleen42.com/src/python.svg)](https://www.python.org/downloads/release/python-3102/)
 
@@ -22,6 +22,7 @@
   <li>Which days are "good" for a haircut :heavy_check_mark:</li>
   <li>Get a horoscope :heavy_check_mark:</li>
   <li>Recognize text on photo ️:warning:</li>
+  <li>Save recipes :heavy_check_mark:</li>
 </ul>
 </details>
 
@@ -29,14 +30,15 @@
 
 ### Start
 To start, you need to build a `docker` container and run:
-```
-docker build -t Yuuko_bot .
-docker run -p 8000:8000 --name bot Yuuko_bot:latest 
-```
+
+    docker build -t Yuuko_bot .
+    docker run -p 8000:8000 --name bot Yuuko_bot:latest 
+
 Or without docker:
-```
-python start.py
-```
+
+    python start.py
+
+_see more with_ `--help` _command_
 
 ***
 
@@ -47,12 +49,12 @@ If you plan to run a bot with `polling` in docker, then you need to change the v
 
 
 > It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py):
-```
-HOST_REDIS = ...
-BOT_TOKEN = ...
-API_WEATHER = ...
-. . .
-``` 
+
+    HOST_REDIS = ...
+    BOT_TOKEN = ...
+    API_WEATHER = ...
+    etc...
+ 
 For the bot to work, you need python version >= `3.10.x`
 
 To recognize and synthesize voice `online`, to receive a weather forecast, you must use your :key: API-keys:
@@ -67,10 +69,10 @@ For text recognition on a photo, you need to [look here](https://github.com/bbt-
 
 > all required dependencies :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 
+***
+
 ### Try in action
 
-`incomplete translation from Russian lang (work in progress)`
+__incomplete translation from Russian lang (work in progress)__
 
-```
-@my_Yuuko_bot
-```
+👉 `@my_Yuuko_bot`

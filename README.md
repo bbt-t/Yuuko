@@ -1,9 +1,9 @@
 <p align="center">
   <img alt="" src="https://i.ibb.co/FX1jp6H/preview-logo.webp" width="500px">
-</p>
-
+</p>	
+        
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/bbt-t/Yuuko/blob/master/LICENSE)
-[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.5.7)
+[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.6.3)
 [![docker](https://badges.aleen42.com/src/docker.svg)](https://www.docker.com/get-started)
 [![python](https://badges.aleen42.com/src/python.svg)](https://www.python.org/downloads/release/python-3102/)
 
@@ -22,6 +22,7 @@
   <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:</li>
   <li>Получить гороскоп :heavy_check_mark:</li>
   <li>Распознать текст на фото ️:warning:</li>
+  <li>Сохранять рецепты :heavy_check_mark:</li>
 </ul>
 </details>
 
@@ -29,14 +30,15 @@
 
 ### Запуск
 Собрать `docker-контейнер` и запустить:
-```
-docker build -t Yuuko_bot .
-docker run -p 8000:8000 --name bot Yuuko_bot:latest 
-```
+
+    docker build -t Yuuko_bot .
+    docker run -p 8000:8000 --name bot Yuuko_bot:latest 
+
 или без docker'a:
-```
-python start.py
-```
+
+    python start.py
+
+_смотри больше с помощью команды_ `--help`
 
 ***
 
@@ -46,12 +48,12 @@ python start.py
 Если предполагается запуск c `polling'ом` в докере, то необходимо изменить значение в `ENTRYPOINT` "webhook" на "polling" или вовсе удалить.
 
 Необходмо создать файл с именем `.env`, прописать туда консанты (или просто явно указать значения в config.py):
-```
-HOST_REDIS = ...
-BOT_TOKEN = ...
-API_WEATHER = ...
-и т.д
-``` 
+
+    HOST_REDIS = ...
+    BOT_TOKEN = ...
+    API_WEATHER = ...
+    и т.д
+
 Для работы бота необходим python версии >= `3.10.x`
 
 Для распознавания/синтеза речи `онлайн` и получение прогноза погоды необходимо использовать свои :key: API:
@@ -66,11 +68,8 @@ API_WEATHER = ...
 
 >Остальные зависимости смотри в :fast_forward: [poetry.lock](https://github.com/bbt-t/bot-pet-project/blob/master/poetry.lock)
 
+***
 
 ### Попробовать бота
 
-можно тут:
-
-```
-@my_Yuuko_bot
-```
+можно тут 👉 `@my_Yuuko_bot`

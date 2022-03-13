@@ -109,8 +109,10 @@ class DataBaseUsersInfo:
         :param personal_pass: password
         """
         sql = Update(
-            self.user_general_info).where(
-            self.user_general_info.telegram_id == telegram_id).values(personal_pass=personal_pass)
+            self.user_general_info
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        ).values(personal_pass=personal_pass)
         await self._database_query(sql=sql)
 
     async def update_birthday(self, telegram_id: int, birthday) -> None:
@@ -120,8 +122,10 @@ class DataBaseUsersInfo:
         :param birthday: birthday date
         """
         sql = Update(
-            self.user_general_info).where(
-            self.user_general_info.telegram_id == telegram_id).values(birthday=birthday)
+            self.user_general_info
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        ).values(birthday=birthday)
         await self._database_query(sql=sql)
 
     async def update_recipe_photo(self, telegram_id: int, name: str, photo_url: str) -> None:
@@ -146,8 +150,10 @@ class DataBaseUsersInfo:
         :param lang: language
         """
         sql = Update(
-            self.user_general_info).where(
-            self.user_general_info.telegram_id == telegram_id).values(selected_bot_lang=lang)
+            self.user_general_info
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        ).values(selected_bot_lang=lang)
         await self._database_query(sql=sql)
 
     async def update_bot_skin(self, telegram_id: int, skin: str) -> None:
@@ -157,8 +163,10 @@ class DataBaseUsersInfo:
         :param skin: user-selected skin
         """
         sql = Update(
-            self.user_general_info).where(
-            self.user_general_info.telegram_id == telegram_id).values(selected_bot_skin=skin)
+            self.user_general_info
+        ).where(
+            self.user_general_info.telegram_id == telegram_id
+        ).values(selected_bot_skin=skin)
         await self._database_query(sql=sql)
 
     async def delete_user(self, telegram_id: int) -> None:

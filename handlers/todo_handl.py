@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from config import time_zone
 from loader import dp, logger_guru, scheduler
-from .states_in_handlers import TodoHandlerState
+from .states_in_handlers import TodoStates
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
@@ -27,13 +27,14 @@ async def bot_todo(message: Message, state: FSMContext):
             '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
             reply_markup=await calendar_bot_en.enable())
 
-    await TodoHandlerState.first()
+    await TodoStates.first()
     async with state.proxy() as data:
         data['lang'] = lang
+
     await message.delete()
 
 
-@dp.callback_query_handler(calendar_cb.filter(), state=TodoHandlerState.todo)
+@dp.callback_query_handler(calendar_cb.filter(), state=TodoStates.todo)
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
@@ -54,19 +55,20 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
                 )
         else:
             async with state.proxy() as data:
-                data['date']: str = str(date)
+                data['date'] = str(date)
 
             await call.message.edit_text(
                 f'Что планируешь на <code>{date}</code> число?' if lang == 'ru' else
                 f'What are you planning for the <code>{date}</code>?'
             )
-            await TodoHandlerState.next()
+            await TodoStates.next()
 
 
-@dp.message_handler(state=TodoHandlerState.reception_todo)
+@dp.message_handler(state=TodoStates.reception_todo)
 async def set_calendar_date(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang, date = data.values()
+
     user_id: int = message.from_user.id
     name, skin = f'todo_{user_id}', await DB_USERS.select_skin(telegram_id=user_id)
 
@@ -113,10 +115,11 @@ async def set_calendar_date(message: Message, state: FSMContext):
         )
 
 
-@dp.message_handler(state=TodoHandlerState.todo)
+@dp.message_handler(state=TodoStates.todo)
 async def cancel_todo(message: Message, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data['lang']
+
     await message.answer(
         'Тебе нужно выбрать дату :) попробуй ещё раз!' if lang == 'ru' else
         'You need to choose a date :) try again!'

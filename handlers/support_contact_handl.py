@@ -37,6 +37,7 @@ async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dic
 async def get_message(message: Message, state: FSMContext):
     async with state.proxy() as data:
         second_id: str = data.get('second_id')
+
     lang: str = await DB_USERS.select_bot_language(telegram_id=message.from_user.id)
     await message.bot.send_message(
         second_id,

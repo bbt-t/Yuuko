@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
-class TodoHandlerState(StatesGroup):
+class TodoStates(StatesGroup):
 	"""
 	For todo_handl
 	"""
@@ -9,7 +9,7 @@ class TodoHandlerState(StatesGroup):
 	reception_todo = State()
 
 
-class PasswordHandlerState(StatesGroup):
+class PasswordStates(StatesGroup):
 	"""
 	For storing_passwords_handl
 	"""
@@ -18,7 +18,7 @@ class PasswordHandlerState(StatesGroup):
 	set_name_pass = State()
 
 
-class UserSettingHandlerState(StatesGroup):
+class UserSettingStates(StatesGroup):
 	"""
 	For:
 		user_settings
@@ -32,12 +32,13 @@ class UserSettingHandlerState(StatesGroup):
 	weather_on = State()
 
 
-class RecipeState(StatesGroup):
+class RecipeStates(StatesGroup):
 	"""
-	# ToDo: доку к классу, заменить простые "set_state" на вызов класса.
+	For recipes_handl.
 	"""
-	recipe_name_entry = State()
+	recipe_manipulation = State()
 	get_the_recipe = State()
 	recipe_ingredients = State()
 	and_now_the_recipe = State()
+	recipe_photo_reception = State()
 

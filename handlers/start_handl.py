@@ -8,7 +8,7 @@ from deep_translator import GoogleTranslator
 from sqlalchemy.exc import IntegrityError
 
 from config import time_zone
-from handlers.states_in_handlers import UserSettingHandlerState
+from handlers.states_in_handlers import UserSettingStates
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
@@ -133,7 +133,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
                       await calendar_bot_en.process_selection(call, callback_data))
 
     if date and selected:
-        if 80 <= get_time_now(time_zone).date() - date <= 7:
+        if 30_000 <= (get_time_now(time_zone).date() - date).days <= 2_500:
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(
@@ -150,21 +150,23 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             await call.message.answer(
                 'Время для напоминалок о "делах"?' if lang == 'ru' else
                 'At what time to remind about business?')
-            await state.set_state(UserSettingHandlerState.time_todo)
+            await state.set_state(UserSettingStates.time_todo)
 
 
 @dp.callback_query_handler(text='cancel', state='*')
 async def exit_handling(call: CallbackQuery, state: FSMContext):
-    lang, skin = await DB_USERS.select_lang_and_skin(call.from_user.id)
+    async with state.proxy() as data:
+        try:
+            lang: str = data['lang']
+        except KeyError:
+            lang: str = await DB_USERS.select_bot_language(call.from_user.id)
 
-    await call.message.delete_reply_markup()
     await call.message.answer_chat_action(ChatActions.TYPING)
-    await call.message.answer_sticker(skin.sad_ok.value, disable_notification=True)
     await asyncio_sleep(1)
-    text_msg: str = (
-        'ЖАЛЬ :С если что, мои команды можно подглядеть через слеш (/)' if lang == 'ru' else
-        'SORRY :C if you change your mind, you can see my commands through a forward slash (/)'
+    await call.message.edit_text(
+        'Пока пока! 👋\n'
+        '<i>мои команды можно подглядеть через <code>слеш(/)</code> или <code>меню</code></i>' if lang == 'ru' else
+        'Bye! 👋\n'
+        '<i>you can see my commands through a forward <code>slash(/)</code> or <code>menu</code></i>'
     )
-    await call.message.answer(text_msg)
-
     await state.finish()

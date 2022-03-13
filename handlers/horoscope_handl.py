@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import MessageNotModified
 
-from loader import dp
+from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.getting_horoscope import get_user_horoscope_ru, get_user_horoscope_en
@@ -30,7 +30,7 @@ async def start_working_with_bot(message: Message, state: FSMContext):
     await message.delete()
     await state.set_state('waiting_for_zodiac_sign')
     async with state.proxy() as data:
-        data['lang']: str = lang
+        data['lang'] = lang
 
 
 @dp.callback_query_handler(state='waiting_for_zodiac_sign')
@@ -44,15 +44,19 @@ async def get_horoscope(call: CallbackQuery, state: FSMContext):
         else:
             await call.message.edit_reply_markup(choice_day_zodiac_keyboard_en)
         async with state.proxy() as data:
-            data['zodiac']: str = call.data
+            data['zodiac'] = call.data
+
     except MessageNotModified:
         async with state.proxy() as data:
             zodiac: str = data['zodiac']
-        if lang == 'ru':
-            text_msg: str = await get_user_horoscope_ru(zodiac=zodiac, when=call.data)
-        else:
-            text_msg: str = await get_user_horoscope_en(zodiac=zodiac, when=call.data)
-
-        await call.message.delete_reply_markup()
-        await call.message.edit_text(text_msg)
-        await state.finish()
+        try:
+            if lang == 'ru':
+                text_msg: str = await get_user_horoscope_ru(zodiac=zodiac, when=call.data)
+            else:
+                text_msg: str = await get_user_horoscope_en(zodiac=zodiac, when=call.data)
+        except ConnectionError:
+            text_msg: str = 'hmm...try later...'
+        finally:
+            await call.message.delete_reply_markup()
+            await call.message.edit_text(text_msg)
+            await state.finish()

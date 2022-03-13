@@ -2,7 +2,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 
-from handlers.states_in_handlers import UserSettingHandlerState
+from handlers.states_in_handlers import UserSettingStates
 from loader import dp
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
@@ -18,6 +18,6 @@ async def set_user_settings(message: Message, state: FSMContext):
         await message.answer('Hey! what do we set up?', reply_markup=settings_keyboard_en)
     await message.delete()
 
-    await UserSettingHandlerState.first()
+    await UserSettingStates.first()
     async with state.proxy() as data:
         data['lang'] = lang

@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from pgpy import PGPMessage
 
 from config import time_zone
-from handlers.states_in_handlers import PasswordHandlerState
+from handlers.states_in_handlers import PasswordStates
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
@@ -51,12 +51,12 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
     await message.delete()
     await message.answer(text_msg)
 
-    await PasswordHandlerState.first()
+    await PasswordStates.first()
     async with state.proxy() as data:
         data['user_id'], data['lang'] = user_id, lang
 
 
-@dp.message_handler(state=PasswordHandlerState.check_personal_code)
+@dp.message_handler(state=PasswordStates.check_personal_code)
 async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id, lang = data.values()
@@ -70,9 +70,9 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                 await message.answer_sticker(skin.order_accepted.value, disable_notification=True)
                 await message.answer('ПРИНЯТО!' if lang == 'ru' else 'ACCEPTED!')
 
-                await PasswordHandlerState.next()
+                await PasswordStates.next()
                 async with state.proxy() as data:
-                    data['lang']: str = lang
+                    data['lang'] = lang
 
                 tex_msg: str = 'Что ты конкретно хочешь?' if lang == 'ru' else 'What do you specifically want?'
                 await message.answer(tex_msg, reply_markup=pass_choice_kb)
@@ -99,7 +99,7 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
         await state.finish()
 
 
-@dp.callback_query_handler(text='new_pass', state=PasswordHandlerState.successful_auth_for_pass)
+@dp.callback_query_handler(text='new_pass', state=PasswordStates.successful_auth_for_pass)
 async def accept_personal_key(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')
@@ -111,7 +111,7 @@ async def accept_personal_key(call: CallbackQuery, state: FSMContext):
     await call.message.delete_reply_markup()
 
 
-@dp.message_handler(state=PasswordHandlerState.successful_auth_for_pass)
+@dp.message_handler(state=PasswordStates.successful_auth_for_pass)
 async def set_name_and_write_pass(message: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id, lang, name_pass = data.get('user_id'), data.get('lang'), data.get('name')
@@ -131,7 +131,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
         case _:
             if not name_pass:
                 async with state.proxy() as data:
-                    data['name']: str = msg
+                    data['name'] = msg
                 await message.delete()
                 await message.answer('А теперь пароль :)' if lang == 'ru' else 'And now the password :)')
             else:
@@ -145,17 +145,17 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
                 await state.finish()
 
 
-@dp.callback_query_handler(text='receive_pass', state=PasswordHandlerState.successful_auth_for_pass)
+@dp.callback_query_handler(text='receive_pass', state=PasswordStates.successful_auth_for_pass)
 async def get_existing_pass(call: CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data['lang']
 
     await call.message.answer('Какое "имя" пароля?' if lang == 'ru' else 'What is the "name" of the password?')
     await call.message.delete_reply_markup()
-    await PasswordHandlerState.last()
+    await PasswordStates.last()
 
 
-@dp.message_handler(state=PasswordHandlerState.set_name_pass)
+@dp.message_handler(state=PasswordStates.set_name_pass)
 async def get_name_of_the_requested_password(message: Message, state: FSMContext):
     async with state.proxy() as data:
         user_id, lang = data.values()

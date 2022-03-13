@@ -11,6 +11,9 @@ from loader import Base, engine
 from .sql_table import OtherInfo, Users, UsersRecipes
 
 
+from sqlalchemy.sql import func
+
+
 async def start_db() -> None:
     """
     Drop and Create table
@@ -71,7 +74,7 @@ class DataBaseUsersInfo:
         )
         await self._database_query(is_add=True, sql=sql)
 
-    async def add_recipe(self, telegram_id: int | str, name: str, ingredients: str | list, recipe: str) -> None:
+    async def add_recipe(self, telegram_id: int, name: str, ingredients: str | list, recipe: str) -> None:
         """
         Add recipe.
         :param telegram_id: telegram user id
@@ -99,7 +102,7 @@ class DataBaseUsersInfo:
         ).values(pass_item=info_for_save)
         await self._database_query(sql=sql)
 
-    async def update_personal_pass(self, telegram_id: int | str, personal_pass: str | None) -> None:
+    async def update_personal_pass(self, telegram_id: int, personal_pass: str | None) -> None:
         """
         Sets a new codeword for verification.
         :param telegram_id: telegram user id
@@ -110,7 +113,7 @@ class DataBaseUsersInfo:
             self.user_general_info.telegram_id == telegram_id).values(personal_pass=personal_pass)
         await self._database_query(sql=sql)
 
-    async def update_birthday(self, telegram_id: int | str, birthday) -> None:
+    async def update_birthday(self, telegram_id: int, birthday) -> None:
         """
         Sets the values of the user's birthday.
         :param telegram_id: telegram user id
@@ -121,7 +124,7 @@ class DataBaseUsersInfo:
             self.user_general_info.telegram_id == telegram_id).values(birthday=birthday)
         await self._database_query(sql=sql)
 
-    async def update_recipe_photo(self, telegram_id: int | str, name: str, photo_url: str) -> None:
+    async def update_recipe_photo(self, telegram_id: int, name: str, photo_url: str) -> None:
         """
         Sets the values of the recipes photo.
         :param telegram_id: telegram user id
@@ -136,7 +139,7 @@ class DataBaseUsersInfo:
         ).values(recipe_photo_url=photo_url)
         await self._database_query(sql=sql)
 
-    async def update_bot_language(self, telegram_id: int | str, lang: str) -> None:
+    async def update_bot_language(self, telegram_id: int, lang: str) -> None:
         """
         Changes the language of the bot.
         :param telegram_id: telegram user id
@@ -147,7 +150,7 @@ class DataBaseUsersInfo:
             self.user_general_info.telegram_id == telegram_id).values(selected_bot_lang=lang)
         await self._database_query(sql=sql)
 
-    async def update_bot_skin(self, telegram_id: int | str, skin: str) -> None:
+    async def update_bot_skin(self, telegram_id: int, skin: str) -> None:
         """
         Changes the skin of the bot.
         :param telegram_id: telegram user id
@@ -158,7 +161,7 @@ class DataBaseUsersInfo:
             self.user_general_info.telegram_id == telegram_id).values(selected_bot_skin=skin)
         await self._database_query(sql=sql)
 
-    async def delete_user(self, telegram_id: int | str) -> None:
+    async def delete_user(self, telegram_id: int) -> None:
         """
         Delete a user by his ID.
         :param telegram_id: telegram user id
@@ -167,7 +170,7 @@ class DataBaseUsersInfo:
         sql = Delete(self.user_general_info).where(self.user_general_info.telegram_id == telegram_id)
         await self._database_query(sql=sql)
 
-    async def check_personal_pass(self, telegram_id: int | str) -> str:
+    async def check_personal_pass(self, telegram_id: int) -> str:
         """
         To check the entered codeword.
         :param telegram_id: telegram user id
@@ -181,7 +184,7 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
-    async def select_pass(self, telegram_id: int | str, name: str) -> str:
+    async def select_pass(self, telegram_id: int, name: str) -> str:
         """
         Gets password and extracts from pkl.
         :param telegram_id: telegram user id
@@ -197,7 +200,7 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return pickle_loads(result.scalar_one())
 
-    async def select_user(self, telegram_id: int | str) -> tuple:
+    async def select_user(self, telegram_id: int) -> tuple:
         """
         Selects a user by his ID.
         :param telegram_id: telegram user id
@@ -220,7 +223,25 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalars().all()
 
-    async def select_user_birthday(self, telegram_id: int | str) -> str:
+    async def select_all_recipes(self, telegram_id: int) -> list:
+        """
+        Selects all users telegram id.
+        :return: all telegram id in list
+        """
+        sql = select(
+            self.user_recipes.recipe_photo_id,
+            self.user_recipes.name,
+            self.user_recipes.ingredients,
+            self.user_recipes.recipe
+        ).where(
+            self.user_recipes.telegram_id == telegram_id
+        )
+        result = await self._database_query(is_select=True, sql=sql)
+        return [
+            dict(zip(('photo_id', 'name', 'ingredients', 'recipe'), item)) for item in result.all()
+        ]
+
+    async def select_user_birthday(self, telegram_id: int) -> str:
         """
         Selects a user's birthday by their telegram id.
         :param telegram_id: telegram user id
@@ -234,7 +255,7 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
-    async def select_skin(self, telegram_id: int | str):
+    async def select_skin(self, telegram_id: int):
         """
         Selects the selected bot-skin by user telegram id.
         :param telegram_id: telegram user id
@@ -248,7 +269,7 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one().value
 
-    async def select_bot_language(self, telegram_id: int | str) -> str:
+    async def select_bot_language(self, telegram_id: int) -> str:
         """
         Selects the selected language by user telegram id.
         :param telegram_id: telegram user id
@@ -262,7 +283,7 @@ class DataBaseUsersInfo:
         result = await self._database_query(is_select=True, sql=sql)
         return result.scalar_one()
 
-    async def select_lang_and_skin(self, telegram_id: int | str) -> tuple[str, Enum]:
+    async def select_lang_and_skin(self, telegram_id: int) -> tuple[str, Enum]:
         """
         Select language and skin
         """
@@ -276,17 +297,7 @@ class DataBaseUsersInfo:
         lang, skin = result.one()
         return lang, skin.value
 
-    async def check_invalid_user(self, telegram_id: int) -> bool:
-        """
-        Сhecks the user by his telegram id.
-        :param telegram_id: telegram user id
-        :return: True or False
-        """
-        sql = select(self.user_general_info.created_time).where(self.user_general_info.telegram_id == telegram_id)
-        result = await self._database_query(is_select=True, sql=sql)
-        return not result.one_or_none()
-
-    async def select_recipe(self, telegram_id: int | str, name: str) -> tuple | None:
+    async def select_recipe(self, telegram_id: int, name: str) -> tuple | None:
         """
         Selects recipe by user telegram id.
         :param telegram_id: telegram user id
@@ -296,13 +307,53 @@ class DataBaseUsersInfo:
         sql = select(
             self.user_recipes.ingredients,
             self.user_recipes.recipe,
-            self.user_recipes.recipe_photo_url
+            self.user_recipes.recipe_photo_id
         ).where(
             self.user_recipes.telegram_id == telegram_id,
             self.user_recipes.name == name
         )
         result = await self._database_query(is_select=True, sql=sql)
         return result.one_or_none()
+
+    async def check_invalid_user(self, telegram_id: int) -> bool:
+        """
+        Checks the user by his telegram id.
+        :param telegram_id: telegram user id
+        :return: True or False
+        """
+        sql = select(self.user_general_info.created_time).where(self.user_general_info.telegram_id == telegram_id)
+        result = await self._database_query(is_select=True, sql=sql)
+        return not result.one_or_none()
+
+    async def check_recipe_name(self, telegram_id: int, name: str) -> bool:
+        """
+        Checks if an entry with the given name exists.
+        :param telegram_id: telegram user id
+        :param name: recipe name
+        :return: bool
+        """
+        sql = select(
+            self.user_recipes.created_time
+        ).where(
+            self.user_recipes.telegram_id == telegram_id,
+            self.user_recipes.name == name
+        )
+        result = await self._database_query(is_select=True, sql=sql)
+        return bool(result.one_or_none())
+
+    async def recipes_count(self, telegram_id: int) -> int:
+        """
+        Shows how many records the user has.
+        :param telegram_id: user id
+        :return: resulting number
+        """
+        sql = select(
+            func.count(self.user_recipes.name)
+        ).where(
+            self.user_recipes.telegram_id == telegram_id
+        )
+        result = await self._database_query(is_select=True, sql=sql)
+        return result.scalar_one()
 
 
 DB_USERS = DataBaseUsersInfo()

@@ -27,7 +27,7 @@ async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow'])
 
                     if resp.status != 200:
                         logger_guru.warning(f"{resp.status=} : Bad request!")
-                        return 'Что-то пошло не так...попробуй позже.'
+                        raise ConnectionError
 
                     tree = ElementTree_fromstring(await resp.text())
 
@@ -63,7 +63,7 @@ async def get_user_horoscope_en(zodiac: str, when: Literal['today', 'tomorrow'])
 
                     if resp.status != 200:
                         logger_guru.warning(f"{resp.status=} : Bad request!")
-                        return 'Что-то пошло не так...попробуй позже.'
+                        raise ConnectionError
 
                     soup = BeautifulSoup(await resp.text(), 'lxml')
 

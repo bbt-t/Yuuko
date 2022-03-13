@@ -41,9 +41,9 @@ python start.py
 ***
 
 ### ATTENTION!
-`redis` is required!
+`redis` <s>is required!</s> (NO!)
 
-If it is supposed to run on a local machine, then you need to change the value of `BOT_CONNECTION_METHOD` in `config.py` to an empty string or any other character.
+If you plan to run a bot with `polling` in docker, then you need to change the value in `ENTRYPOINT` "webhook" to "polling" or remove it altogether
 
 
 > It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py):

@@ -3,7 +3,7 @@
 </p>
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/bbt-t/Yuuko/blob/master/LICENSE)
-[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.3.5)
+[![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/bbt-t/Yuuko/releases/tag/v2.5.7)
 [![docker](https://badges.aleen42.com/src/docker.svg)](https://www.docker.com/get-started)
 [![python](https://badges.aleen42.com/src/python.svg)](https://www.python.org/downloads/release/python-3102/)
 
@@ -41,9 +41,9 @@ python start.py
 ***
 
 ### ВАЖНО!
-`redis` обязателен!
+`redis` <s>обязателен!</s> (нет)
 
-Если предполагается запуск на локальной машине, то необходимо изменить значение `BOT_CONNECTION_METHOD` в `config.py` на пустую строку или любой другой символ.
+Если предполагается запуск c `polling'ом` в докере, то необходимо изменить значение в `ENTRYPOINT` "webhook" на "polling" или вовсе удалить.
 
 Необходмо создать файл с именем `.env`, прописать туда консанты (или просто явно указать значения в config.py):
 ```

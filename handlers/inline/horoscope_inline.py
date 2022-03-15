@@ -10,7 +10,7 @@ async def check_query(query: InlineQuery):
 	"""
 	User verification.
 	:param query: inline update
-	:return: button
+	:return: button (only in russian lang)
 	"""
 	if await DB_USERS.check_invalid_user(telegram_id=query.from_user.id):
 		return await query.answer(
@@ -25,7 +25,7 @@ async def check_query(query: InlineQuery):
 @dp.inline_handler(text='гороскоп')
 async def get_inline_horoscope(query: InlineQuery):
 	"""
-	Shows the horoscope.
+	Shows the horoscope (only in russian lang).
 	:param query: inline update
 	"""
 	lang: str = await DB_USERS.select_bot_language(query.from_user.id)
@@ -33,3 +33,5 @@ async def get_inline_horoscope(query: InlineQuery):
 		results=await choice_zodiac_keyboard(lang=lang, inline=True),
 		cache_time=60
 	)
+
+# Todo: переписать валидацию

@@ -6,12 +6,12 @@ from typing import Iterator
 
 async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list | InlineKeyboardMarkup:
     """
-
-    :param lang:
-    :param inline:
-    :return:
+    Generates keyboard for horoscope (in inline mode too).
+    :param lang: language
+    :param inline: for inline mode or not
+    :return: list (for inline mode) or InlineKeyboard
     """
-    zodiac_ru = (
+    zodiac_ru: tuple = (
         ('♈ Овен ', 'aries'),
         ('♉ Телец', 'taurus'),
         ('♊ Близнец', 'gemini'),
@@ -25,19 +25,19 @@ async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list
         ('♒ Водолей', 'aquarius'),
         ('♓ Рыбы', 'pisces'),
     )
-    zodiac_en = (
-        ('♈ Aries 21 March – 20 April', 'aries'),
-        ('♉ Taurus 21 April – 20 May', 'taurus'),
-        ('♊ Gemini 21 May – 21 June', 'gemini'),
-        ('♋ Cancer 22 June – 22 July', 'cancer'),
-        ('♌ Leo 23 July – 23 August', 'leo'),
-        ('♍ Virgo 24 August – 23 September', 'virgo'),
-        ('♎ Libra 24 September – 23 October', 'libra'),
-        ('♏ Scorpio 24 October – 22 November', 'scorpio'),
-        ('♐ Sagittarius 23 November – 21 December', 'sagittarius'),
-        ('♑ Capricorn 22 December – 20 January', 'capricorn'),
-        ('♒ Aquarius 21 January – 20 February', 'aquarius'),
-        ('♓ Pisces 21 February – 20 March', 'pisces'),
+    zodiac_en: tuple = (
+        ('♈ Aries', 'aries'),
+        ('♉ Tauru', 'taurus'),
+        ('♊ Gemini', 'gemini'),
+        ('♋ Cancer', 'cancer'),
+        ('♌ Leo', 'leo'),
+        ('♍ Virgo', 'virgo'),
+        ('♎ Libra', 'libra'),
+        ('♏ Scorpio', 'scorpio'),
+        ('♐ Sagittarius', 'sagittarius'),
+        ('♑ Capricorn', 'capricorn'),
+        ('♒ Aquarius', 'aquarius'),
+        ('♓ Pisces', 'pisces'),
     )
     button_info: Iterator[dict] = map(
         lambda item: dict(zip(('text', 'callback_data'), item)),
@@ -61,9 +61,9 @@ async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list
 
 async def choice_day_zodiac_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     """
-
-    :param lang:
-    :return:
+    Generates a keyboard to select the day.
+    :param lang: language
+    :return: InlineKeyboard
     """
     day_ru: tuple = (
         ('на сегодня', 'today'),
@@ -81,4 +81,3 @@ async def choice_day_zodiac_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     for info in button_info:
         keyboard.insert(InlineKeyboardButton(**info))
     return keyboard
-

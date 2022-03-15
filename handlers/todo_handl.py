@@ -7,7 +7,7 @@ from loader import dp, logger_guru, scheduler
 from .states_in_handlers import TodoStates
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
-from utils.keyboards.calendar import calendar_cb, calendar_bot_en, calendar_bot_ru
+from utils.keyboards.calendar import calendar_bot_en, calendar_bot_ru, CalendarBot
 from utils.misc.other_funcs import get_time_now
 from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
 
@@ -34,7 +34,7 @@ async def bot_todo(message: Message, state: FSMContext):
     await message.delete()
 
 
-@dp.callback_query_handler(calendar_cb.filter(), state=TodoStates.todo)
+@dp.callback_query_handler(CalendarBot.callback.filter(), state=TodoStates.todo)
 async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang: str = data.get('lang')

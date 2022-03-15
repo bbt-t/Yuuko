@@ -12,7 +12,7 @@ from handlers.states_in_handlers import UserSettingStates
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
-from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, calendar_cb
+from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, CalendarBot
 from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru, choice_of_assistant_kb_ru,
                                                    choice_of_assistant_kb_en, initial_setup_choice_kb_en)
 from utils.misc.enums_data import BotSkins
@@ -124,7 +124,7 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
         data['removing_msg_id'] = removing_msg.message_id
 
 
-@dp.callback_query_handler(calendar_cb.filter(), state='set_birthday_and_todo')
+@dp.callback_query_handler(CalendarBot.callback.filter(), state='set_birthday_and_todo')
 async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
     async with state.proxy() as data:
         lang, removing_msg_id = data.values()

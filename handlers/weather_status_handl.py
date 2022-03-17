@@ -13,7 +13,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
 @dp.callback_query_handler(text='set_weather', state=UserSettingStates.settings)
-async def weather_notification_on(call: CallbackQuery, state: FSMContext):
+async def weather_notification_on(call: CallbackQuery, state: FSMContext) -> None:
     lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=call.from_user.id)
 
     await call.message.answer_sticker(skin.welcome.value, disable_notification=True)
@@ -32,7 +32,7 @@ async def weather_notification_on(call: CallbackQuery, state: FSMContext):
 
 
 @dp.message_handler(state=UserSettingStates.weather_on, content_types=[ContentType.VOICE, ContentType.TEXT])
-async def start_weather(message: Message, state: FSMContext):
+async def start_weather(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
 

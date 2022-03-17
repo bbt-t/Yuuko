@@ -1,5 +1,5 @@
 from asyncio import sleep as asyncio_sleep
-from typing import Final
+from typing import Final, Optional
 
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
@@ -13,8 +13,7 @@ from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.calendar import calendar_bot_ru, calendar_bot_en, CalendarBot
-from utils.keyboards.start_handl_choice_kb import (initial_setup_choice_kb_ru, choice_of_assistant_kb_ru,
-                                                   choice_of_assistant_kb_en, initial_setup_choice_kb_en)
+from utils.keyboards.start_handl_choice_kb import get_start_keyboard
 from utils.misc.enums_data import BotSkins
 from utils.misc.notify_users import auth
 from utils.misc.other_funcs import get_time_now, blocking_io_run_func
@@ -23,7 +22,7 @@ from utils.misc.other_funcs import get_time_now, blocking_io_run_func
 @rate_limit(2, key='start')
 @dp.message_handler(CommandStart())
 @auth
-async def start_working_with_bot(message: Message):
+async def start_working_with_bot(message: Message) -> Optional[Message]:
     """
     Such a response will be sent at the start of communication (/start)
     """
@@ -53,6 +52,7 @@ async def start_working_with_bot(message: Message):
                 await message.answer(
                     (await blocking_io_run_func(GoogleTranslator, 'en', lang)).translate(_msg)
                 )
+                await DB_USERS.add_user(telegram_id=user_id, lang='en')
             else:
                 await message.answer(
                     "I can't determine the language, I will speak to you in English ..."
@@ -68,15 +68,20 @@ async def start_working_with_bot(message: Message):
 
     if lang == 'ru':
         text_msg: str = f"Привет, {name}!\n\nвыбери в какой 'форме' мне быть"
-        await message.answer(text_msg, reply_markup=choice_of_assistant_kb_ru)
+        await message.answer(
+            text_msg,
+            reply_markup=await get_start_keyboard(choice_assistant=True)
+        )
     else:
-        await DB_USERS.add_user(telegram_id=user_id, lang='en')
         text_msg: str = f"Hi, {name}!\n\nchoose in what 'shape' I be"
-        await message.answer(text_msg, reply_markup=choice_of_assistant_kb_en)
+        await message.answer(
+            text_msg,
+            reply_markup=await get_start_keyboard(choice_assistant=True, lang='en')
+        )
 
 
 @dp.callback_query_handler(text={'neko', 'chan', 'cloud'})
-async def choose_skin_for_the_bot(call: CallbackQuery):
+async def choose_skin_for_the_bot(call: CallbackQuery) -> None:
     user_id: int = call.from_user.id
     await DB_USERS.update_bot_skin(telegram_id=user_id, skin=getattr(BotSkins, call.data))
     skin = await DB_USERS.select_skin(telegram_id=user_id)
@@ -89,19 +94,21 @@ async def choose_skin_for_the_bot(call: CallbackQuery):
         if await DB_USERS.select_bot_language(telegram_id=user_id) == 'ru':
             await call.message.answer(
                 'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
-                'а теперь настройки!', reply_markup=initial_setup_choice_kb_ru
+                'а теперь настройки!',
+                reply_markup=await get_start_keyboard(set_birthday=True)
             )
         else:
             await call.message.answer(
                 'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you 😰\n\n'
-                'and now settings!', reply_markup=initial_setup_choice_kb_en
+                'and now settings!',
+                reply_markup=await get_start_keyboard(set_birthday=True, lang='en')
             )
     else:
         await call.message.answer('YAHOO! ^^')
 
 
 @dp.callback_query_handler(text='set_birthday')
-async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
+async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext) -> None:
     lang, skin = await DB_USERS.select_lang_and_skin(call.from_user.id)
 
     await call.message.delete_reply_markup()
@@ -120,12 +127,12 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext):
 
     await state.set_state('set_birthday_and_todo')
     async with state.proxy() as data:
-        data['lang']: str = lang
+        data['lang'] = lang
         data['removing_msg_id'] = removing_msg.message_id
 
 
 @dp.callback_query_handler(CalendarBot.callback.filter(), state='set_birthday_and_todo')
-async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
+async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang, removing_msg_id = data.values()
 
@@ -154,7 +161,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
 
 
 @dp.callback_query_handler(text='cancel', state='*')
-async def exit_handling(call: CallbackQuery, state: FSMContext):
+async def exit_handling(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         try:
             lang: str = data['lang']

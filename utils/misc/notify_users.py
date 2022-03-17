@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import DefaultDict, Optional
 from time import sleep
 
 from aiogram.types import ParseMode, Message
@@ -13,7 +14,7 @@ from ..weather_compilation import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
 
-def auth(func) -> Message | None:
+def auth(func):
     """
     Wrap for check user
     :param func: handler
@@ -21,9 +22,6 @@ def auth(func) -> Message | None:
     """
     @wraps(func)
     async def wrapper(message: Message):
-        if message.from_user.is_bot:
-            logger_guru.critical(f'{message.from_user.id=} : Bot is trying to log-in!')
-            return None
         if await DB_USERS.select_user(telegram_id=message.from_user.id):
             await message.delete()
             return await message.answer(
@@ -78,9 +76,12 @@ async def send_todo_msg(
     name, date = f'todo_{telegram_id}', get_time_now(time_zone).strftime('%Y-%m-%d')
 
     try:
-        todo_obj: dict = await load_todo_obj()
+        todo_obj: DefaultDict = await load_todo_obj()
         text_msg: str = '\n\n'.join(f"{i}. {val}" for i, val in enumerate(todo_obj[name][date], 1))
-
+    except KeyError:
+        # await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланировано 🥱')
+        await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
+    else:
         if is_voice:
             voice_msg: bytes = await synthesize_voice_by_ya(
                 folder, api_ya_tts,
@@ -89,13 +90,9 @@ async def send_todo_msg(
             )
             await dp.bot.send_voice(telegram_id, voice_msg)
         await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
-    except Exception as err:
-        logger_guru.warning(f"{repr(err)} : {telegram_id=}")
-        await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланированно 🥱')
-        await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
 
 
-async def send_a_message_to_all_users(msg: str) -> None | str:
+async def send_a_message_to_all_users(msg: str) -> Optional[str]:
     """
     When sending notifications to multiple users,
     the API will not allow sending more than 30 messages per second.
@@ -110,8 +107,7 @@ async def send_a_message_to_all_users(msg: str) -> None | str:
                 counter += 1
             else:
                 sleep(1)
-                counter = 0
+                counter: int = 0
         except BotBlocked:
-            logger_guru.warning(f'{telegram_id} : error when trying to send')
+            logger_guru.warning(f'{telegram_id=} : error when trying to send')
             return f'mistakes: {telegram_id}'
-

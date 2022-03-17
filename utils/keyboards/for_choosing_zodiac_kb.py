@@ -1,7 +1,9 @@
+from typing import Iterator, Literal
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQueryResultArticle, InputTextMessageContent
 
 from utils.getting_horoscope import get_user_horoscope_ru
-from typing import Iterator
+from utils.misc.other_funcs import create_keyboard_button
 
 
 async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list | InlineKeyboardMarkup:
@@ -11,46 +13,33 @@ async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list
     :param inline: for inline mode or not
     :return: list (for inline mode) or InlineKeyboard
     """
-    zodiac_ru: tuple = (
-        ('♈ Овен ', 'aries'),
-        ('♉ Телец', 'taurus'),
-        ('♊ Близнец', 'gemini'),
-        ('♋ Рак', 'cancer'),
-        ('♌ Лев', 'leo'),
-        ('♍ Дева', 'virgo'),
-        ('♎ Весы', 'libra'),
-        ('♏ Скорпион', 'scorpio'),
-        ('♐ Стрелец', 'sagittarius'),
-        ('♑ Козерог', 'capricorn'),
-        ('♒ Водолей', 'aquarius'),
-        ('♓ Рыбы', 'pisces'),
+    callback_data: tuple = (
+        'aries', 'taurus', 'gemini', 'cancer',
+        'leo', 'virgo', 'libra', 'scorpio',
+        'sagittarius', 'capricorn', 'aquarius', 'pisces',
     )
-    zodiac_en: tuple = (
-        ('♈ Aries', 'aries'),
-        ('♉ Tauru', 'taurus'),
-        ('♊ Gemini', 'gemini'),
-        ('♋ Cancer', 'cancer'),
-        ('♌ Leo', 'leo'),
-        ('♍ Virgo', 'virgo'),
-        ('♎ Libra', 'libra'),
-        ('♏ Scorpio', 'scorpio'),
-        ('♐ Sagittarius', 'sagittarius'),
-        ('♑ Capricorn', 'capricorn'),
-        ('♒ Aquarius', 'aquarius'),
-        ('♓ Pisces', 'pisces'),
+    text_ru: tuple = (
+        '♈ Овен ', '♉ Телец', '♊ Близнец', '♋ Рак',
+        '♌ Лев', '♍ Дева', '♎ Весы', '♏ Скорпион',
+        '♐ Стрелец', '♑ Козерог', '♒ Водолей', '♓ Рыбы',
     )
-    button_info: Iterator[dict] = map(
+    text_en: tuple = (
+        '♈ Aries', '♉ Taurus', '♊ Gemini', '♋ Cancer',
+        '♌ Leo', '♍ Virgo', '♎ Libra', '♏ Scorpio',
+        '♐ Sagittarius', '♑ Capricorn', '♒ Aquarius', '♓ Pisces',
+    )
+    button_info: Iterator = map(
         lambda item: dict(zip(('text', 'callback_data'), item)),
-        zodiac_ru if lang == 'ru' else zodiac_en
+        zip(text_ru if lang == 'ru' else text_en, callback_data)
     )
     if inline:
         return [
             InlineQueryResultArticle(
-                id=f'{x.get("callback_data")}_ru',
-                title=x.get("text"),
+                id=f'{item.get("callback_data")}_ru',
+                title=item.get("text"),
                 input_message_content=InputTextMessageContent(
-                    message_text=await get_user_horoscope_ru(x.get("callback_data"), 'today'))
-            ) for x in button_info
+                    message_text=await get_user_horoscope_ru(item.get("callback_data"), 'today'))
+            ) for item in button_info
         ]
     else:
         keyboard = InlineKeyboardMarkup(row_width=3)
@@ -59,25 +48,14 @@ async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list
         return keyboard
 
 
-async def choice_day_zodiac_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
+def choice_day_zodiac_keyboard(lang: Literal['ru', 'en'] = 'ru') -> InlineKeyboardMarkup:
     """
     Generates a keyboard to select the day.
     :param lang: language
     :return: InlineKeyboard
     """
-    day_ru: tuple = (
-        ('на сегодня', 'today'),
-        ('на завтра', 'tomorrow'),
-    )
-    day_en: tuple = (
-        ('на сегодня', 'today'),
-        ('на завтра', 'tomorrow'),
-    )
-    button_info: Iterator[dict] = map(
-        lambda item: dict(zip(('text', 'callback_data'), item)),
-        day_ru if lang == 'ru' else day_en
-    )
-    keyboard = InlineKeyboardMarkup(row_width=2)
-    for info in button_info:
-        keyboard.insert(InlineKeyboardButton(**info))
-    return keyboard
+    callback_data: tuple = 'today', 'tomorrow'
+    text_ru: tuple = 'на сегодня', 'на завтра'
+    text_en: tuple = 'today', 'tomorrow'
+
+    return create_keyboard_button(text=text_ru if lang == 'ru' else text_en, callback_data=callback_data)

@@ -1,4 +1,4 @@
-from typing import Final
+from typing import Final, Optional
 
 from aiogram.utils.callback_data import CallbackData
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
@@ -7,7 +7,7 @@ from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardBu
 pag_cb = CallbackData("paginator", "key", "page")
 
 
-async def recipe_keyboard(is_first: bool = None) -> InlineKeyboardMarkup:
+async def recipe_keyboard(is_first: Optional[bool] = None) -> InlineKeyboardMarkup:
 	"""
 	Keyboard to select action.
 	:param is_first: keyboard call for initial handler
@@ -28,7 +28,7 @@ async def recipe_keyboard(is_first: bool = None) -> InlineKeyboardMarkup:
 	return action_choice_recipe_keyboard
 
 
-def pagination_recipe_keyboard(max_pages: int, key='recipe', page: int = 0) -> InlineKeyboardMarkup:
+def pagination_recipe_keyboard(max_pages: int, key: str = 'recipe', page: int = 0) -> InlineKeyboardMarkup:
 	"""
 	Keyboard for pagination according to saved user recipes.
 	:param max_pages: total number of recipes

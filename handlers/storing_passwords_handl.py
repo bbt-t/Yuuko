@@ -9,6 +9,7 @@ from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, CallbackQuery, ChatActions
 from aiogram.utils.markdown import hspoiler
 from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
 from pgpy import PGPMessage
 
 from config import time_zone
@@ -42,7 +43,7 @@ async def convert_password_to_enc_object(user_id: int, name_pass: str, password:
 
 @rate_limit(2, key='pass')
 @dp.message_handler(Command('pass'))
-async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
+async def accept_settings_for_remembering_password(message: Message, state: FSMContext) -> None:
     match lang := await DB_USERS.select_bot_language(telegram_id=(user_id := message.from_user.id)):
         case 'ru':
             text_msg: str = 'Привет, я могу запонить 🔐 твои пароли, для этого мне нужно знать твоё кодовое слово...'
@@ -57,11 +58,11 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
 
 
 @dp.message_handler(state=PasswordStates.check_personal_code)
-async def accept_settings_for_remembering_password(message: Message, state: FSMContext):
+async def accept_settings_for_remembering_password(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         user_id, lang = data.values()
 
-    skin = await DB_USERS.elect_skin(telegram_id=user_id)
+    skin = await DB_USERS.select_skin(telegram_id=user_id)
     msg: str = hashlib_scrypt(message.text.encode(), salt=f'{user_id}'.encode(), n=8, r=512, p=4, dklen=32).hex()
 
     try:
@@ -94,13 +95,13 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                 "Didn't find it on the list, added it:)\nwrite it again."
             )
         await message.delete()
-    except:
-        logger_guru.exception('Error in check_personal_code handler!')
+    except SQLAlchemyError as err:
+        logger_guru.exception(f'{repr(err)} : in check_personal_code handler!')
         await state.finish()
 
 
 @dp.callback_query_handler(text='new_pass', state=PasswordStates.successful_auth_for_pass)
-async def accept_personal_key(call: CallbackQuery, state: FSMContext):
+async def accept_personal_key(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
 
@@ -112,7 +113,7 @@ async def accept_personal_key(call: CallbackQuery, state: FSMContext):
 
 
 @dp.message_handler(state=PasswordStates.successful_auth_for_pass)
-async def set_name_and_write_pass(message: Message, state: FSMContext):
+async def set_name_and_write_pass(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         user_id, lang, name_pass = data.get('user_id'), data.get('lang'), data.get('name')
 
@@ -146,7 +147,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(text='receive_pass', state=PasswordStates.successful_auth_for_pass)
-async def get_existing_pass(call: CallbackQuery, state: FSMContext):
+async def get_existing_pass(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data['lang']
 
@@ -156,14 +157,14 @@ async def get_existing_pass(call: CallbackQuery, state: FSMContext):
 
 
 @dp.message_handler(state=PasswordStates.set_name_pass)
-async def get_name_of_the_requested_password(message: Message, state: FSMContext):
+async def get_name_of_the_requested_password(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         user_id, lang = data.values()
 
     msg: str = message.text.replace(' ', '')
     try:
         if decrypt_password := await DB_USERS.select_pass(name=msg, telegram_id=user_id):
-            very_useful_thing = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
+            very_useful_thing: str = hashlib_scrypt(msg.encode(), salt=f'{user_id}'.encode(),
                                                n=8, r=512, p=4, dklen=16).hex()
             password: str = decrypt_password.decrypt(very_useful_thing).message
             text_msg: str = (

@@ -12,7 +12,7 @@ from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 @rate_limit(5)
 @dp.message_handler(content_types=ContentType.VOICE)
-async def determine_further_path(message: Message, state: FSMContext):
+async def determine_further_path(message: Message, state: FSMContext) -> None:
     file_id: str = message.voice.file_id
     try:
         msg: bytes = await message.bot.download_file_by_id(file_id)

@@ -1,6 +1,6 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup
 
 from loader import dp
 from middlewares.throttling import rate_limit
@@ -10,13 +10,13 @@ from utils.keyboards.support_contact_kb import sup_kb, sup_cb
 
 @rate_limit(2)
 @dp.message_handler(Command('support'), state='*')
-async def contact_support_by_message(message: Message, state: FSMContext):
+async def contact_support_by_message(message: Message, state: FSMContext) -> None:
     lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
 
     text_msg: str = (
         'Хочешь написать создателю?' if lang == 'ru' else 'Do you want to write to the creator?'
     )
-    kb = await sup_kb()
+    kb: InlineKeyboardMarkup = await sup_kb()
     await message.answer_sticker(skin.fear.value, disable_notification=True)
     await message.answer(text_msg, reply_markup=kb)
     await state.finish()
@@ -24,7 +24,7 @@ async def contact_support_by_message(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(sup_cb.filter())
-async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dict):
+async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dict) -> None:
     await state.set_state('msg_for_admin')
     await state.update_data(second_id=callback_data.get('telegram_id'))
     await call.message.delete_reply_markup()
@@ -34,7 +34,7 @@ async def send_to_sup(call: CallbackQuery, state: FSMContext, callback_data: dic
 
 
 @dp.message_handler(state='msg_for_admin')
-async def get_message(message: Message, state: FSMContext):
+async def get_message(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         second_id: str = data.get('second_id')
 
@@ -44,7 +44,7 @@ async def get_message(message: Message, state: FSMContext):
         'Тебе пришло сообщение ->' if lang == 'ru' else
         'You received a message ->'
     )
-    kb = await sup_kb(telegram_id=message.from_user.id)
+    kb: InlineKeyboardMarkup = await sup_kb(telegram_id=message.from_user.id)
     await message.copy_to(second_id, reply_markup=kb)
     await state.reset_state()
 

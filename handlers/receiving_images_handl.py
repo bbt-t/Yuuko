@@ -12,7 +12,7 @@ from utils.misc.other_funcs import get_image_text
 
 @rate_limit(5, key='show_text')
 @dp.message_handler(Command('show_text'))
-async def start_weather(message: Message, state: FSMContext):
+async def start_weather(message: Message, state: FSMContext) -> None:
     text_msg: str = ('Привет! я могу попробовать прочитать что написано, '
                      'отправь мне фото, чем "лучше" (качественней) оно будет, тем точнее я дам ответ...')
 
@@ -22,9 +22,12 @@ async def start_weather(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state='send_image', content_types=ContentType.PHOTO)
-async def take_image_for_ocr(message: Message, state: FSMContext):
+async def take_image_for_ocr(message: Message, state: FSMContext) -> None:
     data = ujson_dumps({'imageurl': f'{await message.photo[-1].get_url()}'})
-    headers: dict = {'Content-Type': 'application/json', 'accept': 'application/json'}
+    headers: dict = {
+        'Content-Type': 'application/json',
+        'accept': 'application/json'
+    }
     try:
         result: str = await wait_for(get_image_text(
             url=work_with_api['OTHER']['OCR_URL'], headers=headers, data=data),

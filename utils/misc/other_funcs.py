@@ -1,16 +1,17 @@
 from asyncio import get_running_loop
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from datetime import datetime
-from typing import Any
+from typing import Any, Iterator, Literal
 from zoneinfo import ZoneInfo
 
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiohttp import ClientSession
 
 from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import DB_USERS
 
 
-def get_time_now(tz: str) -> datetime:
+def get_time_now(tz: str):
     """
     Take time and date in the time-zone.
     :param tz: time-zone
@@ -76,3 +77,21 @@ async def get_image_text(url: str, headers: dict, data) -> str:
     async with ClientSession() as session:
         async with session.post(url=url, headers=headers, data=data) as resp:
             return '\n'.join(await resp.text())
+
+
+def create_keyboard_button(text: tuple, callback_data: tuple, row: int = 3) -> InlineKeyboardMarkup:
+    """
+
+    :param text:
+    :param callback_data:
+    :param row:
+    :return:
+    """
+    keyboard = InlineKeyboardMarkup(row_width=row)
+    button_info: Iterator = map(
+        lambda item: dict(zip(('text', 'callback_data'), item)),
+        zip(text, callback_data)
+    )
+    for info in button_info:
+        keyboard.insert(InlineKeyboardButton(**info))
+    return keyboard

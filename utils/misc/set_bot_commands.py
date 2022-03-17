@@ -3,7 +3,7 @@ from aiogram.types import BotCommand, BotCommandScopeChat
 from config import bot_administrators
 
 
-async def set_default_commands(dp):
+async def set_default_commands(dp) -> None:
     """
     Adding to the command list
     """
@@ -39,4 +39,3 @@ async def set_default_commands(dp):
         BotCommand('set_settings', 'Settings'),
         BotCommand('support', 'Help/Contact administration'),
     ], language_code='en')
-

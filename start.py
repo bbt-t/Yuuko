@@ -1,10 +1,10 @@
-from typing import Literal, final
+from typing import Literal, final, NoReturn
 
 from aiogram import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.executor import start_webhook, start_polling
 from click import command, option
-from sqlalchemy import exc
+from sqlalchemy.exc import SQLAlchemyError
 
 from config import hook_info
 from loader import dp, scheduler, logger_guru
@@ -25,7 +25,7 @@ class StartBotCompose:
     webhook: bool = False
 
     @classmethod
-    async def on_startup(cls, dp: Dispatcher):
+    async def on_startup(cls, dp: Dispatcher) -> NoReturn:
         """
         Registration of handlers, middlewares, notifying admins about the start of the bot,
         an attempt to create a table User if it does not exist.
@@ -38,7 +38,7 @@ class StartBotCompose:
         await on_startup_notify(dp)
         try:
             await start_db()
-        except exc:
+        except SQLAlchemyError:
             logger_guru.info('DB error on start bot')
         scheduler.start()
         for func in {delete_all_todo, clear_redis, clear_all_pin_msg}:
@@ -47,7 +47,7 @@ class StartBotCompose:
                               misfire_grace_time=5, replace_existing=True, timezone="Europe/Moscow")
         logger_guru.warning('Bot is running')
 
-    async def on_shutdown(dp: Dispatcher):
+    async def on_shutdown(dp: Dispatcher) -> None:
         """
         Notifying admins about the stop of the bot, save Todos objects.
         :param dp: Dispatcher

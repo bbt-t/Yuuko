@@ -1,4 +1,5 @@
 from re import match as re_match
+from typing import Optional
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -12,20 +13,18 @@ from utils.misc.notify_users import send_todo_msg
 
 
 @dp.callback_query_handler(text='set_time_todo', state=UserSettingStates.settings)
-async def late_day_todo_notification(call: CallbackQuery, state: FSMContext):
+async def late_day_todo_notification(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
-        lang: str = data.get('lang')
-
-    await call.message.answer(
-        'Когда напоминать о делах?' if lang == 'ru' else 'When to remind about "todo"?'
-    )
+        await call.message.answer(
+            'Когда напоминать о делах?' if data.get('lang') == 'ru' else
+            'When to remind about "todo"?'
+        )
     await call.message.delete()
-
     await UserSettingStates.next()
 
 
 @dp.message_handler(state=UserSettingStates.time_todo)
-async def question_set_time_todo(message: Message, state: FSMContext):
+async def question_set_time_todo(message: Message, state: FSMContext) -> Optional[Message]:
     skin = await DB_USERS.select_skin(telegram_id=message.from_user.id)
     msg: str = ''.join(let for let in message.text if let.isnumeric())
 
@@ -48,17 +47,16 @@ async def question_set_time_todo(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(state=UserSettingStates.time_todo)
-async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
+async def start_set_time_todo(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
-        lang, text = data.get('lang'), data.get('msg')
+        lang, text = data.values()
 
     await call.message.delete_reply_markup()
     skin, choice = await DB_USERS.select_skin(user_id := call.from_user.id), call.data
 
     if re_match(r'^([01]\d|2[0-3])?([0-5]\d)$', text := text.zfill(4)[:4]):
         try:
-            is_voice = True if choice != 'choice_voice_no' else False
-
+            is_voice: bool = True if choice != 'choice_voice_no' else False
             scheduler.add_job(send_todo_msg, 'cron', day_of_week='mon-sun', id=f'job_send_todo_{user_id}',
                               hour=text[:2], minute=text[-2:], end_date='2025-05-30', args=(user_id, is_voice),
                               misfire_grace_time=30, replace_existing=True, timezone="Europe/Moscow")
@@ -80,7 +78,7 @@ async def start_set_time_todo(call: CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(text='weather_add')
-async def weather_accept(call: CallbackQuery, state: FSMContext):
+async def weather_accept(call: CallbackQuery, state: FSMContext) -> None:
     lang: str = await DB_USERS.select_bot_language(telegram_id=call.from_user.id)
 
     await call.message.delete_reply_markup()

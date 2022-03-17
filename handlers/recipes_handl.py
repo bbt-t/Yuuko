@@ -1,6 +1,10 @@
+from typing import Optional
+
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery, ChatActions, ContentType
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from handlers.states_in_handlers import RecipeStates
 from loader import dp
@@ -11,11 +15,11 @@ from utils.keyboards.recipe_kb import recipe_keyboard, pagination_recipe_keyboar
 
 @rate_limit(2, key='recipe')
 @dp.message_handler(Command('recipe'))
-async def write_or_memorize_recipes(message: Message, state: FSMContext):
+async def write_or_memorize_recipes(message: Message, state: FSMContext) -> None:
 	lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
 
 	await message.delete()
-	msg_sticker = await message.answer_sticker(skin.welcome.value, disable_notification=True)
+	msg_sticker: Message = await message.answer_sticker(skin.welcome.value, disable_notification=True)
 	await message.answer(
 		'Чего изволите?' if lang == 'ru' else 'What do we do?',
 		reply_markup=await recipe_keyboard(is_first=True))
@@ -29,7 +33,7 @@ async def write_or_memorize_recipes(message: Message, state: FSMContext):
 	text={'receipt_of_prescription_info', 'recipe_name'},
 	state=RecipeStates.recipe_manipulation
 )
-async def write_recipe(call: CallbackQuery, state: FSMContext):
+async def write_recipe(call: CallbackQuery, state: FSMContext) -> None:
 	async with state.proxy() as data:
 		lang: str = data.get('lang')
 		await dp.bot.delete_message(
@@ -45,12 +49,11 @@ async def write_recipe(call: CallbackQuery, state: FSMContext):
 		async with state.proxy() as data:
 			data['msg_with_name'] = msg_with_name.message_id
 	elif call.data == 'recipe_name':
-
 		await RecipeStates.next()
 
 
 @dp.message_handler(state=RecipeStates.recipe_manipulation)
-async def write_recipe_name(message: Message, state: FSMContext):
+async def write_recipe_name(message: Message, state: FSMContext) -> Optional[Message]:
 	name: str = message.text
 
 	if await DB_USERS.check_recipe_name(telegram_id=message.from_user.id, name=name):
@@ -76,7 +79,7 @@ async def write_recipe_name(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state=RecipeStates.recipe_ingredients)
-async def write_recipe_ingredients(message: Message, state: FSMContext):
+async def write_recipe_ingredients(message: Message, state: FSMContext) -> None:
 	async with state.proxy() as data:
 		lang, for_del_msg = data.get('lang'), data.pop('msg_with_ingredients_id')
 		data['ingredients'] = message.text
@@ -91,7 +94,7 @@ async def write_recipe_ingredients(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state=RecipeStates.and_now_the_recipe)
-async def write_and_now_recipe(message: Message, state: FSMContext):
+async def write_and_now_recipe(message: Message, state: FSMContext) -> None:
 	async with state.proxy() as data:
 		lang, name_recipe, ingredients = data.values()
 	try:
@@ -101,7 +104,7 @@ async def write_and_now_recipe(message: Message, state: FSMContext):
 			ingredients=ingredients,
 			recipe=message.text
 		)
-	except:
+	except SQLAlchemyError:
 		await message.answer('Что-то пошло не так 😔')
 	else:
 		await message.answer('ГОТОВО! 🥳')
@@ -110,7 +113,7 @@ async def write_and_now_recipe(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state=RecipeStates.get_the_recipe)
-async def memorize_recipes(message: Message, state: FSMContext):
+async def memorize_recipes(message: Message, state: FSMContext) -> None:
 	async with state.proxy() as data:
 		lang: str = data.get('lang')
 
@@ -138,7 +141,7 @@ async def memorize_recipes(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(text='receipt_add_photo', state=RecipeStates.recipe_manipulation)
-async def recipe_send_photo(call: CallbackQuery, state: FSMContext):
+async def recipe_send_photo(call: CallbackQuery, state: FSMContext) -> None:
 	async with state.proxy() as data:
 		lang, msg_sticker_id = data.values()
 		del data['msg_sticker_id']
@@ -152,7 +155,7 @@ async def recipe_send_photo(call: CallbackQuery, state: FSMContext):
 
 
 @dp.message_handler(state=RecipeStates.recipe_photo_reception, content_types=ContentType.TEXT)
-async def recipe_photo_reception_name(message: Message, state: FSMContext):
+async def recipe_photo_reception_name(message: Message, state: FSMContext) -> Optional[Message]:
 	name: str = message.text
 
 	if not await DB_USERS.check_recipe_name(telegram_id=message.from_user.id, name=name):
@@ -173,7 +176,7 @@ async def recipe_photo_reception_name(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state=RecipeStates.recipe_photo_reception, content_types=ContentType.PHOTO)
-async def recipe_photo_reception(message: Message, state: FSMContext):
+async def recipe_photo_reception(message: Message, state: FSMContext) -> Optional[Message]:
 	photo_url: str = message.photo[-1].file_id
 	async with state.proxy() as data:
 		try:
@@ -196,7 +199,7 @@ async def recipe_photo_reception(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(text='get_all_recipes', state=RecipeStates.recipe_manipulation)
-async def show_all_recipes(call: CallbackQuery, state: FSMContext):
+async def show_all_recipes(call: CallbackQuery, state: FSMContext) -> CallbackQuery | None:
 	all_recipes: list = await DB_USERS.select_all_recipes(telegram_id=call.from_user.id)
 	try:
 		first_recipe_info: dict = all_recipes[0]
@@ -231,12 +234,12 @@ async def show_all_recipes(call: CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(pag_cb.filter(page="current_page"), state=RecipeStates.recipe_manipulation)
-async def recipe_skip_current_page(call: CallbackQuery):
+async def recipe_skip_current_page(call: CallbackQuery) -> None:
 	await call.answer(cache_time=60)
 
 
 @dp.callback_query_handler(pag_cb.filter(key='recipe'), state=RecipeStates.recipe_manipulation)
-async def recipes_pag_chosen_page(call: CallbackQuery, state: FSMContext, callback_data: dict):
+async def recipes_pag_chosen_page(call: CallbackQuery, state: FSMContext, callback_data: dict) -> None:
 	async with state.proxy() as data:
 		if data.get('msg_with_photo_id'):
 			await dp.bot.delete_message(

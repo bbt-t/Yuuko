@@ -1,5 +1,6 @@
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
+from sqlalchemy.exc import NoResultFound
 
 from config import time_zone
 from loader import dp, logger_guru
@@ -11,11 +12,11 @@ from utils.misc.other_funcs import get_time_now
 
 @rate_limit(2, key='hair')
 @dp.message_handler(Command('hair'))
-async def show_days_for_haircuts(message: Message):
+async def show_days_for_haircuts(message: Message) -> None:
     lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
     try:
         received_days: str = await lunar_calendar_haircut()
-    except:
+    except NoResultFound:
         logger_guru.exception('Haircuts Error')
         await message.reply_sticker(skin.something_is_wrong.value, disable_notification=True)
         await message.answer(
@@ -25,11 +26,15 @@ async def show_days_for_haircuts(message: Message):
     else:
         if get_time_now(time_zone).day <= max(map(int, received_days.split(','))):
             if lang == 'ru':
-                text_msg = (f'Привет!\nВот благоприятные дни для стрижки на текущий месяц:'
-                            f'\n\n<code>{received_days}</code>')
+                text_msg: str = (
+                    f'Привет!\nВот благоприятные дни для стрижки на текущий месяц:'
+                    f'\n\n<code>{received_days}</code>'
+                )
             else:
-                text_msg = (f'Hello!\nHere are auspicious days for a haircut for the current month:'
-                            f'\n\n<code>{received_days}</code>')
+                text_msg: str = (
+                    f'Hello!\nHere are auspicious days for a haircut for the current month:'
+                    f'\n\n<code>{received_days}</code>'
+                )
             await message.answer(text_msg)
         else:
             await message.answer('На текущий месяц уже ничего нет.')

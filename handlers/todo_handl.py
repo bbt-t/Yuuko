@@ -1,3 +1,5 @@
+from typing import DefaultDict
+
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -35,7 +37,7 @@ async def bot_todo(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(CalendarBot.callback.filter(), state=TodoStates.todo)
-async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext):
+async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
     selected, date = (await calendar_bot_ru.process_selection(call, callback_data) if lang == 'ru' else
@@ -65,7 +67,7 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
 
 
 @dp.message_handler(state=TodoStates.reception_todo)
-async def set_calendar_date(message: Message, state: FSMContext):
+async def set_calendar_date(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang, date = data.values()
 
@@ -73,8 +75,8 @@ async def set_calendar_date(message: Message, state: FSMContext):
     name, skin = f'todo_{user_id}', await DB_USERS.select_skin(telegram_id=user_id)
 
     if len(message.text) <= 1000:
-        message_task: list = message.text.split('\n')
-        todo_obj: dict = await load_todo_obj()
+        message_task: list = [item for item in message.text.split('\n') if item]
+        todo_obj: DefaultDict = await load_todo_obj()
         try:
             todo_obj[name][date].extend(message_task)
         except KeyError:
@@ -116,7 +118,7 @@ async def set_calendar_date(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state=TodoStates.todo)
-async def cancel_todo(message: Message, state: FSMContext):
+async def cancel_todo(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data['lang']
 

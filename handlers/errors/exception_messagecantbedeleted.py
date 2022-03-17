@@ -5,7 +5,7 @@ from loader import dp, logger_guru
 
 
 @dp.errors_handler(exception=MessageCantBeDeleted)
-async def error_msg_edit(update: Update, exception: MessageCantBeDeleted):
+async def error_msg_edit(update: Update, exception: MessageCantBeDeleted) -> bool:
     """
     If the message cannot be deleted.
     :param exception: exception name

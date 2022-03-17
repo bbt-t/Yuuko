@@ -1,28 +1,28 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from typing import Literal
+
+from aiogram.types import InlineKeyboardMarkup
+
+from utils.misc.other_funcs import create_keyboard_button
 
 
-choice_of_assistant_kb_ru = InlineKeyboardMarkup()
-choice_of_assistant_kb_ru.add(
-    InlineKeyboardButton(text='Neko (кот)', callback_data='neko'),
-    InlineKeyboardButton(text='Тян', callback_data='chan'),
-    InlineKeyboardButton(text='оставить облачко', callback_data='cloud'),
-)
+async def get_start_keyboard(
+        choice_assistant: bool = False,
+        set_birthday: bool = False,
+        lang: Literal['ru', 'en'] = 'ru') -> InlineKeyboardMarkup:
+    """
+    Generates keyboards to start the bot.
+    :param choice_assistant: skin selection keyboard
+    :param set_birthday: to enter a date of birth
+    :param lang: keyboard language
+    :return: Inline keyboard
+    """
+    if choice_assistant:
+        callback_data: tuple = 'neko', 'chan', 'cloud'
+        text_ru: tuple = 'Neko (кот)', 'Тян', 'оставить облачко'
+        text_en: tuple = 'Neko (cat)', 'Chan', 'Choose a cloud'
+    if set_birthday:
+        callback_data: tuple = 'set_birthday', 'cancel'
+        text_ru: tuple = 'ДАВАЙ!', 'не, может позже...'
+        text_en: tuple = "LET'S!", 'no, maybe later...'
 
-choice_of_assistant_kb_en = InlineKeyboardMarkup()
-choice_of_assistant_kb_en.add(
-    InlineKeyboardButton(text='Neko (cat)', callback_data='neko'),
-    InlineKeyboardButton(text='Chan', callback_data='chan'),
-    InlineKeyboardButton(text='choose a cloud', callback_data='cloud'),
-)
-
-initial_setup_choice_kb_ru = InlineKeyboardMarkup()
-initial_setup_choice_kb_ru.add(
-    InlineKeyboardButton(text='ДАВАЙ!', callback_data='set_birthday'),
-    InlineKeyboardButton(text='не, может позже...', callback_data='cancel')
-)
-
-initial_setup_choice_kb_en = InlineKeyboardMarkup()
-initial_setup_choice_kb_en.add(
-    InlineKeyboardButton(text="LET'S!", callback_data='set_birthday'),
-    InlineKeyboardButton(text='no, maybe later...', callback_data='cancel')
-)
+    return create_keyboard_button(text=text_ru if lang == 'ru' else text_en, callback_data=callback_data)

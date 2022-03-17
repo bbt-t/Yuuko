@@ -1,8 +1,10 @@
+from aiogram import Dispatcher
+
 from loader import logger_guru
 from config import bot_administrators
 
 
-async def on_startup_notify(dp):
+async def on_startup_notify(dp: Dispatcher) -> None:
     """
     Newsletter to admins when the bot is started
     """
@@ -12,7 +14,7 @@ async def on_startup_notify(dp):
         logger_guru.warning(f'{repr(err)} : Сan not send a message to the administrator')
 
 
-async def on_shutdown_notify(dp):
+async def on_shutdown_notify(dp: Dispatcher) -> None:
     """
     Newsletter to admins when the bot is stopped
     """

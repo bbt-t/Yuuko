@@ -1,6 +1,6 @@
 from calendar import monthcalendar
 from datetime import datetime
-from typing import Final, final
+from typing import Final, final, Literal, Optional
 from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
@@ -19,7 +19,7 @@ class CalendarBot:
     callback = CallbackData('dialog_calendar', 'run', 'year', 'month', 'day')
     ignore_callback = callback.new("IGNORE", -1, -1, -1)
 
-    def __init__(self, tz: str = time_zone, lang: str = 'ru'):
+    def __init__(self, tz: str = time_zone, lang: Literal['ru', 'en'] = 'ru') -> None:
         self.lang: str = lang
         self.month: int = datetime.now(tz=ZoneInfo(tz)).month
         self.year: int = datetime.now(tz=ZoneInfo(tz)).year
@@ -50,7 +50,7 @@ class CalendarBot:
                 'DAYS': DAYS_EN,
             }
 
-    async def enable(self, year=None) -> InlineKeyboardMarkup:
+    async def enable(self, year: Optional[int] = None) -> InlineKeyboardMarkup:
         """
         Shows the years.
         :param year: this year

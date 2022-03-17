@@ -10,7 +10,7 @@ from utils.misc.notify_users import send_a_message_to_all_users
 
 
 @dp.message_handler(Command('admin_tools'))
-async def go_to_admin_panel(message: Message, state: FSMContext):
+async def go_to_admin_panel(message: Message, state: FSMContext) -> None:
     lang: str = await DB_USERS.select_bot_language(telegram_id=message.from_user.id)
 
     await message.answer(
@@ -22,7 +22,7 @@ async def go_to_admin_panel(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(text={'reset_user_codeword', 'make_newsletter'}, state='admin_in_action')
-async def choose_an_action(call: CallbackQuery, state: FSMContext):
+async def choose_an_action(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
 
@@ -37,7 +37,7 @@ async def choose_an_action(call: CallbackQuery, state: FSMContext):
 
 
 @dp.message_handler(state='accept_user_id')
-async def take_user_id(message: Message, state: FSMContext):
+async def take_user_id(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
     try:
@@ -54,7 +54,7 @@ async def take_user_id(message: Message, state: FSMContext):
 
 
 @dp.message_handler(state='receiving_mailing_text')
-async def make_newsletter_to_all_users(message: Message, state: FSMContext):
+async def make_newsletter_to_all_users(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
 

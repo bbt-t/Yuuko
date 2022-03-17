@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import timedelta
+from typing import DefaultDict
 
 from ujson import loads as ujson_loads
 from ujson import dumps as ujson_dumps
@@ -20,11 +21,11 @@ async def dump_todo_obj(todo_obj: dict) -> None:
         await f.write(data)
 
 
-async def load_todo_obj() -> dict:
+async def load_todo_obj() -> DefaultDict:
     """
     Read ToDo_object.
     """
-    todo_obj: dict = defaultdict(dict)
+    todo_obj: DefaultDict = defaultdict(dict)
     try:
         async with aiofiles_open('data/db/data_todo.json', mode='r') as f:
             read_obj: dict = ujson_loads(await f.read())
@@ -39,7 +40,7 @@ async def delete_all_todo() -> None:
     Deletes keys at a given time.
     """
     date, read_data = (get_time_now(time_zone) - timedelta(days=1)).strftime('%Y-%m-%d'), await load_todo_obj()
-    todo_obj = defaultdict(dict)
+    todo_obj: DefaultDict = defaultdict(dict)
     clear_todo_obj: dict = {
         userid: {
             date_key: todo_val for date_key, todo_val in values.items() if date_key != date

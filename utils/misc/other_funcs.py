@@ -81,11 +81,11 @@ async def get_image_text(url: str, headers: dict, data) -> str:
 
 def create_keyboard_button(text: tuple, callback_data: tuple, row: int = 3) -> InlineKeyboardMarkup:
     """
-
-    :param text:
-    :param callback_data:
-    :param row:
-    :return:
+    Generates inline buttons according to the specified parameters.
+    :param text: text displayed on buttons
+    :param callback_data: what the buttons return
+    :param row: number of buttons on one line
+    :return: Inline Keyboard
     """
     keyboard = InlineKeyboardMarkup(row_width=row)
     button_info: Iterator = map(

@@ -89,7 +89,8 @@ async def send_todo_msg(
                 lang='ru'
             )
             await dp.bot.send_voice(telegram_id, voice_msg)
-        await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
+        send_msg = await dp.bot.send_message(telegram_id, f'Cписок дел на сегодня: \n\n{text_msg}')
+        await send_msg.pin(disable_notification=True)
 
 
 async def send_a_message_to_all_users(msg: str) -> Optional[str]:

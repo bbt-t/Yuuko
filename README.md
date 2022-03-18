@@ -20,7 +20,7 @@
   <li>Напомнить о делах :heavy_check_mark:</li>
   <li>Сохранять пароли :heavy_check_mark:</li>
   <li>Узнать какие дни "удачные" для стрижки :heavy_check_mark:</li>
-  <li>Получить гороскоп :heavy_check_mark:</li>
+  <li>Показать гороскоп (в inline-режиме тоже) :heavy_check_mark:</li>
   <li>Распознать текст на фото ️:warning:</li>
   <li>Сохранять рецепты :heavy_check_mark:</li>
 </ul>

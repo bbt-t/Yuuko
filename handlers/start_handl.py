@@ -70,13 +70,13 @@ async def start_working_with_bot(message: Message) -> Optional[Message]:
         text_msg: str = f"Привет, {name}!\n\nвыбери в какой 'форме' мне быть"
         await message.answer(
             text_msg,
-            reply_markup=await get_start_keyboard(choice_assistant=True)
+            reply_markup=await get_start_keyboard(is_choice_skin=True)
         )
     else:
         text_msg: str = f"Hi, {name}!\n\nchoose in what 'shape' I be"
         await message.answer(
             text_msg,
-            reply_markup=await get_start_keyboard(choice_assistant=True, lang='en')
+            reply_markup=await get_start_keyboard(is_choice_skin=True, lang='en')
         )
 
 
@@ -95,13 +95,13 @@ async def choose_skin_for_the_bot(call: CallbackQuery) -> None:
             await call.message.answer(
                 'Отлично!)\nп.с:<s> ты в любой момент можешь сменить напарника</s>\n\n'
                 'а теперь настройки!',
-                reply_markup=await get_start_keyboard(set_birthday=True)
+                reply_markup=await get_start_keyboard(is_set_birthday=True)
             )
         else:
             await call.message.answer(
                 'Fine!)\nyou can change your partner at any time if suddenly I don’t suit you 😰\n\n'
                 'and now settings!',
-                reply_markup=await get_start_keyboard(set_birthday=True, lang='en')
+                reply_markup=await get_start_keyboard(is_set_birthday=True, lang='en')
             )
     else:
         await call.message.answer('YAHOO! ^^')

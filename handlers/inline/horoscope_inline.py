@@ -30,7 +30,7 @@ async def get_inline_horoscope(query: InlineQuery):
 	"""
 	lang: str = await DB_USERS.select_bot_language(query.from_user.id)
 	await query.answer(
-		results=await choice_zodiac_keyboard(lang=lang, inline=True),
+		results=await choice_zodiac_keyboard(lang=lang, is_inline=True),
 		cache_time=60
 	)
 

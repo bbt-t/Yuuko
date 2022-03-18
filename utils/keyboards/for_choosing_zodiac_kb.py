@@ -6,11 +6,11 @@ from utils.getting_horoscope import get_user_horoscope_ru
 from utils.misc.other_funcs import create_keyboard_button
 
 
-async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list | InlineKeyboardMarkup:
+async def choice_zodiac_keyboard(lang: str = 'ru', is_inline: bool = False) -> list | InlineKeyboardMarkup:
     """
     Generates keyboard for horoscope (in inline mode too).
     :param lang: language
-    :param inline: for inline mode or not
+    :param is_inline: for inline mode or not
     :return: list (for inline mode) or InlineKeyboard
     """
     callback_data: tuple = (
@@ -32,7 +32,7 @@ async def choice_zodiac_keyboard(lang: str = 'ru', inline: bool = False) -> list
         lambda item: dict(zip(('text', 'callback_data'), item)),
         zip(text_ru if lang == 'ru' else text_en, callback_data)
     )
-    if inline:
+    if is_inline:
         return [
             InlineQueryResultArticle(
                 id=f'{item.get("callback_data")}_ru',

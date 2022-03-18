@@ -6,8 +6,8 @@ from utils.misc.other_funcs import create_keyboard_button
 
 
 async def get_start_keyboard(
-        choice_assistant: bool = False,
-        set_birthday: bool = False,
+        is_choice_skin: bool = False,
+        is_set_birthday: bool = False,
         lang: Literal['ru', 'en'] = 'ru') -> InlineKeyboardMarkup:
     """
     Generates keyboards to start the bot.
@@ -16,11 +16,11 @@ async def get_start_keyboard(
     :param lang: keyboard language
     :return: Inline keyboard
     """
-    if choice_assistant:
+    if is_choice_skin:
         callback_data: tuple = 'neko', 'chan', 'cloud'
         text_ru: tuple = 'Neko (кот)', 'Тян', 'оставить облачко'
         text_en: tuple = 'Neko (cat)', 'Chan', 'Choose a cloud'
-    if set_birthday:
+    if is_set_birthday:
         callback_data: tuple = 'set_birthday', 'cancel'
         text_ru: tuple = 'ДАВАЙ!', 'не, может позже...'
         text_en: tuple = "LET'S!", 'no, maybe later...'

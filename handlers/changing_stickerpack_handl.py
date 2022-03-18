@@ -12,11 +12,11 @@ async def choose_a_sticker_pack(call: CallbackQuery, state: FSMContext) -> None:
         if data.get('lang') == 'ru':
             await call.message.answer(
                 "На какой меняем?",
-                reply_markup=await get_start_keyboard(choice_assistant=True)
+                reply_markup=await get_start_keyboard(is_choice_skin=True)
             )
         else:
             await call.message.answer(
                 "What are we changing to?",
-                reply_markup=await get_start_keyboard(choice_assistant=True, lang='en')
+                reply_markup=await get_start_keyboard(is_choice_skin=True, lang='en')
             )
         await state.finish()

@@ -1,4 +1,4 @@
-FROM python:3.10.2-slim-bullseye
+FROM python:3.10.3-slim-bullseye
 
 LABEL maintainer="github.com/bbt-t" description="telegram bot aiogram v2.x"
 

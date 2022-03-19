@@ -1,10 +1,9 @@
-from typing import Literal, final, NoReturn
+from typing import Literal, final, NoReturn, Optional
 
 from aiogram import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.executor import start_webhook, start_polling
 from click import command, option
-from sqlalchemy.exc import SQLAlchemyError
 
 from config import hook_info
 from loader import dp, scheduler, logger_guru
@@ -38,8 +37,10 @@ class StartBotCompose:
         await on_startup_notify(dp)
         try:
             await start_db()
-        except SQLAlchemyError:
-            logger_guru.info('DB error on start bot')
+        except BaseException as error:
+            logger_guru.critical(f'{repr(error)} DB error on start bot')
+            raise
+
         scheduler.start()
         for func in {delete_all_todo, clear_redis, clear_all_pin_msg}:
             scheduler.add_job(func, 'cron', id=f'{func}_job',
@@ -56,13 +57,13 @@ class StartBotCompose:
         await dp.bot.delete_webhook(drop_pending_updates=True)
         await dp.storage.close()
         await dp.storage.wait_closed()
-        raise SystemExit
+        raise SystemExit('Bot stopped!')
 
 
 @command()
 @option("--storage", default=None, help="Method used (or mem or redis (default))")
 @option("--method", default=None, help="Connection method used or polling (default) or webhook")
-def _start_bot(storage: Literal['mem', 'redis', None], method: Literal['webhook', None]) -> None:
+def _start_bot(storage: Optional[Literal['mem', 'redis']], method: Optional[Literal['webhook']]) -> None:
     """
     CLI.
     :param storage: Using the "mem" flag will break some bot functionality
@@ -70,28 +71,28 @@ def _start_bot(storage: Literal['mem', 'redis', None], method: Literal['webhook'
     """
     if storage == 'mem':
         dp.__setattr__('storage', MemoryStorage())
-    try:
-        if method == 'webhook' and WebHook.parse_obj(hook_info):
-            logger_guru.warning('---> With webhook --->')
-            setattr(StartBotCompose, 'webhook', True)
-            start_webhook(
-                dispatcher=dp,
-                skip_updates=True,
-                on_startup=StartBotCompose.on_startup,
-                on_shutdown=StartBotCompose.on_shutdown,
-                **hook_info.get('WEBHOOK')
-            )
-        else:
-            logger_guru.warning('---> With polling --->')
-            start_polling(
-                dispatcher=dp,
-                on_startup=StartBotCompose.on_startup,
-                on_shutdown=StartBotCompose.on_shutdown,
-                skip_updates=True
-            )
-    except BaseException as err:
-        logger_guru.critical(f'{repr(err)} : Bot stopped')
+    if method == 'webhook' and WebHook.parse_obj(hook_info):
+        logger_guru.warning('---> With webhook --->')
+        setattr(StartBotCompose, 'webhook', True)
+        start_webhook(
+            dispatcher=dp,
+            skip_updates=True,
+            on_startup=StartBotCompose.on_startup,
+            on_shutdown=StartBotCompose.on_shutdown,
+            **hook_info.get('WEBHOOK')
+        )
+    else:
+        logger_guru.warning('---> With polling --->')
+        start_polling(
+            dispatcher=dp,
+            on_startup=StartBotCompose.on_startup,
+            on_shutdown=StartBotCompose.on_shutdown,
+            skip_updates=True
+        )
 
 
 if __name__ == '__main__':
-    _start_bot()
+    try:
+        _start_bot()
+    except BaseException as err:
+        logger_guru.critical(repr(err))

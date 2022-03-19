@@ -50,5 +50,4 @@ class CustomValidate(BaseMiddleware):
                          '⚠ <b>Restart Redis or run bot in <code>--mem</code> mode !</b> ⚠'
                 )
                 await on_shutdown_notify(dp)
-                logger_guru.critical(f'{repr(err)} : Error connecting to redis!')
-                raise SystemExit
+                raise SystemExit(f'{repr(err)} : Error connecting to redis!')

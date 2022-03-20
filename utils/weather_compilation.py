@@ -29,7 +29,7 @@ async def create_weather_forecast() -> str:
     except KeyError:
         logger_guru.warning("Main API didn't work !")
 
-        req = await get_weather_info(alter=True)
+        req: dict = await get_weather_info(is_alter=True)
 
         temp: int = ceil(req['DailyForecasts'][0]['RealFeelTemperature']['Maximum']['Value'])
         wind: float = ceil(req['DailyForecasts'][0]['Day']['Wind']['Speed']['Value'])
@@ -50,14 +50,17 @@ async def create_weather_forecast() -> str:
     if wind <= 5:
         rep_wind: str = 'не страшно :)'
     elif 5 < wind < 15:
-        rep_wind: str = 'Ветер ощущется! Желательно надеть шарф!'
+        rep_wind: str = 'Ветер ощущается! Желательно надеть шарф!'
     else:
         rep_wind: str = 'Штормовой ветрище! Необходимо защититься от ветра и быть осторожным!'
 
+    take_an_umbrella_with_you: str = (
+        '<b>⛈ НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ ☔</b>'
+        if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''
+    )
     generated_msg: str = (
         f"Сегодня будет <CODE>{weather.upper()} {temp}&#176;</CODE>\n<b>{rep_temp}</b>\n"
-        f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n"
-        f"{'<b>⛈ НЕ ЗАБУДЬ ВЗЯТЬ ЗОНТ ☔</b>' if any(x in weather_main.lower() for x in ('rain', 'thunderstorm')) else ''}"
+        f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n{take_an_umbrella_with_you}"
     )
     if isinstance(dp.storage, RedisStorage2):
         async with aioredis_from_url(**redis_data_cache) as connect_redis:
@@ -66,8 +69,13 @@ async def create_weather_forecast() -> str:
     return generated_msg
 
 
-async def get_weather_info(alter: bool = False) -> dict:
-    if alter:
+async def get_weather_info(is_alter: bool = False) -> dict:
+    """
+    Request to API.
+    :param is_alter: request to alternative API
+    :return: API answer
+    """
+    if is_alter:
         async with ClientSession() as session:
             async with session.get(ApiInfo.GET_CITY_ID.value) as resp_city:
                 received_city: str = (await resp_city.json())[0]['Key']

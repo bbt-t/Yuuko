@@ -3,6 +3,7 @@ from typing import Optional
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
+from apscheduler.jobstores.base import JobLookupError
 
 from handlers.states_in_handlers import UserSettingStates
 from loader import dp, logger_guru, scheduler
@@ -12,7 +13,23 @@ from utils.keyboards.yes_no import yes_no_choice_kb
 from utils.misc.notify_users import send_todo_msg
 
 
-@dp.callback_query_handler(text='set_time_todo', state=UserSettingStates.settings)
+@dp.callback_query_handler(text='todo_off_settings', state=UserSettingStates.settings)
+async def weather_notification_off(call: CallbackQuery, state: FSMContext) -> None:
+    async with state.proxy() as data:
+        lang: str = data.get('lang')
+
+    try:
+        scheduler.remove_job(job_id=f'job_send_todo_{call.from_user.id}')
+    except JobLookupError:
+        await call.answer('Ничего нет...' if lang == 'ru' else 'Job not found!', show_alert=True)
+    else:
+        await call.answer("Оповещение о туду'шках выключено!", show_alert=True)
+    finally:
+        await call.message.delete()
+        await state.finish()
+
+
+@dp.callback_query_handler(text='todo_on_settings', state=UserSettingStates.settings)
 async def late_day_todo_notification(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         await call.message.answer(

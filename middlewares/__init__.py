@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 from .throttling import ThrottlingMiddleware
-from .validate_users import CustomValidate
+from .validate_ import CustomValidate
 
 
 def setup(dp: Dispatcher):

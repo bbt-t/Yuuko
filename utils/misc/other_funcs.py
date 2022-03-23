@@ -1,7 +1,7 @@
 from asyncio import get_running_loop
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from datetime import datetime
-from typing import Any, Iterator, Literal
+from typing import Any, Iterator
 from zoneinfo import ZoneInfo
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton

@@ -5,7 +5,7 @@ from aioredis.exceptions import ConnectionError
 from sqlalchemy.exc import NoResultFound
 
 from config import bot_administrators
-from loader import dp, logger_guru
+from loader import dp
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.misc.notify_admins import on_shutdown_notify
 
@@ -17,7 +17,17 @@ class CustomValidate(BaseMiddleware):
         Command write prevention
     Stop bot if connection to radis fails.
     """
-    commands: set = {'/start', '/todo', '/horoscope', '/hair', '/pass', '/support', '/set_settings', '/recipe'}
+    commands: set = {
+        '/start',
+        '/todo',
+        '/horoscope',
+        '/hair',
+        '/pass',
+        '/support',
+        '/set_settings',
+        '/recipe',
+        '/admin_tools'
+    }
 
     async def on_pre_process_message(self, message: Message, data: dict) -> None:
         """

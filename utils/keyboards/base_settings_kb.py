@@ -7,9 +7,9 @@ from utils.misc.other_funcs import create_keyboard_button
 
 def settings_keyboard(lang: Literal['ru', 'en'] = 'ru') -> InlineKeyboardMarkup:
 	"""
-
-	:param lang:
-	:return:
+	Keyboard for settings.
+	:param lang: language
+	:return: Inline Keyboard
 	"""
 	callback_data: tuple = 'set_weather', 'set_time_todo', 'set_skin', 'cancel'
 	text_ru: tuple = 'Погода', "Todo'шки", 'Стикерпак', 'отмена'
@@ -27,11 +27,11 @@ def choice_settings(
 		is_weather: bool = False
 ) -> InlineKeyboardMarkup:
 	"""
-
-	:param lang:
-	:param is_todo:
-	:param is_weather:
-	:return:
+	Additional keyboard to settings.
+	:param lang: language
+	:param is_todo: show for toodoo's
+	:param is_weather: show for weather
+	:return: Inline Keyboard
 	"""
 	text_ru: tuple = 'вкл/изменить', 'выкл',
 	text_en: tuple = 'on/edit', 'off',
@@ -45,4 +45,3 @@ def choice_settings(
 		text=text_ru if lang == 'ru' else text_en,
 		callback_data=callback_data,
 	)
-

@@ -13,7 +13,7 @@ from utils.keyboards.for_choosing_zodiac_kb import choice_zodiac_keyboard, choic
 @rate_limit(2, key='horoscope')
 @dp.message_handler(Command('horoscope'))
 async def start_working_with_bot(message: Message, state: FSMContext) -> None:
-    if (lang := await DB_USERS.select_bot_language(telegram_id=message.from_user.id)) == 'ru':
+    if (lang := await DB_USERS.select_bot_language(message.from_user.id)) == 'ru':
         await message.answer(
             'Заглянем в бууудууущее 🙈\n\n'
             'так, СТОП! мне же нужна инфа о тебе,\n'
@@ -36,6 +36,7 @@ async def start_working_with_bot(message: Message, state: FSMContext) -> None:
 async def get_horoscope(call: CallbackQuery, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
+
     try:
         if lang == 'ru':
             await call.message.edit_reply_markup(choice_day_zodiac_keyboard())

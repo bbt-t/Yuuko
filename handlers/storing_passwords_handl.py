@@ -22,7 +22,7 @@ from utils.misc.other_funcs import delete_marked_message, get_time_now
 
 
 @logger_guru.catch()
-async def convert_password_to_enc_object(user_id: int, name_pass: str, password: str) -> bytes:
+def convert_password_to_enc_object(user_id: int, name_pass: str, password: str) -> bytes:
     """
     Encrypts password and serializes for storage
     :param user_id: ID who wrote
@@ -81,12 +81,12 @@ async def accept_settings_for_remembering_password(message: Message, state: FSMC
                 match lang:
                     case 'ru':
                         await message.answer('НЕВЕРНО! попробуй ещё раз :С\n\n'
-                                             'п.с: если твой пароль потерялся, то нашиши в саппорт!\n'
-                                             'подсказка: /support')
+                                             'п.с: если твой пароль потерялся, то нашиши в саппорт!\n\n'
+                                             '<i>подсказка: /support</i>')
                     case _:
                         await message.answer('WRONG! try again :С\n\n'
-                                             'п.с: If your codeword is lost, then write to support!\n'
-                                             'подсказка: /support')
+                                             'п.с: If your codeword is lost, then write to support!\n\n'
+                                             '<i>prompt: /support</i>')
                 await state.finish()
         else:
             await DB_USERS.update_personal_pass(telegram_id=user_id, personal_pass=msg)
@@ -122,7 +122,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext) -> None:
     match msg.replace(',', ' ').split():
         case name_pass, password:
             await message.delete()
-            enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, password)
+            enc_pass: bytes = convert_password_to_enc_object(user_id, name_pass, password)
             try:
                 await DB_USERS.add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
             except IntegrityError:
@@ -136,7 +136,7 @@ async def set_name_and_write_pass(message: Message, state: FSMContext) -> None:
                 await message.delete()
                 await message.answer('А теперь пароль :)' if lang == 'ru' else 'And now the password :)')
             else:
-                enc_pass: bytes = await convert_password_to_enc_object(user_id, name_pass, msg)
+                enc_pass: bytes = convert_password_to_enc_object(user_id, name_pass, msg)
                 try:
                     await DB_USERS.add_other_info(telegram_id=user_id, name=name_pass, info_for_save=enc_pass)
                 except IntegrityError:

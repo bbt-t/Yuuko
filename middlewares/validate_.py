@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aioredis.exceptions import ConnectionError
 from sqlalchemy.exc import NoResultFound
 
-from config import bot_administrators
+from config import bot_config
 from loader import dp
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.misc.notify_admins import on_shutdown_notify
@@ -55,7 +55,7 @@ class CustomValidate(BaseMiddleware):
                 await message.answer(text_msg_ru if lang == 'ru' else text_msg_en)
             finally:
                 await dp.bot.send_message(
-                    chat_id=bot_administrators.get('creator'),
+                    chat_id=bot_config.bot_administrators.creator,
                     text='⚠ <b>Error connecting 🔌 redis!</b> ⚠\n'
                          '⚠ <b>Restart Redis or run bot in <code>--mem</code> mode !</b> ⚠'
                 )

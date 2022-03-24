@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
-from config import time_zone
+from config import bot_config
 from loader import dp, logger_guru, scheduler
 from .states_in_handlers import TodoStates
 from middlewares.throttling import rate_limit
@@ -44,7 +44,7 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
                       await calendar_bot_en.process_selection(call, callback_data))
 
     if date and selected:
-        if date < get_time_now(time_zone).date():
+        if date < get_time_now(bot_config.time_zone).date():
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(
@@ -94,7 +94,7 @@ async def set_calendar_date(message: Message, state: FSMContext) -> None:
             f'Вот список на этот день:\n\n{result}' if lang == 'ru' else
             f'Here is the list for this day:\n\n{result}'
         )
-        if date == get_time_now(time_zone).strftime('%Y-%m-%d'):
+        if date == get_time_now(bot_config.time_zone).strftime('%Y-%m-%d'):
             await dp.bot.unpin_all_chat_messages(chat_id=user_id)
             await send_msg.pin(disable_notification=True)
         else:

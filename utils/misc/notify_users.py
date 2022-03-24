@@ -5,7 +5,7 @@ from time import sleep
 from aiogram.types import ParseMode, Message
 from aiogram.utils.exceptions import BotBlocked
 
-from config import work_with_api, time_zone
+from config import bot_config
 from loader import dp, logger_guru
 from .other_funcs import get_time_now
 from ..database_manage.sql.sql_commands import DB_USERS
@@ -46,8 +46,9 @@ async def send_weather(telegram_id: int) -> None:
 @logger_guru.catch()
 async def send_synthesize_voice_by_ya(
         telegram_id: int | str, text: str, lang: str,
-        folder: str = work_with_api['YANDEX']['FOLDER_ID'],
-        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']) -> None:
+        folder: str = bot_config.work_with_api.yandex.FOLDER_ID,
+        api_ya_tts: str = bot_config.work_with_api.yandex.API_YA_TTS
+) -> None:
     """
     Sends a message with the synthesize voice message
     :param telegram_id: user id
@@ -62,9 +63,9 @@ async def send_synthesize_voice_by_ya(
 
 async def send_todo_msg(
         telegram_id: int | str, is_voice: bool = False,
-        folder: str = work_with_api['YANDEX']['FOLDER_ID'],
-        api_ya_tts: str = work_with_api['YANDEX']['API_YA_TTS']
-        ) -> None:
+        folder: str = bot_config.work_with_api.yandex.FOLDER_ID,
+        api_ya_tts: str = bot_config.work_with_api.yandex.API_YA_TTS,
+) -> None:
     """
     Sends a message with the synthesize voice message
     :param telegram_id: telegram id of the person to whom the message will be sent
@@ -73,7 +74,7 @@ async def send_todo_msg(
     :param: api_ya_tts: api-key
     :return: voice message and text message
     """
-    name, date = f'todo_{telegram_id}', get_time_now(time_zone).strftime('%Y-%m-%d')
+    name, date = f'todo_{telegram_id}', get_time_now(bot_config.time_zone).strftime('%Y-%m-%d')
 
     try:
         todo_obj: DefaultDict = await load_todo_obj()

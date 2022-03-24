@@ -7,7 +7,7 @@ from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 from bs4 import BeautifulSoup
 
-from config import redis_data_cache, work_with_api, time_zone
+from config import bot_config
 from loader import logger_guru, dp
 from utils.misc.other_funcs import get_time_now
 
@@ -21,7 +21,7 @@ async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow'])
     """
     async def get_horoscope() -> Optional[str]:
         async with ClientSession() as session:
-            async with session.get(work_with_api['OTHER']['HORO_XML']) as resp:
+            async with session.get(bot_config.work_with_api.other.HORO_XML) as resp:
                 if resp.status != 200:
                     logger_guru.warning(f"{resp.status=} : Bad request!")
                     raise ConnectionError
@@ -33,7 +33,7 @@ async def get_user_horoscope_ru(zodiac: str, when: Literal['today', 'tomorrow'])
     if not isinstance(dp.storage, RedisStorage2):
         generated_msg: str = await get_horoscope()
     else:
-        async with aioredis_from_url(**redis_data_cache) as connect_redis:
+        async with aioredis_from_url(**bot_config.redis.redis_data_cache.as_dict()) as connect_redis:
             if data := await connect_redis.hget(name='horoscope', key=f'ru_{zodiac}_{when}'):
                 generated_msg: str = data.decode()
             else:
@@ -51,14 +51,14 @@ async def get_user_horoscope_en(zodiac: str, when: Literal['today', 'tomorrow'])
     """
     match when:
         case 'today':
-            date: str = get_time_now(time_zone).strftime('%Y%m%d')
+            date: str = get_time_now(bot_config.time_zone).strftime('%Y%m%d')
         case 'tomorrow':
-            date: str = (get_time_now(time_zone) + timedelta(days=1)).strftime('%Y%m%d')
+            date: str = (get_time_now(bot_config.time_zone) + timedelta(days=1)).strftime('%Y%m%d')
 
     async def get_horoscope() -> Optional[str]:
         async with ClientSession() as session:
             async with session.get(
-                    f"{work_with_api['OTHER']['HORO_EN']}{zodiac}/daily-{date}.html"
+                    f"{bot_config.work_with_api.other.HORO_EN}{zodiac}/daily-{date}.html"
             ) as resp:
                 if resp.status != 200:
                     logger_guru.warning(f"{resp.status=} : Bad request!")
@@ -71,7 +71,7 @@ async def get_user_horoscope_en(zodiac: str, when: Literal['today', 'tomorrow'])
     if not isinstance(dp.storage, RedisStorage2):
         generated_msg: str = await get_horoscope()
     else:
-        async with aioredis_from_url(**redis_data_cache) as connect_redis:
+        async with aioredis_from_url(**bot_config.redis.redis_data_cache.as_dict()) as connect_redis:
             if data := await connect_redis.hget(name='horoscope', key=f'en_{zodiac}_{when}'):
                 generated_msg: str = data.decode()
             else:

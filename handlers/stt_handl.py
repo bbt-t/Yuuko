@@ -1,12 +1,12 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ContentType
 
-from config import work_with_api
+from config import bot_config
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.misc.other_funcs import cpu_bound_run_func
-from utils.work_with_speech.speech_to_text_on_their_own import recognize_locally
+from utils.work_with_speech.speech_to_text_on_local import recognize_locally
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
@@ -17,7 +17,9 @@ async def determine_further_path(message: Message, state: FSMContext) -> None:
     try:
         msg: bytes = await message.bot.download_file_by_id(file_id)
         text: str = await recognize_speech_by_ya(
-            msg, work_with_api['YANDEX']['FOLDER_ID'], work_with_api['YANDEX']['API_YA_STT']
+            msg,
+            bot_config.work_with_api.yandex.FOLDER_ID,
+            bot_config.work_with_api.yandex.API_YA_STT,
         )
         if not text:
             raise AttributeError('BAD REQUEST')

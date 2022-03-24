@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ChatActions, ContentType, CallbackQuery
 from apscheduler.jobstores.base import JobLookupError
 
-from config import work_with_api
+from config import bot_config
 from handlers.states_in_handlers import UserSettingStates
 from loader import dp, scheduler, logger_guru
 from utils.database_manage.sql.sql_commands import DB_USERS
@@ -65,7 +65,9 @@ async def start_weather(message: Message, state: FSMContext) -> None:
         case 'voice':
             msg: bytes = await message.bot.download_file_by_id(message.voice.file_id)
             text: str = await recognize_speech_by_ya(
-                msg, work_with_api['YANDEX']['FOLDER_ID'], work_with_api['YANDEX']['API_YA_STT']
+                msg,
+                bot_config.work_with_api.yandex.FOLDER_ID,
+                bot_config.work_with_api.yandex.API_YA_STT,
             )
         case 'text':
             text: str = message.text

@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.builtin import Command
 from aiogram.types import Message, ContentType
 from ujson import dumps as ujson_dumps
 
-from config import work_with_api
+from config import bot_config
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.misc.other_funcs import get_image_text
@@ -30,7 +30,7 @@ async def take_image_for_ocr(message: Message, state: FSMContext) -> None:
     }
     try:
         result: str = await wait_for(get_image_text(
-            url=work_with_api['OTHER']['OCR_URL'], headers=headers, data=data),
+            url=bot_config.work_with_api.other.OCR_URL, headers=headers, data=data),
             timeout=10
         )
         await message.answer(f'Вот что получилось:\n{result}')

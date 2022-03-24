@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
-from config import time_zone
+from config import bot_config
 
 
 @final
@@ -19,7 +19,7 @@ class CalendarBot:
     callback = CallbackData('dialog_calendar', 'run', 'year', 'month', 'day')
     ignore_callback = callback.new("IGNORE", -1, -1, -1)
 
-    def __init__(self, tz: str = time_zone, lang: Literal['ru', 'en'] = 'ru') -> None:
+    def __init__(self, tz: str = bot_config.time_zone, lang: Literal['ru', 'en'] = 'ru') -> None:
         self.lang: str = lang
         self.month: int = datetime.now(tz=ZoneInfo(tz)).month
         self.year: int = datetime.now(tz=ZoneInfo(tz)).year

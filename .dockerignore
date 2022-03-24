@@ -9,3 +9,5 @@ LICENSE
 .git
 .pytest_cache
 Dockerfile
+.example_env.md
+example_vosk

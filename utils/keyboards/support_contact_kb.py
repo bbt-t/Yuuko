@@ -2,7 +2,8 @@ from typing import Optional
 
 from aiogram.utils.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from config import bot_administrators
+
+from config import bot_config
 
 
 sup_cb = CallbackData('sup_ask', 'telegram_id')
@@ -15,11 +16,9 @@ async def sup_kb(telegram_id: Optional[int] = None) -> InlineKeyboardMarkup:
     :return: shaped inline-keyboard
     """
     if telegram_id:
-        contact: int = telegram_id
-        text: str = 'Ответить пользователю'
+        contact, text = telegram_id, 'Ответить пользователю'
     else:
-        contact: str = bot_administrators.get('creator')
-        text: str = 'Написать админ'
+        contact, text = bot_config.bot_administrators.creator, 'Написать админу'
 
     kb = InlineKeyboardMarkup()
     kb.add(
@@ -27,4 +26,3 @@ async def sup_kb(telegram_id: Optional[int] = None) -> InlineKeyboardMarkup:
         InlineKeyboardButton(text='Отмена', callback_data='cancel')
     )
     return kb
-

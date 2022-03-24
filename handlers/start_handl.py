@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery, ChatActions
 from deep_translator import GoogleTranslator
 from sqlalchemy.exc import IntegrityError
 
-from config import time_zone
+from config import bot_config
 from handlers.states_in_handlers import UserSettingStates
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
@@ -140,7 +140,7 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
                       await calendar_bot_en.process_selection(call, callback_data))
 
     if date and selected:
-        if 30_000 <= (get_time_now(time_zone).date() - date).days <= 2_500:
+        if 30_000 <= (get_time_now(bot_config.time_zone).date() - date).days <= 2_500:
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(

@@ -8,15 +8,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from uvloop import EventLoopPolicy as uvloop_Loop
 
-from config import BOT_TOKEN, redis_for_bot, DB_NAME
+from config import bot_config
 from loguru import logger as logger_guru
 
 
 set_event_loop_policy(uvloop_Loop())
 
 
-storage = RedisStorage2(**redis_for_bot)
-bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML, connections_limit=100)
+storage = RedisStorage2(**bot_config.redis.redis_for_bot.as_dict())
+bot = Bot(token=bot_config.BOT_TOKEN, parse_mode=types.ParseMode.HTML, connections_limit=100)
 dp = Dispatcher(bot, storage=storage)
 
 scheduler = AsyncIOScheduler()
@@ -25,7 +25,7 @@ scheduler.configure(
     logger=logger_guru)
 
 Base = declarative_base()
-engine = create_async_engine(f'sqlite+aiosqlite:///data/db/{DB_NAME}', future=True)
+engine = create_async_engine(f'sqlite+aiosqlite:///data/db/{bot_config.DB_NAME}', future=True)
 
 logger_guru.add(
     'data/logs/logging-bot.log',

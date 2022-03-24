@@ -5,9 +5,9 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.executor import start_webhook, start_polling
 from click import command, option
 
-from config import hook_info
+from config import bot_config
 from loader import dp, scheduler, logger_guru
-from tests.schemas.pydantic_schemas import WebHook
+#from tests.schemas.pydantic_schemas import WebHook
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
 from utils.misc.notify_admins import on_startup_notify, on_shutdown_notify
@@ -31,7 +31,7 @@ class StartBotCompose:
         :param dp: Dispatcher
         """
         if cls.webhook:
-            await dp.bot.set_webhook(hook_info.get('WEBHOOK_URL'), drop_pending_updates=True)
+            await dp.bot.set_webhook(bot_config.hook_info.WEBHOOK_URL, drop_pending_updates=True)
         setup(dp)
         await set_default_commands(dp)
         await on_startup_notify(dp)
@@ -71,18 +71,20 @@ def _start_bot(storage: Optional[Literal['mem', 'redis']], method: Optional[Lite
     """
     if storage == 'mem':
         dp.__setattr__('storage', MemoryStorage())
-    if method == 'webhook' and WebHook.parse_obj(hook_info):
+    if method == 'webhook': #and WebHook.parse_obj(hook_info):
         logger_guru.warning('---> With webhook --->')
-        setattr(StartBotCompose, 'webhook', True)
+
+        StartBotCompose.webhook = True
         start_webhook(
             dispatcher=dp,
             skip_updates=True,
             on_startup=StartBotCompose.on_startup,
             on_shutdown=StartBotCompose.on_shutdown,
-            **hook_info.get('WEBHOOK')
+            **bot_config.hook_info.WEBHOOK.as_dict(),
         )
     else:
         logger_guru.warning('---> With polling --->')
+
         start_polling(
             dispatcher=dp,
             on_startup=StartBotCompose.on_startup,

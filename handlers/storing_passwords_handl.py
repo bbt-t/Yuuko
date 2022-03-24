@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.exc import SQLAlchemyError
 from pgpy import PGPMessage
 
-from config import time_zone
+from config import bot_config
 from handlers.states_in_handlers import PasswordStates
 from loader import dp, logger_guru, scheduler
 from middlewares.throttling import rate_limit
@@ -177,7 +177,7 @@ async def get_name_of_the_requested_password(message: Message, state: FSMContext
             )
 
             removing_msg: Message = await message.answer(text_msg)
-            delete_time: str = (get_time_now(time_zone) + timedelta(seconds=10)).strftime('%Y-%m-%d %H:%M:%S')
+            delete_time: str = (get_time_now(bot_config.time_zone) + timedelta(seconds=10)).strftime('%Y-%m-%d %H:%M:%S')
             scheduler.add_job(
                 delete_marked_message, id=f'del_msg_{user_id}',
                 args=(removing_msg.message_id, message.chat.id), trigger='date',

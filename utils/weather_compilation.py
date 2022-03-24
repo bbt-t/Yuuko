@@ -4,7 +4,7 @@ from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiohttp import ClientSession
 from aioredis import from_url as aioredis_from_url
 
-from config import redis_data_cache
+from config import bot_config
 from loader import logger_guru, dp
 from .misc.enums_data import ApiInfo
 
@@ -15,7 +15,7 @@ async def create_weather_forecast() -> str:
     :return: weather for the current hour
     """
     if isinstance(dp. storage, RedisStorage2):
-        async with aioredis_from_url(**redis_data_cache) as connect_redis:
+        async with aioredis_from_url(**bot_config.redis.redis_data_cache.as_dict()) as connect_redis:
             if data := await connect_redis.get('weather_cache'):
                 return data.decode()
 
@@ -63,7 +63,7 @@ async def create_weather_forecast() -> str:
         f"Скорость ветра <CODE>{wind}</CODE> м/с,\n{rep_wind}\n{take_an_umbrella_with_you}"
     )
     if isinstance(dp.storage, RedisStorage2):
-        async with aioredis_from_url(**redis_data_cache) as connect_redis:
+        async with aioredis_from_url(**bot_config.redis.redis_data_cache.as_dict()) as connect_redis:
             await connect_redis.setex('weather_cache', 3600, generated_msg)
 
     return generated_msg

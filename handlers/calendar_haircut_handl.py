@@ -2,7 +2,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message
 from sqlalchemy.exc import NoResultFound
 
-from config import time_zone
+from config import bot_config
 from loader import dp, logger_guru
 from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
@@ -24,7 +24,7 @@ async def show_days_for_haircuts(message: Message) -> None:
             'Something went wrong... please try again later.'
         )
     else:
-        if get_time_now(time_zone).day <= max(map(int, received_days.split(','))):
+        if get_time_now(bot_config.time_zone).day <= max(map(int, received_days.split(','))):
             if lang == 'ru':
                 text_msg: str = (
                     f'Привет!\nВот благоприятные дни для стрижки на текущий месяц:'

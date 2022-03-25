@@ -48,12 +48,10 @@ _see more with_ `--help` _command_
 If you plan to run a bot with `polling` in docker, then you need to change the value in `ENTRYPOINT` "webhook" to "polling" or remove it altogether
 
 
-> It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py):
+It is necessary to create a file named .env, write the consants there (or just explicitly specify the values in config.py)
 
-    HOST_REDIS = ...
-    BOT_TOKEN = ...
-    API_WEATHER = ...
-    etc...
+[> Example .env <](https://github.com/bbt-t/Yuuko/blob/master/.example_env.md)
+
  
 For the bot to work, you need python version >= `3.10.x`
 

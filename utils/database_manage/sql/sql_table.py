@@ -31,16 +31,16 @@ class Users(Base):
         return self.__email
 
     @email.setter
-    def email(self, email):
-        self.__email = email
+    def email(self, mail):
+        self.__email = mail
 
     @hybrid_property
     def personal_pass(self):
         return self.__personal_pass
 
     @personal_pass.setter
-    def personal_pass(self, personal_pass):
-        self.__personal_pass = personal_pass
+    def personal_pass(self, name):
+        self.__personal_pass = name
 
 
 class OtherInfo(Base):

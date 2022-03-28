@@ -1,6 +1,6 @@
 from typing import Literal
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup
 
 from utils.misc.other_funcs import create_keyboard_button
 

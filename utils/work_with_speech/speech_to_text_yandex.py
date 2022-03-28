@@ -1,31 +1,31 @@
+from typing import Optional
+
 from aiohttp import ClientSession
 
 from loader import logger_guru
 from ..misc.enums_data import ApiInfo
 
 
-
-
-async def recognize_speech_by_ya(msg: bytes, FOLDER_ID: str, API_YA_STT: str) -> str:
+async def recognize_speech_by_ya(msg: bytes, folder_id: str, api_ya_stt: str) -> Optional[str]:
     """
     We recognize the voice by means of the Yandex Speech API service.
     :param msg: voice message
-    :param FOLDER_ID: your cloud name Yandex
-    :param API_YA_STT: API key
+    :param folder_id: your cloud name Yandex
+    :param api_ya_stt: API key
     :return: what recognized
     """
     url: str = ApiInfo.STT_YANDEX.value
-    headers: dict = {'Authorization': f'Api-Key {API_YA_STT}'}
+    headers: dict = {'Authorization': f'Api-Key {api_ya_stt}'}
     params: dict = {
         'topic': 'general',
-        'folderId': FOLDER_ID,
+        'folderId': folder_id,
         'lang': 'ru-RU'
     }
     try:
         async with ClientSession() as session:
             async with session.post(url=url, headers=headers, data=msg, params=params) as resp:
-                result = await resp.json()
-        text: str = result.get('result')
-        return text
-    except:
-        logger_guru.warning('BAD REQUEST : Error in Yandex STT func')
+                if resp.status == 200:
+                    result: dict = await resp.json()
+                    return result.get('result')
+    except Exception as err:
+        logger_guru.warning(f'{repr(err)} : Error in Yandex STT func')

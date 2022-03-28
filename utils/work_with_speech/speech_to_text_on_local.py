@@ -7,8 +7,6 @@ from vosk import Model, KaldiRecognizer
 from loader import logger_guru
 
 
-
-
 @logger_guru.catch()
 def recognize_locally(name_file: str) -> str:
     """

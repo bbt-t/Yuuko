@@ -1,5 +1,6 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ContentType
+from aiohttp.http_exceptions import HttpBadRequest
 
 from config import bot_config
 from loader import dp, logger_guru
@@ -10,22 +11,17 @@ from utils.work_with_speech.speech_to_text_on_local import recognize_locally
 from utils.work_with_speech.speech_to_text_yandex import recognize_speech_by_ya
 
 
-@rate_limit(5)
+@rate_limit(10)
 @dp.message_handler(content_types=ContentType.VOICE)
 async def determine_further_path(message: Message, state: FSMContext) -> None:
     file_id: str = message.voice.file_id
-    try:
-        msg: bytes = await message.bot.download_file_by_id(file_id)
-        text: str = await recognize_speech_by_ya(
-            msg,
-            bot_config.work_with_api.yandex.FOLDER_ID,
-            bot_config.work_with_api.yandex.API_YA_STT,
-        )
-        if not text:
-            raise AttributeError('BAD REQUEST')
-    except:
-        logger_guru.exception(f'{message.from_user.id} : unsuccessful request STT YANDEX!')
-
+    msg: bytes = await message.bot.download_file_by_id(file_id)
+    text: str = await recognize_speech_by_ya(
+        msg,
+        bot_config.work_with_api.yandex.FOLDER_ID,
+        bot_config.work_with_api.yandex.API_YA_STT,
+    )
+    if not text:
         name_file: str = f"{file_id}.ogg"
         file_path = (await message.bot.get_file(file_id)).file_path
         await message.bot.download_file(file_path, name_file)

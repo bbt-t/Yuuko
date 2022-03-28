@@ -27,8 +27,13 @@ async def lunar_calendar_haircut() -> Optional[str]:
 
         items = soup.find_all(class_='next_phase month_row green2')
         return ','.join(
-            sorted({data.text.split()[0] for data in items if data.find('span', style='font-weight: bold;')},
-                   key=int)
+            sorted(
+                {
+                    soup_data.text.split()[0] for soup_data in items
+                    if soup_data.find('span', style='font-weight: bold;')
+                },
+                key=int
+            )
         )
 
     if not isinstance(dp. storage, RedisStorage2):

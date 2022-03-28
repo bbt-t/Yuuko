@@ -7,7 +7,6 @@ from click import command, option
 
 from config import bot_config
 from loader import dp, scheduler, logger_guru
-#from tests.schemas.pydantic_schemas import WebHook
 from utils.database_manage.redis.clear_redis_data import clear_redis
 from utils.database_manage.sql.sql_commands import start_db
 from utils.misc.notify_admins import on_startup_notify, on_shutdown_notify
@@ -71,7 +70,7 @@ def _start_bot(storage: Optional[Literal['mem', 'redis']], method: Optional[Lite
     """
     if storage == 'mem':
         dp.__setattr__('storage', MemoryStorage())
-    if method == 'webhook': #and WebHook.parse_obj(hook_info):
+    if method == 'webhook':
         logger_guru.warning('---> With webhook --->')
 
         StartBotCompose.webhook = True

@@ -53,8 +53,9 @@ async def send_synthesize_voice_by_ya(
     Sends a message with the synthesize voice message
     :param telegram_id: user id
     :param text: text for synthesis
-    :param: folder: your cloud name Yandex
-    :param: api_ya_tts: api-key
+    :param lang: language
+    :param folder: your cloud name Yandex
+    :param api_ya_tts: api-key
     :return: voice message
     """
     text_msg: bytes = await synthesize_voice_by_ya(folder, api_ya_tts, text, lang)
@@ -70,8 +71,8 @@ async def send_todo_msg(
     Sends a message with the synthesize voice message
     :param telegram_id: telegram id of the person to whom the message will be sent
     :param is_voice: send voice message or not
-    :param: folder: your cloud name Yandex
-    :param: api_ya_tts: api-key
+    :param folder: your cloud name Yandex
+    :param api_ya_tts: api-key
     :return: voice message and text message
     """
     name, date = f'todo_{telegram_id}', get_time_now(bot_config.time_zone).strftime('%Y-%m-%d')
@@ -80,7 +81,7 @@ async def send_todo_msg(
         todo_obj: DefaultDict = await load_todo_obj()
         text_msg: str = '\n\n'.join(f"{i}. {val}" for i, val in enumerate(todo_obj[name][date], 1))
     except KeyError:
-        # await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланировано 🥱')
+        await dp.bot.send_message(telegram_id, 'На сегодня ничего не было запланировано 🥱')
         await dp.bot.unpin_all_chat_messages(chat_id=telegram_id)
     else:
         if is_voice:

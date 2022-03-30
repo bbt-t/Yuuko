@@ -16,7 +16,7 @@ class CalendarBot:
     """
     __slots__ = 'lang', 'month', 'year', 'names_on_calendar'
 
-    callback = CallbackData('dialog_calendar', 'run', 'year', 'month', 'day')
+    callback = CallbackData('calendar_main', 'select', 'year', 'month', 'day')
     ignore_callback = callback.new("IGNORE", -1, -1, -1)
 
     def __init__(self, tz: str = bot_config.time_zone, lang: Literal['ru', 'en'] = 'ru') -> None:
@@ -144,7 +144,7 @@ class CalendarBot:
             if isinstance(data.get(item), str):
                 data[item]: int = int(data[item])
 
-        match data.get('run'):
+        match data.get('select'):
             case 'IGNORE':
                 await query.answer(cache_time=60)
             case 'SET-YEAR':

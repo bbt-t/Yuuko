@@ -20,7 +20,7 @@ async def weather_notification_off(call: CallbackQuery, state: FSMContext) -> No
     try:
         scheduler.remove_job(job_id=f'weather_add_id_{call.from_user.id}')
     except JobLookupError:
-        await call.answer('Ничего нет...' if lang == 'ru' else 'Job not found!', show_alert=True)
+        await call.answer('уже было выключено' if lang == 'ru' else 'Job not found!', show_alert=True)
     else:
         await call.answer('Оповещение о погоде выключено!', show_alert=True)
     finally:

@@ -1,6 +1,4 @@
-from collections import defaultdict
 from datetime import timedelta
-from typing import DefaultDict, Mapping
 
 from ujson import loads as ujson_loads
 from ujson import dumps as ujson_dumps
@@ -11,25 +9,23 @@ from loader import dp, logger_guru
 from utils.misc.other_funcs import get_time_now
 
 
-async def dump_todo_obj(todo_obj: DefaultDict | dict[str, dict[str, list]]) -> None:
+async def dump_todo_obj(todo_obj: dict) -> None:
     """
     Save todo_obj to json-file.
-    :param todo_obj: all_todo
+    :param todo_obj: all_todo object in dict
     """
-    data = ujson_dumps(todo_obj)
+    data: str = ujson_dumps(todo_obj)
     async with aiofiles_open('data/db/data_todo.json', mode='w') as f:
         await f.write(data)
 
 
-async def load_todo_obj() -> DefaultDict:
+async def load_todo_obj() -> dict[str, dict[str, list]]:
     """
     Read ToDo_object.
     """
-    todo_obj: DefaultDict = defaultdict(dict)
     try:
         async with aiofiles_open('data/db/data_todo.json', mode='r') as f:
-            read_obj: dict[str, dict[str, list]] = ujson_loads(await f.read())
-            todo_obj |= read_obj
+            todo_obj: dict[str, dict[str, list]] = ujson_loads(await f.read())
     except FileNotFoundError as err:
         logger_guru.warning(f'{repr(err)} : Obj todo not found, create new entry. . .')
     return todo_obj

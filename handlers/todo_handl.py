@@ -1,5 +1,3 @@
-from typing import DefaultDict
-
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -76,18 +74,18 @@ async def set_calendar_date(message: Message, state: FSMContext) -> None:
 
     if len(message.text) <= 1000:
         message_task: list = [item for item in message.text.split('\n') if item]
-        todo_obj: DefaultDict = await load_todo_obj()
+        todo_obj: dict = await load_todo_obj()
         try:
             todo_obj[name][date].extend(message_task)
         except KeyError:
-            todo_obj[name][date] = message_task
+            todo_obj[name].setdefault(date, message_task)
+        else:
+            await dump_todo_obj(todo_obj)
         finally:
             await message.delete()
             await state.finish()
 
         result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
-
-        await dump_todo_obj(todo_obj)
 
         await message.answer_sticker(skin.great.value, disable_notification=True)
         send_msg: Message = await message.answer(

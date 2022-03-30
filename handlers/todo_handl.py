@@ -21,11 +21,11 @@ async def bot_todo(message: Message, state: FSMContext):
     if lang == 'ru':
         await message.answer(
             '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
-            reply_markup=await calendar_bot_ru.enable())
+            reply_markup=calendar_bot_ru.enable())
     else:
         await message.answer(
             '<code>Привет! :)\nдавай запишем что сделать и когда</code>',
-            reply_markup=await calendar_bot_en.enable())
+            reply_markup=calendar_bot_en.enable())
 
     await TodoStates.first()
     async with state.proxy() as data:
@@ -46,12 +46,12 @@ async def process_simple_calendar(call: CallbackQuery, callback_data, state: FSM
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(
-                    'Ты не можешь выбрать эту дату!', reply_markup=await calendar_bot_ru.enable()
+                    'Ты не можешь выбрать эту дату!', reply_markup=calendar_bot_ru.enable()
                 )
             else:
                 await call.answer('You can only choose today and later!', show_alert=True)
                 await call.message.answer(
-                    "You can't choose this date!", reply_markup=await calendar_bot_ru.enable()
+                    "You can't choose this date!", reply_markup=calendar_bot_ru.enable()
                 )
         else:
             async with state.proxy() as data:
@@ -76,12 +76,13 @@ async def set_calendar_date(message: Message, state: FSMContext) -> None:
         message_task: list = [item for item in message.text.split('\n') if item]
         todo_obj: dict = await load_todo_obj()
         try:
-            todo_obj[name][date].extend(message_task)
+            todo_obj.setdefault(name, {})[date].extend(message_task)
         except KeyError:
             todo_obj[name].setdefault(date, message_task)
         else:
             await dump_todo_obj(todo_obj)
         finally:
+            await dump_todo_obj(todo_obj)
             await message.delete()
             await state.finish()
 

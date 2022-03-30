@@ -117,12 +117,12 @@ async def indicate_date_of_birth(call: CallbackQuery, state: FSMContext) -> None
     if lang == 'ru':
         removing_msg: Message = await call.message.answer(
             'Укажи свой ДР (настоящий, его всё равно никто не увидит кроме меня 😏',
-            reply_markup=await calendar_bot_ru.enable()
+            reply_markup=calendar_bot_ru.enable()
         )
     else:
         removing_msg: Message = await call.message.answer(
             'Specify your DR (real, no one will see it except me anyway 😏',
-            reply_markup=await calendar_bot_en.enable()
+            reply_markup=calendar_bot_en.enable()
         )
 
     await state.set_state('set_birthday_and_todo')
@@ -144,12 +144,12 @@ async def birthday_simple_calendar(call: CallbackQuery, callback_data, state: FS
             if lang == 'ru':
                 await call.answer('Выбрать можно только на сегодня и позже !', show_alert=True)
                 await call.message.answer(
-                    'Ты не можешь выбрать эту дату!', reply_markup=await calendar_bot_ru.enable()
+                    'Ты не можешь выбрать эту дату!', reply_markup=calendar_bot_ru.enable()
                 )
             else:
                 await call.answer('You can only choose today and later!', show_alert=True)
                 await call.message.answer(
-                    "You can't choose this date!", reply_markup=await calendar_bot_en.enable()
+                    "You can't choose this date!", reply_markup=calendar_bot_en.enable()
                 )
         else:
             await DB_USERS.update_birthday(telegram_id=call.from_user.id, birthday=date)

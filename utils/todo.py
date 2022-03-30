@@ -28,6 +28,7 @@ async def load_todo_obj() -> dict[str, dict[str, list]]:
             todo_obj: dict[str, dict[str, list]] = ujson_loads(await f.read())
     except FileNotFoundError as err:
         logger_guru.warning(f'{repr(err)} : Obj todo not found, create new entry. . .')
+        todo_obj: dict = {}
     return todo_obj
 
 

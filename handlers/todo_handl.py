@@ -1,3 +1,5 @@
+from typing import Generator
+
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -73,21 +75,14 @@ async def set_calendar_date(message: Message, state: FSMContext) -> None:
     name, skin = f'todo_{user_id}', await DB_USERS.select_skin(telegram_id=user_id)
 
     if len(message.text) <= 1000:
-        message_task: list = [item for item in message.text.split('\n') if item]
+        message_task: Generator = (item for item in message.text.split('\n') if item)
         todo_obj: dict = await load_todo_obj()
-        try:
-            todo_obj.setdefault(name, {})[date].extend(message_task)
-        except KeyError:
-            todo_obj[name].setdefault(date, message_task)
-        else:
-            await dump_todo_obj(todo_obj)
-        finally:
-            await dump_todo_obj(todo_obj)
-            await message.delete()
-            await state.finish()
+
+        todo_obj.setdefault(name, {}).setdefault(date, []).extend(message_task)
 
         result: str = '\n'.join(f"<code>{i})</code> <b>{val}</b>" for i, val in enumerate(todo_obj[name][date], 1))
 
+        await message.delete()
         await message.answer_sticker(skin.great.value, disable_notification=True)
         send_msg: Message = await message.answer(
             f'Вот список на этот день:\n\n{result}' if lang == 'ru' else
@@ -107,6 +102,8 @@ async def set_calendar_date(message: Message, state: FSMContext) -> None:
                 replace_existing=True,
                 timezone="Europe/Moscow"
             )
+            await dump_todo_obj(todo_obj)
+            await state.finish()
     else:
         logger_guru.warning(f'{user_id=} Trying to write a message that is too large.')
         await message.answer_sticker(skin.you_were_bad.value, disable_notification=True)

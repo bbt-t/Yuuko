@@ -132,7 +132,6 @@ class ConfigBot:
     redis: ConfigRedis
     hook_info: ConfigHook
     work_with_api: ConfigAPI
-    DB_NAME: str = 'database'
     time_zone: str = 'UTC'
 
     def __post_init__(self):
@@ -151,7 +150,6 @@ def create_config() -> ConfigBot:
     return ConfigBot(
         time_zone=getenv('TIMEZONE'),
         BOT_TOKEN=getenv('BOT_TOKEN'),
-        DB_NAME=getenv('DB_NAME'),
         bot_administrators=Administrators(creator=getenv('CREATOR')),
         redis=ConfigRedis(
             redis_for_bot=MainRedis(

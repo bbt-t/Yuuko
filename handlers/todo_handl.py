@@ -11,7 +11,7 @@ from middlewares.throttling import rate_limit
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.keyboards.calendar import calendar_bot_en, calendar_bot_ru, CalendarBot
 from utils.misc.other_funcs import get_time_now
-from utils.todo import load_todo_obj, dump_todo_obj, pin_todo_message
+from utils.todo_service import load_todo_obj, dump_todo_obj, pin_todo_message
 
 
 @rate_limit(2, key='todo')

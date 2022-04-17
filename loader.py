@@ -25,7 +25,7 @@ scheduler.configure(
     logger=logger_guru)
 
 Base = declarative_base()
-engine = create_async_engine(f'sqlite+aiosqlite:///data/db/{bot_config.DB_NAME}', future=True)
+engine = create_async_engine('sqlite+aiosqlite:///data/db/sql_db_bot.db', future=True)
 
 logger_guru.add(
     'data/logs/logging-bot.log',

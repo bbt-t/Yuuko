@@ -9,8 +9,8 @@ from config import bot_config
 from loader import dp, logger_guru
 from .other_funcs import get_time_now
 from ..database_manage.sql.sql_commands import DB_USERS
-from ..todo import load_todo_obj
-from ..weather_compilation import create_weather_forecast
+from ..todo_service import load_todo_obj
+from ..creation_weather_forecast import create_weather_forecast
 from ..work_with_speech.text_to_speech_yandex import synthesize_voice_by_ya
 
 

@@ -12,3 +12,5 @@ async def clear_redis() -> None:
     if isinstance(dp.storage, RedisStorage2):
         async with aioredis_from_url(**bot_config.redis.redis_data_cache.as_dict()) as connect:
             await connect.flushall()
+        async with aioredis_from_url(**bot_config.redis.redis_for_bot.as_dict()) as connect:
+            await connect.flushall()

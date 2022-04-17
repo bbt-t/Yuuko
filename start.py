@@ -12,7 +12,7 @@ from utils.database_manage.sql.sql_commands import start_db
 from utils.misc.notify_admins import on_startup_notify, on_shutdown_notify
 from utils.misc.other_funcs import clear_all_pin_msg
 from utils.misc.set_bot_commands import set_default_commands
-from utils.todo import delete_all_todo
+from utils.todo_service import delete_all_todo
 
 import handlers
 from middlewares import setup

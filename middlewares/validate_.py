@@ -5,7 +5,7 @@ from aioredis.exceptions import ConnectionError
 from sqlalchemy.exc import NoResultFound
 
 from config import bot_config
-from loader import dp
+from loader import dp, logger_guru
 from utils.database_manage.sql.sql_commands import DB_USERS
 from utils.misc.notify_admins import on_shutdown_notify
 
@@ -50,6 +50,11 @@ class CustomValidate(BaseMiddleware):
                 lang, skin = await DB_USERS.select_lang_and_skin(telegram_id=message.from_user.id)
             except NoResultFound:
                 await message.answer(text_msg_en)
+            except BaseException as err:
+                logger_guru.critical(f"{repr(err)}")
+                await dp.bot.send_message(
+                    chat_id=bot_config.bot_administrators.creator,
+                    text=f'⚠ <b>Error:</b> ⚠ {repr(err)}')
             else:
                 await message.answer_sticker(skin.something_is_wrong.value)
                 await message.answer(text_msg_ru if lang == 'ru' else text_msg_en)

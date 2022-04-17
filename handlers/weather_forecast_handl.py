@@ -55,7 +55,7 @@ async def weather_notification_on(call: CallbackQuery, state: FSMContext) -> Non
 
 
 @dp.message_handler(state=UserSettingStates.weather_on, content_types=[ContentType.VOICE, ContentType.TEXT])
-async def start_weather(message: Message, state: FSMContext) -> None:
+async def get_weather_forecast(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         lang: str = data.get('lang')
 

@@ -11,7 +11,7 @@ from .horoscope_handl import dp
 from .calendar_haircut_handl import dp
 from .stt_handl import dp
 from .admins_tools_handl import dp
-from .weather_status_handl import dp
+from .weather_forecast_handl import dp
 from .day_todo_notification import dp
 from .changing_stickerpack_handl import dp
 from .recipes_handl import dp
